@@ -1,0 +1,3198 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Adelina Vancea — Cinematographer & Photographer, Tokyo</title>
+    <meta
+      name="description"
+      content="Adelina Vancea — cinematographer, camera operator, photographer & editor based in Tokyo. Scrub the reel like a timeline."
+    />
+    <link rel="icon" href="data:," />
+    <meta
+      property="og:title"
+      content="Adelina Vancea — Cinematographer & Photographer"
+    />
+    <meta
+      property="og:description"
+      content="A portfolio that plays like a timeline. Cinematographer & photographer based in Tokyo."
+    />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      :root {
+        --teal: #2ddcc4;
+        --teal-dim: #1a8f82;
+        --teal-label: #7ff0de;
+        --teal-rgb: 45, 220, 196;
+        --amber: #ff9d5c;
+        --bg: #05090a;
+        --bg2: #0a1314;
+        --bg3: #0d1a1b;
+        --white: #edf5f4;
+        --muted: #93a9a6;
+        --border: rgba(255, 255, 255, 0.08);
+        --font-display: "Anton", sans-serif;
+        --font-mono: "IBM Plex Mono", monospace;
+        --font-body: "Inter", sans-serif;
+        --timeline-h: 84px;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        background: var(--bg);
+        background-image:
+          radial-gradient(
+            ellipse at 30% 20%,
+            rgba(var(--teal-rgb), 0.16) 0%,
+            transparent 55%
+          ),
+          radial-gradient(
+            ellipse at 80% 85%,
+            rgba(30, 40, 45, 0.3) 0%,
+            transparent 45%
+          );
+        color: var(--white);
+        font-family: var(--font-body);
+        font-weight: 300;
+        overflow: hidden;
+        transition: background-color 0.5s ease;
+      }
+
+      #three-canvas {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      /* ---------- intro hero photo: full-bleed, edge to edge, real photo carries the page ---------- */
+      .intro-photo {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        background-image: url("images/adelina-portrait.jpg");
+        background-size: cover;
+        background-position: 72% 22%;
+        filter: grayscale(0.12) contrast(1.08) saturate(0.85);
+      }
+      .intro-scrim {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        background: linear-gradient(
+          100deg,
+          var(--bg) 0%,
+          var(--bg) 26%,
+          rgba(5, 9, 10, 0.82) 44%,
+          rgba(5, 9, 10, 0.25) 64%,
+          transparent 80%
+        );
+      }
+      .intro-wash {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        mix-blend-mode: multiply;
+        background: linear-gradient(
+          160deg,
+          rgba(9, 25, 24, 0.4),
+          rgba(5, 9, 10, 0.05) 55%
+        );
+      }
+      #grain {
+        position: fixed;
+        inset: 0;
+        z-index: 5;
+        pointer-events: none;
+        opacity: 0.025;
+        mix-blend-mode: overlay;
+        background-repeat: repeat;
+      }
+
+      /* ---------- HUD ---------- */
+      .hud {
+        position: fixed;
+        top: 22px;
+        left: 28px;
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        color: rgba(237, 245, 244, 0.55);
+      }
+      .hud .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #e0413a;
+        animation: recBlink 1.4s infinite;
+      }
+      @keyframes recBlink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.2;
+        }
+      }
+      .logo-wrap {
+        position: fixed;
+        top: 20px;
+        right: 28px;
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .logo {
+        font-family: var(--font-display);
+        font-size: 17px;
+        letter-spacing: 0.1em;
+        color: var(--white);
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .menu-btn {
+        position: relative;
+        width: 32px;
+        height: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--white);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition:
+          border-color 0.3s,
+          background 0.3s;
+      }
+      .menu-btn:hover {
+        border-color: var(--teal);
+        background: rgba(var(--teal-rgb), 0.1);
+      }
+      @media (max-width: 768px) {
+        .logo-wrap {
+          top: 16px;
+          right: 16px;
+        }
+      }
+
+      /* ---------- nav menu: fullscreen overlay reached from the top-right menu button —
+         scene links front and center, accent theme picker anchored to the base ---------- */
+      .menu-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 900;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        background: rgba(5, 9, 10, 0.95);
+        backdrop-filter: blur(16px);
+        transition: opacity 0.35s ease;
+      }
+      .menu-overlay.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+      .menu-close {
+        position: absolute;
+        top: 22px;
+        right: 28px;
+        width: 38px;
+        height: 38px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--white);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition:
+          background 0.3s,
+          border-color 0.3s;
+      }
+      .menu-close:hover {
+        background: var(--teal);
+        border-color: var(--teal);
+        color: var(--on-accent, #04201c);
+      }
+      .menu-list {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+      }
+      .menu-item {
+        border: none;
+        background: none;
+        cursor: pointer;
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        font-family: var(--font-display);
+        font-size: clamp(28px, 5.5vw, 54px);
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        color: var(--muted);
+        transition: color 0.3s;
+        padding: 6px 10px;
+      }
+      .menu-item-num {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        letter-spacing: 0.1em;
+        color: var(--teal-label);
+        opacity: 0.7;
+      }
+      .menu-item:hover,
+      .menu-item.active {
+        color: var(--white);
+      }
+      .menu-themes {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+      }
+      .menu-theme-dot {
+        position: relative;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        transition: transform 0.2s ease;
+      }
+      .menu-theme-dot:hover {
+        transform: scale(1.15);
+      }
+      .menu-theme-dot.active {
+        width: 22px;
+        height: 22px;
+        box-shadow:
+          0 1px 3px rgba(0, 0, 0, 0.4),
+          0 0 0 2px rgba(5, 9, 10, 0.9),
+          0 0 0 3px rgba(255, 255, 255, 0.5);
+      }
+      @media (max-width: 768px) {
+        .menu-close {
+          top: 16px;
+          right: 16px;
+        }
+      }
+
+      /* ---------- cut transition: the whole scene dissolves into a dim, blurred hush,
+         the clapperboard's striped arm slams shut in the middle of it, then it all
+         dissolves back into the Reel — soft fades, not a hard blink ---------- */
+      .clap-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 970;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        opacity: 0;
+        background: rgba(5, 9, 10, 0.62);
+        backdrop-filter: blur(10px);
+        transition: opacity 0.6s ease;
+      }
+      .clap-overlay.show {
+        opacity: 1;
+      }
+      .clap-stack {
+        width: min(560px, 70vw);
+        filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.6));
+        opacity: 0;
+        transform: scale(0.45);
+        transition:
+          opacity 0.65s ease,
+          transform 0.75s cubic-bezier(0.16, 0.7, 0.2, 1);
+      }
+      .clap-overlay.show .clap-stack {
+        opacity: 1;
+        transform: scale(1);
+      }
+      .clap-bar {
+        height: 46px;
+        background: repeating-linear-gradient(
+          -35deg,
+          #eee 0 20px,
+          #111 20px 40px
+        );
+        border: 3px solid #000;
+      }
+      .clap-top {
+        transform: rotate(-16deg);
+        transform-origin: left center;
+        transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1);
+        margin-bottom: -3px;
+      }
+      .clap-top.clap {
+        transform: rotate(0deg);
+      }
+
+      /* ---------- stage / scenes ---------- */
+      .stage {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: var(--timeline-h);
+        overflow: hidden;
+        z-index: 1;
+      }
+      .scene-track {
+        display: flex;
+        height: 100%;
+        transition: transform 0.85s cubic-bezier(0.65, 0, 0.2, 1);
+        will-change: transform;
+      }
+      .scene {
+        width: 100vw;
+        height: 100%;
+        flex-shrink: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 112px 8% 40px 8%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        opacity: 0.25;
+        transition: opacity 0.6s ease;
+      }
+      .intro-wrap {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 0;
+      }
+      /* used by Photo & Credits: keeps the eyebrow/title pinned, only this part scrolls/advances */
+      .scroll-body {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        margin-top: 8px;
+        padding-right: 22px;
+      }
+      .scroll-body::-webkit-scrollbar {
+        width: 5px;
+      }
+      .scroll-body::-webkit-scrollbar-thumb {
+        background: rgba(var(--teal-rgb), 0.3);
+      }
+      .scene.active {
+        opacity: 1;
+      }
+      .scene::-webkit-scrollbar {
+        width: 5px;
+      }
+      .scene::-webkit-scrollbar-thumb {
+        background: rgba(var(--teal-rgb), 0.3);
+      }
+
+      .eyebrow {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: var(--teal-label);
+        margin-bottom: 18px;
+      }
+      .scene-title {
+        font-family: var(--font-display);
+        font-size: clamp(34px, 6vw, 76px);
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        line-height: 1.02;
+        margin-bottom: 20px;
+      }
+
+      /* ---------- intro ---------- */
+      #scene-intro {
+        position: relative;
+      }
+      #scene-intro .intro-wrap {
+        position: relative;
+        z-index: 1;
+        max-width: 620px;
+      }
+      #scene-intro .intro-name {
+        font-family: var(--font-display);
+        font-size: clamp(52px, 9vw, 120px);
+        line-height: 0.94;
+        letter-spacing: 0.01em;
+        text-transform: uppercase;
+      }
+      .intro-handle {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        margin-top: 16px;
+        font-family: var(--font-mono);
+        font-size: 14px;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+      .intro-handle::before {
+        content: "@";
+        opacity: 0.6;
+      }
+      .intro-handle .noir {
+        color: var(--teal-label);
+        font-weight: 600;
+      }
+      .intro-handle:hover {
+        color: var(--white);
+      }
+      .intro-sub {
+        font-size: 17px;
+        color: var(--muted);
+        max-width: 480px;
+        line-height: 1.7;
+        margin-top: 22px;
+        font-weight: 300;
+      }
+      .intro-hint {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 34px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .intro-hint::before {
+        content: "↓";
+        color: var(--teal-label);
+        animation: bob 1.6s ease-in-out infinite;
+      }
+      .intro-hint .hint-accent {
+        color: var(--teal-label);
+        font-weight: 500;
+      }
+      @keyframes bob {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(4px);
+        }
+      }
+      .intro-actions {
+        display: flex;
+        gap: 14px;
+        margin-top: 34px;
+        flex-wrap: wrap;
+      }
+      .btn-primary {
+        /* font-family: var(--font-mono); */
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #04201c;
+        background: radial-gradient(
+          ellipse 85% 55% at center,
+          color-mix(in srgb, var(--teal) 78%, white 22%) 0%,
+          var(--teal) 80%
+        );
+        padding: 15px 28px;
+        text-decoration: none;
+        transition:
+          background 0.3s,
+          transform 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 800;
+        border: none;
+        cursor: pointer;
+      }
+      .btn-primary:hover {
+        background: radial-gradient(
+          ellipse 85% 55% at center,
+          color-mix(in srgb, var(--teal-label) 78%, white 22%) 0%,
+          var(--teal-label) 80%
+        );
+        transform: translateY(-2px);
+      }
+      .btn-primary:disabled {
+        opacity: 0.6;
+        pointer-events: none;
+        transform: none;
+      }
+      .btn-ghost {
+        font-family: var(--font-mono);
+        font-size: 11.5px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        padding: 15px 28px;
+        text-decoration: none;
+        transition:
+          color 0.3s,
+          border-color 0.3s,
+          transform 0.2s;
+        display: inline-block;
+        cursor: pointer;
+        background: none;
+      }
+      .btn-ghost:hover {
+        color: var(--white);
+        border-color: rgba(255, 255, 255, 0.34);
+        transform: translateY(-2px);
+      }
+
+      /* ---------- reel ---------- */
+      .reel-note {
+        font-size: 14.5px;
+        color: var(--muted);
+        max-width: 440px;
+        margin-bottom: 34px;
+        line-height: 1.6;
+      }
+      /* one continuous film-stock surface — same base color throughout, with real punched-through
+         sprocket holes along the top/bottom edges (mask, not a drawn dot) so the animated background
+         actually shows through the holes, like light through real film perforations */
+      .filmstrip-outer {
+        position: relative;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        min-height: 0;
+        padding: 20px 0;
+        background: #181818;
+        border-top: 3px solid #0a0908;
+        border-bottom: 3px solid #0a0908;
+      }
+      .filmstrip-outer::before,
+      .filmstrip-outer::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 20px;
+        background: #181818;
+        mask-mode: alpha;
+        -webkit-mask-mode: alpha;
+        mask-image: radial-gradient(
+          circle,
+          transparent 0 6px,
+          black 6.6px 100%
+        );
+        -webkit-mask-image: radial-gradient(
+          circle,
+          transparent 0 6px,
+          black 6.6px 100%
+        );
+        mask-repeat: repeat-x;
+        -webkit-mask-repeat: repeat-x;
+        mask-size: 30px 100%;
+        -webkit-mask-size: 30px 100%;
+      }
+      .filmstrip-outer::before {
+        top: -20px;
+      }
+      .filmstrip-outer::after {
+        bottom: -20px;
+      }
+      .filmstrip {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        overflow-x: auto;
+        width: 100%;
+        padding: 0 4px 6px;
+        scrollbar-width: none;
+      }
+      .filmstrip::-webkit-scrollbar {
+        display: none;
+      }
+      /* floating nudge buttons, parked just outside the film itself — never sit on the
+         clips or frame them, so they read as a separate control, not part of the reel */
+      .filmstrip-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 3;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(5, 9, 10, 0.55);
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--muted);
+        cursor: pointer;
+        opacity: 0.75;
+        transition:
+          opacity 0.25s ease,
+          color 0.25s ease,
+          border-color 0.25s ease;
+      }
+      .filmstrip-nav.left {
+        left: -16px;
+      }
+      .filmstrip-nav.right {
+        right: -16px;
+      }
+      .filmstrip-nav:hover {
+        opacity: 1;
+        color: var(--teal-label);
+        border-color: var(--teal);
+      }
+      .filmstrip-nav:active svg {
+        transform: scale(0.85);
+      }
+      .filmstrip-nav svg {
+        transition: transform 0.15s ease;
+      }
+      .reel-card {
+        position: relative;
+        flex-shrink: 0;
+        height: min(46vh, 380px);
+        width: auto;
+        aspect-ratio: 16/9;
+        background: var(--bg3);
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.4s ease;
+      }
+      .reel-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        filter: brightness(0.62) saturate(0.9);
+        transition:
+          filter 0.4s,
+          transform 0.5s;
+      }
+      .reel-card:hover img,
+      .reel-card.active img {
+        filter: brightness(1) saturate(1);
+        transform: scale(1.04);
+      }
+      .reel-card.active {
+        transform: scale(1.04);
+      }
+      .reel-play {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 44px;
+        height: 44px;
+        transform: translate(-50%, -50%);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+          border-color 0.3s,
+          background 0.3s;
+      }
+      .reel-card:hover .reel-play,
+      .reel-card.active .reel-play {
+        border-color: var(--teal);
+        background: rgba(var(--teal-rgb), 0.14);
+      }
+      .reel-label {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 12px 14px;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.88), transparent);
+      }
+      .reel-label b {
+        display: block;
+        font-family: var(--font-display);
+        font-size: 14px;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: var(--white);
+      }
+      .reel-label span {
+        display: block;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--teal-label);
+        margin-top: 3px;
+      }
+
+      .video-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(3, 6, 7, 0.94);
+        backdrop-filter: blur(10px);
+        z-index: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+      }
+      .video-modal.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+      .video-modal-inner {
+        width: min(1000px, 88vw);
+        aspect-ratio: 16/9;
+        position: relative;
+      }
+      .video-modal-inner iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+      .video-modal-close {
+        position: absolute;
+        top: -44px;
+        right: 0;
+        width: 34px;
+        height: 34px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--white);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+      .video-modal-close:hover {
+        background: var(--teal);
+        border-color: var(--teal);
+        color: #04201c;
+      }
+
+      /* ---------- photography ---------- */
+      .photo-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-top: 8px;
+      }
+      .photo-card {
+        position: relative;
+        aspect-ratio: 1/1;
+        overflow: hidden;
+        text-decoration: none;
+        display: flex;
+        align-items: flex-end;
+        padding: 16px;
+      }
+      .photo-card-bg {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        transition: transform 0.6s ease;
+      }
+      .photo-card:hover .photo-card-bg {
+        transform: scale(1.06);
+      }
+      .photo-card::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to top,
+          rgba(0, 0, 0, 0.7) 0%,
+          transparent 75%
+        );
+        z-index: 1;
+      }
+      .photo-card-content {
+        position: relative;
+        z-index: 2;
+      }
+      .photo-card-content b {
+        display: block;
+        font-family: var(--font-display);
+        font-size: 16px;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: var(--white);
+      }
+      .photo-card-content span {
+        display: flex;
+        gap: 6px;
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--teal-label);
+        margin-top: 5px;
+        opacity: 0;
+        transform: translateY(4px);
+        transition:
+          opacity 0.3s,
+          transform 0.3s;
+      }
+      .photo-card:hover .photo-card-content span {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .photo-card {
+        transition:
+          transform 0.5s ease,
+          filter 0.5s ease;
+      }
+      .photo-card:hover {
+        filter: brightness(1.3) !important;
+      }
+      .photo-card.spotlight {
+        transform: scale(1.03);
+        filter: brightness(1.3);
+      }
+      .photo-card.spotlight .photo-card-content span {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .photo-grid:has(.spotlight) .photo-card:not(.spotlight) {
+        filter: brightness(0.5);
+      }
+      .photo-hint {
+        margin-top: 26px;
+        font-size: 12.5px;
+        color: var(--muted);
+      }
+
+      /* ---------- category view: full gallery grid for a photo category ---------- */
+      .cat-view {
+        position: fixed;
+        inset: 0;
+        z-index: 860;
+        background: var(--bg);
+        opacity: 0;
+        pointer-events: none;
+        overflow-y: auto;
+        transition: opacity 0.35s ease;
+      }
+      .cat-view.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+      .cat-view-head {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 26px 5% 20px;
+        background: linear-gradient(
+          rgba(5, 9, 10, 0.94),
+          rgba(5, 9, 10, 0.75) 65%,
+          transparent
+        );
+      }
+      .cat-view-title {
+        font-family: var(--font-display);
+        font-size: clamp(22px, 3.2vw, 38px);
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        color: var(--white);
+      }
+      .cat-view-close {
+        flex-shrink: 0;
+        width: 38px;
+        height: 38px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--white);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition:
+          background 0.3s,
+          border-color 0.3s;
+      }
+      .cat-view-close:hover {
+        background: var(--teal);
+        border-color: var(--teal);
+        color: #04201c;
+      }
+      .cat-view-grid {
+        column-count: 4;
+        column-gap: 14px;
+        padding: 4px 5% 70px;
+      }
+      .cat-view-grid img {
+        width: 100%;
+        display: block;
+        margin-bottom: 14px;
+        break-inside: avoid;
+        cursor: pointer;
+        background: var(--bg3);
+        filter: brightness(0.92);
+        transition:
+          filter 0.3s,
+          transform 0.3s;
+      }
+      .cat-view-grid img:hover {
+        filter: brightness(1.05);
+        transform: scale(1.015);
+      }
+      .cat-view-loading {
+        padding: 50px 5%;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--teal-label);
+      }
+      @media (max-width: 1100px) {
+        .cat-view-grid {
+          column-count: 3;
+        }
+      }
+      @media (max-width: 640px) {
+        .cat-view-grid {
+          column-count: 2;
+          column-gap: 8px;
+        }
+        .cat-view-grid img {
+          margin-bottom: 8px;
+        }
+      }
+
+      /* ---------- lightbox: single-photo viewer, blurred site behind, circular arrows ---------- */
+      .lightbox {
+        position: fixed;
+        inset: 0;
+        z-index: 920;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.35s ease;
+      }
+      .lightbox.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+      .lightbox::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        background: rgba(3, 6, 7, 0.6);
+        backdrop-filter: blur(42px) saturate(1.1);
+        -webkit-backdrop-filter: blur(42px) saturate(1.1);
+      }
+      .lightbox-stage {
+        position: relative;
+        z-index: 1;
+        max-width: 90vw;
+        max-height: 86vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .lightbox-img {
+        max-width: 90vw;
+        max-height: 86vh;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        display: block;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.65);
+      }
+      .lightbox-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 2;
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        background: rgba(5, 9, 10, 0.45);
+        color: var(--white);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        line-height: 1;
+        cursor: pointer;
+        opacity: 0;
+        transition:
+          opacity 0.25s,
+          background 0.25s,
+          border-color 0.25s;
+      }
+      .lightbox-stage:hover .lightbox-arrow {
+        opacity: 1;
+      }
+      .lightbox-arrow:hover {
+        background: rgba(var(--teal-rgb), 0.2);
+        border-color: var(--teal);
+      }
+      .lightbox-arrow.left {
+        left: -60px;
+      }
+      .lightbox-arrow.right {
+        right: -60px;
+      }
+      /* invisible hit-zone bigger than the visible circle, so a near-miss still hits the button */
+      .lightbox-arrow::before {
+        content: "";
+        position: absolute;
+        inset: -18px;
+      }
+      .lightbox-close {
+        position: absolute;
+        top: 26px;
+        right: 30px;
+        z-index: 3;
+        width: 38px;
+        height: 38px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        background: rgba(5, 9, 10, 0.45);
+        color: var(--white);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition:
+          background 0.3s,
+          border-color 0.3s;
+      }
+      .lightbox-close:hover {
+        background: var(--teal);
+        border-color: var(--teal);
+        color: #04201c;
+      }
+      @media (max-width: 768px) {
+        .lightbox-arrow {
+          opacity: 1;
+          width: 38px;
+          height: 38px;
+          font-size: 18px;
+        }
+        .lightbox-arrow.left {
+          left: 8px;
+        }
+        .lightbox-arrow.right {
+          right: 8px;
+        }
+      }
+
+      /* ---------- credits (shot list) ---------- */
+      .shotlist-head {
+        display: grid;
+        grid-template-columns: 70px 1.6fr 1.4fr 1fr 70px;
+        gap: 16px;
+        padding: 0 0 10px;
+        border-bottom: 1px solid var(--border);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .shotlist {
+        margin-top: 4px;
+      }
+      .shot-cat {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: var(--teal-label);
+        opacity: 0.8;
+        padding: 22px 0 10px;
+        display: block;
+      }
+      .shot-row {
+        display: grid;
+        grid-template-columns: 70px 1.6fr 1.4fr 1fr 70px;
+        gap: 16px;
+        align-items: center;
+        padding: 13px 0;
+        border-bottom: 1px solid var(--border);
+        text-decoration: none;
+        color: inherit;
+        transition:
+          padding-left 0.2s,
+          background 0.2s;
+      }
+      .shot-row:hover {
+        padding-left: 8px;
+        background: rgba(var(--teal-rgb), 0.04);
+      }
+      .shot-row:hover .shot-name {
+        color: var(--teal-label);
+      }
+      .shot-num {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--teal);
+      }
+      .shot-name {
+        font-family: var(--font-display);
+        font-size: 16px;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        color: var(--white);
+        transition: color 0.3s;
+      }
+      .shot-sub {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .shot-loc {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .shot-year {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--muted);
+        text-align: right;
+      }
+
+      /* ---------- about ---------- */
+      #scene-about .about-wrap {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 70px;
+        align-items: start;
+      }
+      .about-text {
+        font-size: 16.5px;
+        line-height: 1.8;
+        color: var(--muted);
+      }
+      .about-text strong {
+        color: var(--white);
+        font-weight: 500;
+      }
+      .about-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+        margin-top: 24px;
+      }
+      .about-tag {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        border: 1px solid var(--border);
+        padding: 7px 13px;
+        color: var(--muted);
+      }
+      .career-line {
+        position: relative;
+        padding-left: 26px;
+      }
+      .career-line::before {
+        content: "";
+        position: absolute;
+        left: 5px;
+        top: 6px;
+        bottom: 6px;
+        width: 1px;
+        background: linear-gradient(
+          to bottom,
+          var(--teal),
+          rgba(var(--teal-rgb), 0.05)
+        );
+      }
+      .career-item {
+        position: relative;
+        padding-bottom: 22px;
+        transition: opacity 0.6s ease;
+      }
+      .career-item:last-child {
+        padding-bottom: 0;
+      }
+      .career-item::before {
+        content: "";
+        position: absolute;
+        left: -26px;
+        top: 3px;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--bg);
+        border: 2px solid var(--teal);
+      }
+      .career-year {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--teal-label);
+        letter-spacing: 0.08em;
+      }
+      .career-item b {
+        display: block;
+        font-size: 14.5px;
+        font-weight: 500;
+        color: var(--white);
+        margin-top: 3px;
+      }
+      .career-item span {
+        display: block;
+        font-size: 12.5px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+
+      /* ---------- contact ---------- */
+      #scene-contact .contact-wrap {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 70px;
+        align-items: start;
+      }
+      .contact-intro {
+        font-size: 16px;
+        color: var(--muted);
+        line-height: 1.7;
+        margin-top: 18px;
+        max-width: 360px;
+      }
+      .contact-details {
+        margin-top: 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+      .contact-item-label {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--teal-label);
+        margin-bottom: 2px;
+        margin-top: 6px;
+      }
+      .contact-item-value {
+        font-size: 15px;
+        color: var(--white);
+      }
+      .contact-item-value a {
+        color: inherit;
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+        transition: border-color 0.3s;
+      }
+      .contact-item-value a:hover {
+        border-color: var(--teal);
+      }
+      .contact-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .form-group label {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .form-group input,
+      .form-group textarea,
+      .form-group select {
+        background: var(--bg3);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        color: var(--white);
+        padding: 13px 13px;
+        font-family: var(--font-body);
+        font-size: 14px;
+        font-weight: 300;
+        outline: none;
+        transition: border-color 0.3s;
+        width: 100%;
+        appearance: none;
+      }
+      .form-group input:focus,
+      .form-group textarea:focus,
+      .form-group select:focus {
+        border-color: rgba(var(--teal-rgb), 0.2);
+      }
+      .form-group textarea {
+        resize: vertical;
+        min-height: 96px;
+      }
+      .form-submit {
+        background: radial-gradient(
+          ellipse 85% 55% at center,
+          color-mix(in srgb, var(--teal) 78%, white 22%) 0%,
+          var(--teal) 80%
+        );
+        color: #04201c;
+        border: none;
+        padding: 13px 28px;
+        /* font-family: var(--font-mono); */
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition:
+          background 0.3s,
+          transform 0.2s;
+        align-self: flex-start;
+        margin-top: 20px;
+      }
+      .form-submit:hover {
+        background: radial-gradient(
+          ellipse 85% 55% at center,
+          color-mix(in srgb, var(--teal-label) 78%, white 22%) 0%,
+          var(--teal-label) 80%
+        );
+        transform: translateY(-2px);
+      }
+      .form-note {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+
+      /* ================= TIMELINE (main navigation) ================= */
+      .timeline-bar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: var(--timeline-h);
+        z-index: 100;
+        background: rgba(6, 11, 12, 0.92);
+        backdrop-filter: blur(14px);
+        border-top: 1px solid var(--border);
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 0 18px;
+      }
+      .tl-btn {
+        flex-shrink: 0;
+        width: 34px;
+        height: 34px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--white);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition:
+          border-color 0.3s,
+          background 0.3s;
+      }
+      .tl-btn:hover {
+        border-color: var(--teal);
+        background: rgba(var(--teal-rgb), 0.1);
+      }
+      .tl-btn.play {
+        background: var(--teal);
+        color: #04201c;
+        border-color: var(--teal);
+      }
+      .tl-btn.play:hover {
+        background: var(--teal-label);
+      }
+      .tl-track-wrap {
+        flex: 1;
+        position: relative;
+        height: 40px;
+        cursor: pointer;
+        touch-action: none;
+      }
+      .tl-track {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        gap: 2px;
+      }
+      .tl-clip {
+        position: relative;
+        height: 100%;
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+        overflow: hidden;
+        transition:
+          background 0.3s,
+          border-color 0.3s;
+      }
+      .tl-clip.active {
+        background: rgba(var(--teal-rgb), 0.06);
+        border-color: rgba(var(--teal-rgb), 0.42);
+      }
+      .tl-clip span {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .tl-clip.active span {
+        color: var(--teal-label);
+      }
+      .tl-playhead {
+        position: absolute;
+        top: -4px;
+        bottom: -4px;
+        width: 2px;
+        background: var(--teal);
+        left: 0%;
+        box-shadow: 0 0 8px rgba(var(--teal-rgb), 0.7);
+        pointer-events: auto;
+        cursor: grab;
+        transition: left 0.05s linear;
+      }
+      .tl-playhead::before {
+        content: "";
+        position: absolute;
+        top: -3px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--teal);
+      }
+      /* wider invisible hit-zone around the thin line, so grabbing it is easier */
+      .tl-playhead::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: -8px;
+        right: -8px;
+      }
+      .tl-track-wrap.dragging,
+      .tl-track-wrap.dragging .tl-playhead {
+        cursor: grabbing;
+      }
+
+      @media (max-width: 900px) {
+        #scene-about .about-wrap,
+        #scene-contact .contact-wrap {
+          grid-template-columns: 1fr;
+          gap: 40px;
+        }
+        #scene-intro .intro-wrap {
+          max-width: 100%;
+        }
+        .intro-scrim {
+          background: linear-gradient(
+            175deg,
+            rgba(5, 9, 10, 0.55) 0%,
+            rgba(5, 9, 10, 0.88) 55%,
+            var(--bg) 85%
+          );
+        }
+        .intro-photo {
+          background-position: center 12%;
+        }
+      }
+      @media (max-width: 768px) {
+        :root {
+          --timeline-h: 92px;
+        }
+        .scene {
+          padding: 84px 6% 22px 6%;
+        }
+        .reel-card {
+          height: min(28vh, 220px);
+        }
+        .photo-grid {
+          grid-template-columns: 1fr;
+        }
+        .shotlist-head,
+        .shot-row {
+          grid-template-columns: 34px 1fr 70px;
+        }
+        .shot-sub,
+        .shot-loc {
+          display: none;
+        }
+        .tl-clip span {
+          display: none;
+        }
+        .hud {
+          font-size: 9px;
+          top: 16px;
+          left: 16px;
+        }
+        .logo {
+          font-size: 14px;
+        }
+        .timeline-bar {
+          padding: 0 10px;
+          gap: 8px;
+        }
+        .tl-btn {
+          width: 30px;
+          height: 30px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="three-canvas"></canvas>
+    <div id="grain"></div>
+
+    <div class="hud">
+      <span class="dot"></span> <span id="hud-text">REC · SC 01 — INTRO</span>
+    </div>
+    <div class="logo-wrap" id="logo-wrap">
+      <a class="logo" id="logo-home">ADELINA</a>
+      <button
+        class="menu-btn"
+        id="menu-btn"
+        aria-label="Open menu"
+        aria-expanded="false"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M4 6h16M4 12h16M4 18h16"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+          />
+        </svg>
+      </button>
+    </div>
+    <div class="clap-overlay" id="clap-overlay">
+      <div class="clap-stack">
+        <div class="clap-bar clap-top" id="clap-top"></div>
+        <div class="clap-bar clap-bottom"></div>
+      </div>
+    </div>
+
+    <div class="menu-overlay" id="menu-overlay">
+      <button class="menu-close" id="menu-close" aria-label="Close menu">
+        ✕
+      </button>
+      <nav class="menu-list" id="menu-list"></nav>
+      <div class="menu-themes" id="menu-themes"></div>
+    </div>
+
+    <div class="stage">
+      <div class="scene-track" id="scene-track">
+        <section class="scene" id="scene-intro" data-scene="0">
+          <div class="intro-photo"></div>
+          <div class="intro-scrim"></div>
+          <div class="intro-wash"></div>
+          <div class="intro-wrap">
+            <div class="eyebrow">
+              Cinematographer — Camera Operator — Photographer — Editor
+            </div>
+            <h1 class="intro-name">Adelina<br />Vancea</h1>
+            <a
+              class="intro-handle"
+              href="https://www.instagram.com/noirdeline/"
+              target="_blank"
+              rel="noopener"
+              ><span class="noir">noir</span>deline</a
+            >
+            <p class="intro-sub">
+              Tokyo-based camera operator, 1st/2nd assistant camera,
+              photographer and editor. Two degrees — Cinematography and Computer
+              Science — one obsession: light.
+            </p>
+            <div class="intro-hint">
+              <span class="hint-accent">Transylvania</span> to
+              <span class="hint-accent">Tokyo</span> — always chasing the next
+              frame.
+            </div>
+            <div class="intro-actions">
+              <button class="btn-primary" id="roll-btn" onclick="pressPlay()">
+                ▶ Roll Camera
+              </button>
+              <button class="btn-ghost" onclick="goToScene(5)">
+                Cut to Contact →
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="scene" id="scene-reel" data-scene="1">
+          <div class="eyebrow">Selected Work</div>
+          <h2 class="scene-title">The Reel</h2>
+          <p class="reel-note">
+            Music videos, camera work and short films shot between 2023 and
+            2026, mostly around Tokyo.
+          </p>
+          <div class="filmstrip-outer">
+            <button
+              class="filmstrip-nav left"
+              id="filmstrip-prev"
+              aria-label="Scroll reel left"
+            >
+              <svg width="18" height="16" viewBox="0 0 28 24" fill="none">
+                <path
+                  d="M19 4l-8 8 8 8M11 4l-8 8 8 8"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+            <div class="filmstrip" id="filmstrip"></div>
+            <button
+              class="filmstrip-nav right"
+              id="filmstrip-next"
+              aria-label="Scroll reel right"
+            >
+              <svg width="18" height="16" viewBox="0 0 28 24" fill="none">
+                <path
+                  d="M9 4l8 8-8 8M17 4l8 8-8 8"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+          </div>
+        </section>
+
+        <section class="scene" id="scene-photo" data-scene="2">
+          <div class="eyebrow">Photography</div>
+          <h2 class="scene-title">Behind the Stills</h2>
+          <div class="scroll-body" id="photo-scroll">
+            <div class="photo-grid" id="photo-grid"></div>
+            <p class="photo-hint">
+              Live galleries for now — full-resolution originals landing here
+              soon.
+            </p>
+          </div>
+        </section>
+
+        <section class="scene" id="scene-credits" data-scene="3">
+          <div class="eyebrow">Filmography</div>
+          <h2 class="scene-title">Selected Credits</h2>
+          <div class="scroll-body" id="credits-scroll">
+            <div class="shotlist-head">
+              <div>SC#</div>
+              <div>Title</div>
+              <div>Role</div>
+              <div>Location</div>
+              <div style="text-align: right">Year</div>
+            </div>
+            <div class="shotlist" id="shotlist"></div>
+          </div>
+        </section>
+
+        <section class="scene" id="scene-about" data-scene="4">
+          <div class="eyebrow">Who's Behind the Camera</div>
+          <h2 class="scene-title">About</h2>
+          <div class="scroll-body" id="about-scroll">
+            <div class="about-wrap">
+              <div>
+                <p class="about-text">
+                  Born and raised in Transylvania, Romania — now based in
+                  <strong>Tokyo, Japan</strong>. Fluent in Romanian and English,
+                  conversational in Japanese. Drawn to music videos, commercials
+                  and film — and to what happens after the camera stops, in the
+                  edit.
+                </p>
+                <div class="about-tags">
+                  <div class="about-tag">Camera Operating</div>
+                  <div class="about-tag">1st / 2nd AC</div>
+                  <div class="about-tag">Video Editing</div>
+                  <div class="about-tag">Photography</div>
+                  <div class="about-tag">Tokyo-based</div>
+                </div>
+              </div>
+              <div class="career-line">
+                <div class="career-item">
+                  <div class="career-year">2018</div>
+                  <b>Production Assistant — Toni and Friends</b
+                  ><span>Cluj-Napoca, Romania</span>
+                </div>
+                <div class="career-item">
+                  <div class="career-year">2021–22</div>
+                  <b>Camera Trainee — Wednesday (Netflix)</b
+                  ><span>Bucharest, Romania</span>
+                </div>
+                <div class="career-item">
+                  <div class="career-year">2022–23</div>
+                  <b>Camera Crew — Stay Sharp Productions</b
+                  ><span>Bucharest, Romania · 22 projects in 6 months</span>
+                </div>
+                <div class="career-item">
+                  <div class="career-year">2023–24</div>
+                  <b
+                    >1st / 2nd AC — Adidas, Yokohama Tire, The Dragonfly, I am
+                    Samurai</b
+                  ><span>Japan</span>
+                </div>
+                <div class="career-item">
+                  <div class="career-year">2024</div>
+                  <b>Camera Crew & Editor — Pacific Bridge Media</b
+                  ><span>Tokyo, Japan</span>
+                </div>
+                <div class="career-item">
+                  <div class="career-year">2024–26</div>
+                  <b>Camera Operator & Editor — Music Videos</b
+                  ><span>Tokyo, Japan</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="scene" id="scene-contact" data-scene="5">
+          <div class="eyebrow">Contact</div>
+          <h2 class="scene-title">Let's Make Something</h2>
+          <div class="scroll-body" id="contact-scroll">
+            <div class="contact-wrap">
+              <div>
+                <p class="contact-intro">
+                  Have a project, a set, or a story that needs a camera? Reach
+                  out — replies within a day or two.
+                </p>
+                <div class="contact-details">
+                  <div>
+                    <div class="contact-item-label">Email</div>
+                    <div class="contact-item-value">
+                      <a href="mailto:komorebifilms21@gmail.com"
+                        >komorebifilms21@gmail.com</a
+                      >
+                    </div>
+                  </div>
+                  <div>
+                    <div class="contact-item-label">Instagram</div>
+                    <div class="contact-item-value">
+                      <a
+                        href="https://www.instagram.com/noirdeline/"
+                        target="_blank"
+                        rel="noopener"
+                        >@noirdeline</a
+                      >
+                    </div>
+                  </div>
+                  <div>
+                    <div class="contact-item-label">Based in</div>
+                    <div class="contact-item-value">Tokyo, Japan</div>
+                  </div>
+                </div>
+              </div>
+              <form
+                class="contact-form"
+                id="contact-form"
+                action="https://formspree.io/f/YOUR_FORM_ID"
+                method="POST"
+              >
+                <div class="form-group">
+                  <label>Full name</label
+                  ><input
+                    type="text"
+                    name="name"
+                    placeholder="Jane Doe"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Email</label
+                  ><input
+                    type="email"
+                    name="email"
+                    placeholder="you@example.com"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Project type</label>
+                  <select name="type">
+                    <option value="">Select...</option>
+                    <option>Music Video</option>
+                    <option>Commercial</option>
+                    <option>Film / TV</option>
+                    <option>Photography</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Message</label
+                  ><textarea
+                    name="message"
+                    placeholder="Tell me about your project..."
+                  ></textarea>
+                </div>
+                <button type="submit" class="form-submit">
+                  Send message →
+                </button>
+                <p class="form-note" id="form-note"></p>
+              </form>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="timeline-bar">
+      <button class="tl-btn" onclick="prevScene()" title="Previous">
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+        >
+          <polyline points="15,4 5,12 15,20" />
+        </svg>
+      </button>
+      <button
+        class="tl-btn play"
+        id="play-btn"
+        onclick="togglePlay()"
+        title="Play / Pause"
+      >
+        <svg
+          id="play-icon"
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <polygon points="5,3 19,12 5,21" />
+        </svg>
+      </button>
+      <button class="tl-btn" onclick="nextScene()" title="Next">
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+        >
+          <polyline points="9,4 19,12 9,20" />
+        </svg>
+      </button>
+      <div class="tl-track-wrap" id="tl-track-wrap">
+        <div class="tl-track" id="tl-track"></div>
+        <div class="tl-playhead" id="tl-playhead"></div>
+      </div>
+    </div>
+
+    <div class="video-modal" id="video-modal" onclick="videoBgClick(event)">
+      <div class="video-modal-inner">
+        <button class="video-modal-close" onclick="closeVideo()">✕</button>
+        <div id="video-embed"></div>
+      </div>
+    </div>
+
+    <div class="cat-view" id="cat-view">
+      <div class="cat-view-head">
+        <div class="cat-view-title" id="cat-view-title"></div>
+        <button class="cat-view-close" onclick="closeCatView()">✕</button>
+      </div>
+      <div class="cat-view-grid" id="cat-view-grid"></div>
+    </div>
+
+    <div class="lightbox" id="lightbox">
+      <div class="lightbox-stage" id="lightbox-stage">
+        <button
+          class="lightbox-arrow left"
+          onclick="lightboxNav(-1)"
+          aria-label="Previous"
+        >
+          ‹
+        </button>
+        <img class="lightbox-img" id="lightbox-img" src="" alt="" />
+        <button
+          class="lightbox-arrow right"
+          onclick="lightboxNav(1)"
+          aria-label="Next"
+        >
+          ›
+        </button>
+      </div>
+      <button
+        class="lightbox-close"
+        onclick="closeLightbox()"
+        aria-label="Close"
+      >
+        ✕
+      </button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+      /* =========================================================
+         SCENE / TIMELINE SYSTEM
+         The whole site is one horizontal reel. Scenes are "clips";
+         navigation happens through the bottom timeline scrubber,
+         not a conventional page menu.
+      ========================================================= */
+      const scenes = [
+        { key: "intro", name: "Intro", dur: 6 },
+        { key: "reel", name: "Reel", dur: 24 },
+        { key: "photo", name: "Photo", dur: 18 },
+        { key: "credits", name: "Credits", dur: 20 },
+        { key: "about", name: "About", dur: 16 },
+        { key: "contact", name: "Contact", dur: 10 },
+      ];
+      const total = scenes.reduce((a, s) => a + s.dur, 0);
+      const starts = [];
+      {
+        let acc = 0;
+        scenes.forEach((s) => {
+          starts.push(acc);
+          acc += s.dur;
+        });
+      }
+
+      const track = document.getElementById("scene-track");
+      const sceneEls = Array.from(document.querySelectorAll(".scene"));
+      const tlTrack = document.getElementById("tl-track");
+      const tlTrackWrap = document.getElementById("tl-track-wrap");
+      const tlPlayhead = document.getElementById("tl-playhead");
+      const hudText = document.getElementById("hud-text");
+      const playIcon = document.getElementById("play-icon");
+
+      let currentTime = 0.001;
+      let currentIndex = 0;
+      let isPlaying = false;
+      let dragging = false;
+
+      /* build timeline clips */
+      scenes.forEach((s, i) => {
+        const clip = document.createElement("div");
+        clip.className = "tl-clip";
+        clip.style.flex = s.dur;
+        clip.dataset.index = i;
+        clip.innerHTML = `<span>${String(i).padStart(2, "0")} — ${s.name.toUpperCase()}</span>`;
+        clip.addEventListener("click", () => {
+          if (!dragging) goToScene(i);
+        });
+        tlTrack.appendChild(clip);
+      });
+      const tlClips = Array.from(tlTrack.querySelectorAll(".tl-clip"));
+
+      function indexForTime(t) {
+        for (let i = scenes.length - 1; i >= 0; i--)
+          if (t >= starts[i]) return i;
+        return 0;
+      }
+
+      function renderUI() {
+        const idx = indexForTime(currentTime);
+        if (idx !== currentIndex) {
+          currentIndex = idx;
+          track.style.transform = `translateX(-${currentIndex * 100}vw)`;
+          sceneEls.forEach((el, i) =>
+            el.classList.toggle("active", i === currentIndex),
+          );
+          tlClips.forEach((c, i) =>
+            c.classList.toggle("active", i === currentIndex),
+          );
+          menuItems.forEach((m, i) =>
+            m.classList.toggle("active", i === currentIndex),
+          );
+          hudText.textContent = `REC · SC ${String(currentIndex + 1).padStart(2, "0")} — ${scenes[currentIndex].name.toUpperCase()}`;
+        }
+        tlPlayhead.style.left = (currentTime / total) * 100 + "%";
+        playIcon.innerHTML = isPlaying
+          ? '<rect x="5" y="3" width="5" height="18"/><rect x="14" y="3" width="5" height="18"/>'
+          : '<polygon points="5,3 19,12 5,21"/>';
+      }
+      // init active states
+      sceneEls[0].classList.add("active");
+      tlClips[0].classList.add("active");
+      renderUI();
+
+      function goToTime(t) {
+        currentTime = Math.max(0.001, Math.min(total - 0.001, t));
+        renderUI();
+        // scrub to any point and the scene's content (filmstrip/spotlight/credits/about) catches up
+        // to exactly where it would be if the timeline had actually played there
+        const idx = indexForTime(currentTime);
+        const progress = Math.min(
+          1,
+          Math.max(0, (currentTime - starts[idx]) / scenes[idx].dur),
+        );
+        updateSceneMotion(idx, progress);
+      }
+      function goToScene(i) {
+        isPlaying = false;
+        resetSceneMotion();
+        goToTime(starts[i] + 0.05);
+      }
+      function nextScene() {
+        goToScene(Math.min(scenes.length - 1, currentIndex + 1));
+      }
+      function prevScene() {
+        goToScene(Math.max(0, currentIndex - 1));
+      }
+      function pressPlay() {
+        const overlay = document.getElementById("clap-overlay");
+        const top = document.getElementById("clap-top");
+        overlay.classList.add("show"); // scene dissolves into a dim, blurred hush; the bar zooms in
+        setTimeout(() => {
+          top.classList.add("clap"); // the striped arm slams shut, centered in the hush
+          setTimeout(() => {
+            // swap the scene while everything is still fully hidden behind the hush
+            track.style.transition = "none";
+            goToScene(1);
+            isPlaying = true;
+            renderUI();
+            void track.offsetWidth;
+            track.style.transition = "";
+
+            // hold a beat on the hush, then dissolve the bar and the hush back out together, in sync
+            setTimeout(() => {
+              overlay.classList.remove("show");
+              top.classList.remove("clap");
+            }, 260);
+          }, 550);
+        }, 700);
+      }
+      function togglePlay() {
+        isPlaying = !isPlaying;
+        if (!isPlaying) resetSceneMotion();
+        renderUI();
+      }
+
+      /* content inside a scene keeps moving while it plays — filmstrip scrubs,
+         photo spotlight cycles, credits scroll like an end-crawl, about reveals
+         its timeline — so autoplay never just sits still on a static screen. */
+      let lastSpotlightIdx = -1;
+      let lastReelIdx = -1;
+      function updateSceneMotion(idx, progress) {
+        if (idx === 1 && filmstrip) {
+          const max = filmstrip.scrollWidth - filmstrip.clientWidth;
+          if (max > 0) filmstrip.scrollLeft = progress * max;
+          // whichever card sits closest to the center of the strip lights up, like the photo spotlight
+          const cards = filmstrip.children;
+          if (cards.length) {
+            const stripRect = filmstrip.getBoundingClientRect();
+            const centerX = stripRect.left + stripRect.width / 2;
+            let closest = 0,
+              closestDist = Infinity;
+            Array.from(cards).forEach((c, i) => {
+              const r = c.getBoundingClientRect();
+              const dist = Math.abs(r.left + r.width / 2 - centerX);
+              if (dist < closestDist) {
+                closestDist = dist;
+                closest = i;
+              }
+            });
+            if (closest !== lastReelIdx) {
+              lastReelIdx = closest;
+              Array.from(cards).forEach((c, i) =>
+                c.classList.toggle("active", i === closest),
+              );
+            }
+          }
+        } else if (idx === 2 && photoGrid) {
+          const cards = photoGrid.children;
+          const active = Math.min(
+            cards.length - 1,
+            Math.floor(progress * cards.length),
+          );
+          if (active !== lastSpotlightIdx) {
+            lastSpotlightIdx = active;
+            Array.from(cards).forEach((c, i) =>
+              c.classList.toggle("spotlight", i === active),
+            );
+            const el = document.getElementById("photo-scroll");
+            const card = cards[active];
+            if (el && card) {
+              const cardRect = card.getBoundingClientRect();
+              const elRect = el.getBoundingClientRect();
+              const target =
+                el.scrollTop +
+                (cardRect.top - elRect.top) -
+                (el.clientHeight - cardRect.height) / 2;
+              el.scrollTo({
+                top: Math.max(
+                  0,
+                  Math.min(el.scrollHeight - el.clientHeight, target),
+                ),
+                behavior: "smooth",
+              });
+            }
+          }
+        } else if (idx === 3) {
+          const el = document.getElementById("credits-scroll");
+          const max = el.scrollHeight - el.clientHeight;
+          if (max > 0) el.scrollTop = progress * max;
+        } else if (idx === 4) {
+          const items = document.querySelectorAll("#scene-about .career-item");
+          const shown = Math.ceil(progress * items.length);
+          items.forEach((it, i) => {
+            it.style.opacity = i < shown ? "1" : "0.25";
+          });
+        }
+      }
+      function resetSceneMotion() {
+        lastSpotlightIdx = -1;
+        lastReelIdx = -1;
+        if (filmstrip)
+          Array.from(filmstrip.children).forEach((c) =>
+            c.classList.remove("active"),
+          );
+        if (photoGrid)
+          Array.from(photoGrid.children).forEach((c) =>
+            c.classList.remove("spotlight"),
+          );
+        document.querySelectorAll("#scene-about .career-item").forEach((it) => {
+          it.style.opacity = "";
+        });
+        const ps = document.getElementById("photo-scroll");
+        if (ps) ps.scrollTop = 0;
+        const cs = document.getElementById("credits-scroll");
+        if (cs) cs.scrollTop = 0;
+      }
+
+      /* keyboard */
+      document.addEventListener("keydown", (e) => {
+        const lightboxOpen = document
+          .getElementById("lightbox")
+          .classList.contains("open");
+        const catViewOpen = document
+          .getElementById("cat-view")
+          .classList.contains("open");
+        const videoOpen = document
+          .getElementById("video-modal")
+          .classList.contains("open");
+        if (lightboxOpen) {
+          if (e.key === "Escape") closeLightbox();
+          else if (e.key === "ArrowRight") lightboxNav(1);
+          else if (e.key === "ArrowLeft") lightboxNav(-1);
+          return;
+        }
+        if (catViewOpen) {
+          if (e.key === "Escape") closeCatView();
+          return;
+        }
+        if (videoOpen) {
+          if (e.key === "Escape") closeVideo();
+          return;
+        }
+        if (e.key === "ArrowRight") nextScene();
+        if (e.key === "ArrowLeft") prevScene();
+        if (e.key === " ") {
+          e.preventDefault();
+          togglePlay();
+        }
+      });
+
+      /* logo text -> home */
+      document
+        .getElementById("logo-home")
+        .addEventListener("click", () => goToScene(0));
+
+      /* ---------- nav menu: scene links + accent picker, reached from the top-right button ---------- */
+      const menuBtn = document.getElementById("menu-btn");
+      const menuOverlay = document.getElementById("menu-overlay");
+      const menuClose = document.getElementById("menu-close");
+      const menuList = document.getElementById("menu-list");
+      function openMenu() {
+        menuOverlay.classList.add("open");
+        menuBtn.setAttribute("aria-expanded", "true");
+      }
+      function closeMenu() {
+        menuOverlay.classList.remove("open");
+        menuBtn.setAttribute("aria-expanded", "false");
+      }
+      menuBtn.addEventListener("click", openMenu);
+      menuClose.addEventListener("click", closeMenu);
+      menuOverlay.addEventListener("click", (e) => {
+        if (e.target === menuOverlay) closeMenu();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeMenu();
+      });
+      const menuItems = scenes.map((s, i) => {
+        const item = document.createElement("button");
+        item.className = "menu-item";
+        item.innerHTML = `<span class="menu-item-num">${String(i).padStart(2, "0")}</span>${s.name}`;
+        item.addEventListener("click", () => {
+          goToScene(i);
+          closeMenu();
+        });
+        menuList.appendChild(item);
+        return item;
+      });
+      menuItems[0].classList.add("active");
+
+      /* drag-to-scrub on timeline */
+      function timeFromPointer(clientX) {
+        const rect = tlTrackWrap.getBoundingClientRect();
+        const ratio = Math.max(
+          0,
+          Math.min(1, (clientX - rect.left) / rect.width),
+        );
+        return ratio * total;
+      }
+      let dragMoved = false;
+      function endDrag() {
+        if (!dragging) return;
+        dragging = false;
+        tlTrackWrap.classList.remove("dragging");
+        track.style.transition = ""; // hand scene transitions back to their normal eased animation
+      }
+      tlTrackWrap.addEventListener("pointerdown", (e) => {
+        dragging = true;
+        dragMoved = false;
+        isPlaying = false;
+        tlTrackWrap.classList.add("dragging");
+        goToTime(timeFromPointer(e.clientX)); // plain click still gets the nice eased jump
+        tlTrackWrap.setPointerCapture(e.pointerId);
+      });
+      tlTrackWrap.addEventListener("pointermove", (e) => {
+        if (!dragging) return;
+        if (!dragMoved) {
+          dragMoved = true;
+          track.style.transition = "none";
+        } // real drag starts: follow the pointer 1:1, no easing lag
+        goToTime(timeFromPointer(e.clientX));
+      });
+      tlTrackWrap.addEventListener("pointerup", endDrag);
+      tlTrackWrap.addEventListener("pointercancel", endDrag);
+
+      /* swipe on stage (touch only, horizontal) */
+      let touchStartX = null;
+      document.querySelector(".stage").addEventListener(
+        "touchstart",
+        (e) => {
+          touchStartX = e.touches[0].clientX;
+        },
+        { passive: true },
+      );
+      document.querySelector(".stage").addEventListener(
+        "touchend",
+        (e) => {
+          if (touchStartX === null) return;
+          const dx = e.changedTouches[0].clientX - touchStartX;
+          if (Math.abs(dx) > 60) {
+            dx < 0 ? nextScene() : prevScene();
+          }
+          touchStartX = null;
+        },
+        { passive: true },
+      );
+
+      /* autoplay loop */
+      let lastT = performance.now();
+      function playLoop(now) {
+        const dt = (now - lastT) / 1000;
+        lastT = now;
+        if (isPlaying && !dragging) {
+          currentTime += dt;
+          if (currentTime >= total - 0.05) {
+            currentTime = total - 0.05;
+            isPlaying = false;
+            resetSceneMotion();
+          }
+          renderUI();
+          const idx = indexForTime(currentTime);
+          const progress = Math.min(
+            1,
+            Math.max(0, (currentTime - starts[idx]) / scenes[idx].dur),
+          );
+          updateSceneMotion(idx, progress);
+        }
+        requestAnimationFrame(playLoop);
+      }
+      requestAnimationFrame(playLoop);
+
+      /* ---------- film grain ---------- */
+      (function grain() {
+        const c = document.createElement("canvas");
+        c.width = 120;
+        c.height = 120;
+        const ctx = c.getContext("2d");
+        const imgData = ctx.createImageData(120, 120);
+        for (let i = 0; i < imgData.data.length; i += 4) {
+          const v = Math.floor(Math.random() * 255);
+          imgData.data[i] = v;
+          imgData.data[i + 1] = v;
+          imgData.data[i + 2] = v;
+          imgData.data[i + 3] = 255;
+        }
+        ctx.putImageData(imgData, 0, 0);
+        const g = document.getElementById("grain");
+        g.style.backgroundImage = `url(${c.toDataURL()})`;
+        g.style.backgroundSize = "120px 120px";
+        let gx = 0;
+        setInterval(() => {
+          gx = (gx + 1) % 4;
+          g.style.transform = `translate(${gx * 3}px, ${(gx % 2) * 4}px)`;
+        }, 90);
+      })();
+
+      /* ---------- reel data (real public YouTube videos) ---------- */
+      const reelItems = [
+        {
+          id: "d2vggXFMF9E",
+          title: "Dayun",
+          role: "Camera Operator & Editor · 2026",
+        },
+        {
+          id: "VlMuPUXLs_4",
+          title: "barbiebl00d",
+          role: "Camera Operator & Editor · 2026",
+        },
+        {
+          id: "rgS27LlO_5U",
+          title: "The Oral Cigarettes",
+          role: "1st Assistant Camera · 2024",
+        },
+        {
+          id: "ErXZopswKIw",
+          title: "UTOMURASAKI",
+          role: "Camera Operator & Editor · 2024",
+        },
+        {
+          id: "NUqrFjk6hvU",
+          title: "Morrison Cup",
+          role: "Camera Operator & Editor · 2024",
+        },
+        {
+          id: "w8JZej-UJ6k",
+          title: "AISLE — Dairiku",
+          role: "Camera Assistant & Focus Puller · 2024",
+        },
+        {
+          id: "wx39rr5tkbU",
+          title: "KSmiley",
+          role: "Camera Operator & Editor · 2024",
+        },
+        {
+          id: "Dcu8nhzuuxA",
+          title: "Gucci Baby",
+          role: "Camera Operator & Editor · 2023",
+        },
+      ];
+      const filmstrip = document.getElementById("filmstrip");
+      reelItems.forEach((item) => {
+        const card = document.createElement("div");
+        card.className = "reel-card";
+        card.onclick = () => openVideo(item.id);
+        card.innerHTML = `
+          <img src="https://img.youtube.com/vi/${item.id}/hqdefault.jpg" alt="${item.title}" loading="lazy" />
+          <div class="reel-play"><svg width="14" height="14" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg></div>
+          <div class="reel-label"><b>${item.title}</b><span>${item.role}</span></div>`;
+        filmstrip.appendChild(card);
+      });
+
+      /* left/right nudge zones — hold down for a gentle continuous glide, like scrubbing
+         a reel by hand, and let go to stop; a lot more natural than a fixed jump per click */
+      const filmstripPrev = document.getElementById("filmstrip-prev");
+      const filmstripNext = document.getElementById("filmstrip-next");
+      let filmstripGlideRAF = null;
+      function stopFilmstripGlide() {
+        if (filmstripGlideRAF) cancelAnimationFrame(filmstripGlideRAF);
+        filmstripGlideRAF = null;
+        window.removeEventListener("pointerup", stopFilmstripGlide);
+        window.removeEventListener("pointercancel", stopFilmstripGlide);
+      }
+      // keep the footer timeline (playhead + active reel-card highlight) in step
+      // with wherever the filmstrip ends up, exactly as if the user had scrubbed it there
+      function syncTimelineToFilmstrip() {
+        const max = filmstrip.scrollWidth - filmstrip.clientWidth;
+        const progress = max > 0 ? filmstrip.scrollLeft / max : 0;
+        currentTime = starts[1] + progress * scenes[1].dur;
+        renderUI();
+        updateSceneMotion(1, progress);
+      }
+      function startFilmstripGlide(dir) {
+        isPlaying = false;
+        stopFilmstripGlide();
+        const speed = 6; // px per frame — a gentle, constant glide
+        const step = () => {
+          filmstrip.scrollLeft += dir * speed;
+          syncTimelineToFilmstrip();
+          filmstripGlideRAF = requestAnimationFrame(step);
+        };
+        filmstripGlideRAF = requestAnimationFrame(step);
+        window.addEventListener("pointerup", stopFilmstripGlide);
+        window.addEventListener("pointercancel", stopFilmstripGlide);
+      }
+      filmstripPrev.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        startFilmstripGlide(-1);
+      });
+      filmstripNext.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        startFilmstripGlide(1);
+      });
+
+      function openVideo(id) {
+        isPlaying = false;
+        document.getElementById("video-embed").innerHTML =
+          `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+        document.getElementById("video-modal").classList.add("open");
+      }
+      function closeVideo() {
+        document.getElementById("video-modal").classList.remove("open");
+        document.getElementById("video-embed").innerHTML = "";
+      }
+      function videoBgClick(e) {
+        if (e.target.id === "video-modal") closeVideo();
+      }
+
+      /* ---------- photography categories ----------
+         Categories with a `folder` show their real photos in an internal gallery + lightbox.
+         Categories without one just link out to the live myportfolio.com gallery for now.
+
+         TO ADD A NEW LOCAL CATEGORY LATER: drop the files in images/<folder>/, name them
+         <prefix>_000.jpg, <prefix>_001.jpg, ... sequentially, put one representative shot
+         named exactly as `main` in that same folder, then add an entry here with folder/
+         prefix/ext/main/count. `count` is just a rough estimate of how many photos are in
+         there — the gallery auto-discovers everything up to (count + 24), so adding a few
+         more photos later needs NO code change at all. Only bump `count` if you add more
+         than ~24 beyond what's already configured. */
+      const photoCats = [
+        {
+          name: "Portraits",
+          tag: "People",
+          folder: "images/portraits",
+          prefix: "portrait",
+          ext: "jpg",
+          main: "portrait.jpg",
+          numStart: 0,
+          count: 238,
+          url: "https://adevancea.myportfolio.com/people",
+        },
+        {
+          name: "Event Photography",
+          tag: "Festivals",
+          folder: "images/events",
+          prefix: "event",
+          ext: "jpg",
+          main: "event.jpg",
+          numStart: 1,
+          count: 122,
+          url: "https://adevancea.myportfolio.com/festivals",
+        },
+        {
+          name: "Street Photography",
+          tag: "Candid",
+          folder: "images/street",
+          prefix: "street",
+          ext: "jpg",
+          main: "street.jpg",
+          numStart: 1,
+          count: 168,
+          url: "https://adevancea.myportfolio.com/street-photography",
+        },
+        {
+          name: "Film Photography",
+          tag: "Analog",
+          folder: "images/film",
+          prefix: "film",
+          ext: "jpg",
+          main: "film.jpg",
+          numStart: 1,
+          count: 50,
+          url: "https://adevancea.myportfolio.com/film-photography",
+        },
+        {
+          name: "Cinema",
+          tag: "Stills",
+          folder: "images/cinema",
+          prefix: "cinema",
+          ext: "jpg",
+          main: "cinema.jpg",
+          numStart: 1,
+          count: 20,
+          url: "https://adevancea.myportfolio.com/15ebabd0d35338",
+        },
+        {
+          name: "Studio",
+          tag: "Chiaroscuro",
+          folder: "images/studio",
+          prefix: "studio",
+          ext: "jpg",
+          main: "studio.jpg",
+          numStart: 1,
+          count: 20,
+          url: "https://adevancea.myportfolio.com/chiaroscuro",
+        },
+        {
+          name: "Product Photography",
+          tag: "Commercial",
+          folder: "images/product",
+          prefix: "product",
+          ext: "jpg",
+          main: "product.jpg",
+          numStart: 1,
+          count: 38,
+          url: "https://adevancea.myportfolio.com/product-photography",
+        },
+        {
+          name: "Outdoors",
+          tag: "Landscape",
+          folder: "images/outdoors",
+          prefix: "outdoors",
+          ext: "jpg",
+          main: "outdoors.jpg",
+          numStart: 1,
+          count: 64,
+          url: "https://adevancea.myportfolio.com/outdoors",
+        },
+        {
+          name: "Graphic Design",
+          tag: "Design",
+          folder: "images/graphic",
+          prefix: "graphic",
+          ext: ["jpg", "png"],
+          main: "graphic.png",
+          numStart: 1,
+          count: 34,
+        },
+      ];
+      const photoGrid = document.getElementById("photo-grid");
+      photoCats.forEach((cat) => {
+        const hasFolder = !!cat.folder;
+        const el = document.createElement(hasFolder ? "div" : "a");
+        el.className = "photo-card";
+        if (hasFolder) {
+          el.tabIndex = 0;
+          el.setAttribute("role", "button");
+          el.addEventListener("click", () => openCatView(cat));
+          el.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") openCatView(cat);
+          });
+        } else {
+          el.href = cat.url;
+          el.target = "_blank";
+          el.rel = "noopener";
+        }
+        const bgStyle = hasFolder
+          ? `background-image:url('${cat.folder}/${cat.main}'); background-size:cover; background-position:center;`
+          : `background:${cat.grad}`;
+        el.innerHTML = `<div class="photo-card-bg" style="${bgStyle}"></div>
+          <div class="photo-card-content"><b>${cat.name}</b><span>${cat.tag} — view gallery${hasFolder ? "" : " ↗"}</span></div>`;
+        photoGrid.appendChild(el);
+      });
+
+      /* ---------- category gallery + lightbox viewer (generic — works for any local category) ---------- */
+      const photoCatCache = new Map();
+      async function probePhotos(cat) {
+        if (photoCatCache.has(cat.name)) return photoCatCache.get(cat.name);
+        const { folder, prefix, count } = cat;
+        // ext can be a single extension ("jpg") or, for folders with mixed
+        // formats (e.g. graphic/, jpg+png side by side), an array to try in order
+        const exts = Array.isArray(cat.ext) ? cat.ext : [cat.ext];
+        const start = cat.numStart ?? 0;
+        const buffer = 24; // auto-extends this far past `count` before giving up — see note above
+        const chunk = 16; // parallel probes per batch, keeps discovery fast without hammering the server
+        const found = [];
+        let i = start;
+        const upper = start + count + buffer;
+        const probeOne = (n) =>
+          exts.reduce(
+            (chain, ext) =>
+              chain.then(
+                (hit) =>
+                  hit ||
+                  new Promise((res) => {
+                    const src = `${folder}/${prefix}_${String(n).padStart(3, "0")}.${ext}`;
+                    const img = new Image();
+                    img.onload = () => res(src);
+                    img.onerror = () => res(null);
+                    img.src = src;
+                  }),
+              ),
+            Promise.resolve(null),
+          );
+        while (i <= upper) {
+          const batch = [];
+          for (let k = 0; k < chunk && i <= upper; k++, i++) batch.push(i);
+          const results = await Promise.all(batch.map(probeOne));
+          const hits = results.filter(Boolean);
+          found.push(...hits);
+          // a whole batch with nothing found (after we've already found photos) means we've run past the end
+          if (hits.length === 0 && found.length > 0 && batch.length === chunk)
+            break;
+        }
+        photoCatCache.set(cat.name, found);
+        return found;
+      }
+
+      let currentCatPhotos = [];
+      function openCatView(cat) {
+        isPlaying = false;
+        const view = document.getElementById("cat-view");
+        const grid = document.getElementById("cat-view-grid");
+        document.getElementById("cat-view-title").textContent = cat.name;
+        grid.innerHTML = `<div class="cat-view-loading">Loading gallery…</div>`;
+        view.classList.add("open");
+        probePhotos(cat).then((photos) => {
+          if (!view.classList.contains("open")) return; // closed before it finished loading
+          currentCatPhotos = photos;
+          grid.innerHTML = "";
+          photos.forEach((src, i) => {
+            const img = document.createElement("img");
+            img.src = src;
+            img.loading = "lazy";
+            img.alt = `${cat.name} ${i + 1}`;
+            img.addEventListener("click", () => openLightbox(i));
+            grid.appendChild(img);
+          });
+        });
+      }
+      function closeCatView() {
+        document.getElementById("cat-view").classList.remove("open");
+      }
+
+      let lightboxIndex = 0;
+      function openLightbox(i) {
+        lightboxIndex = i;
+        document.getElementById("lightbox-img").src =
+          currentCatPhotos[lightboxIndex];
+        document.getElementById("lightbox").classList.add("open");
+      }
+      function closeLightbox() {
+        document.getElementById("lightbox").classList.remove("open");
+      }
+      function lightboxNav(delta) {
+        const n = currentCatPhotos.length;
+        if (!n) return;
+        lightboxIndex = (lightboxIndex + delta + n) % n;
+        document.getElementById("lightbox-img").src =
+          currentCatPhotos[lightboxIndex];
+      }
+
+      /* ---------- filmography shot list ---------- */
+      const credits = [
+        {
+          cat: "Film & TV",
+          rows: [
+            {
+              name: "Wednesday",
+              sub: "Netflix series · Camera Trainee",
+              loc: "Bucharest, RO",
+              year: "2021–22",
+              url: "https://www.imdb.com/title/tt13443470/",
+            },
+            {
+              name: "I am Samurai",
+              sub: "Feature film · 1st Assistant Camera",
+              loc: "Kyoto/Tokyo, JP",
+              year: "2024",
+            },
+            {
+              name: "The Dragonfly",
+              sub: "Feature film · 1st Assistant Camera",
+              loc: "Nagoya, JP",
+              year: "2023",
+            },
+          ],
+        },
+        {
+          cat: "Commercials",
+          rows: [
+            {
+              name: "Adidas",
+              sub: "Commercial · 1st Assistant Camera",
+              loc: "Tokyo, JP",
+              year: "2023",
+            },
+            {
+              name: "Yokohama Tire",
+              sub: "TV Commercial · 2nd Assistant Camera",
+              loc: "Yokohama, JP",
+              year: "2024",
+            },
+            {
+              name: "FILA",
+              sub: "Commercial · 2nd Assistant Camera",
+              loc: "Tokyo, JP",
+              year: "2024",
+            },
+            {
+              name: "Oppo",
+              sub: "Commercial · 2nd Assistant Camera",
+              loc: "Tokyo, JP",
+              year: "2023",
+            },
+          ],
+        },
+        {
+          cat: "Music Videos",
+          rows: [
+            {
+              name: "Dayun",
+              sub: "Camera Operator & Editor",
+              loc: "Tokyo, JP",
+              year: "2026",
+              url: "https://youtu.be/d2vggXFMF9E",
+            },
+            {
+              name: "barbiebl00d",
+              sub: "Camera Operator & Editor",
+              loc: "Tokyo, JP",
+              year: "2026",
+              url: "https://youtu.be/VlMuPUXLs_4",
+            },
+            {
+              name: "The Oral Cigarettes",
+              sub: "1st Assistant Camera",
+              loc: "Tokyo, JP",
+              year: "2024",
+              url: "https://youtu.be/rgS27LlO_5U",
+            },
+            {
+              name: "Gucci Baby",
+              sub: "Camera Operator & Editor",
+              loc: "Tokyo, JP",
+              year: "2023",
+              url: "https://youtu.be/Dcu8nhzuuxA",
+            },
+          ],
+        },
+        {
+          cat: "Short Films",
+          rows: [
+            {
+              name: "AISLE — Dairiku",
+              sub: "Camera Assistant & Focus Puller",
+              loc: "Tokyo, JP",
+              year: "2024",
+              url: "https://youtu.be/w8JZej-UJ6k",
+            },
+          ],
+        },
+      ];
+      const shotlist = document.getElementById("shotlist");
+      let ci = 0;
+      credits.forEach((group) => {
+        const label = document.createElement("span");
+        label.className = "shot-cat";
+        label.textContent = group.cat;
+        shotlist.appendChild(label);
+        group.rows.forEach((row) => {
+          ci++;
+          const el = document.createElement(row.url ? "a" : "div");
+          el.className = "shot-row";
+          if (row.url) {
+            el.href = row.url;
+            el.target = "_blank";
+            el.rel = "noopener";
+          }
+          el.innerHTML = `<div class="shot-num">${String(ci).padStart(2, "0")}</div>
+            <div class="shot-name">${row.name}</div>
+            <div class="shot-sub" style="margin-top:0">${row.sub}</div>
+            <div class="shot-loc">${row.loc}</div><div class="shot-year">${row.year}</div>`;
+          shotlist.appendChild(el);
+        });
+      });
+
+      /* ---------- contact form (AJAX submit) ---------- */
+      document
+        .getElementById("contact-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const form = e.target;
+          const btn = form.querySelector(".form-submit");
+          const note = document.getElementById("form-note");
+          if (form.action.includes("YOUR_FORM_ID")) {
+            note.textContent =
+              "Form not connected yet — add your Formspree endpoint.";
+            note.style.color = "#e0413a";
+            return;
+          }
+          btn.textContent = "Sending...";
+          fetch(form.action, {
+            method: "POST",
+            body: new FormData(form),
+            headers: { Accept: "application/json" },
+          })
+            .then((r) => {
+              if (r.ok) {
+                btn.textContent = "Message sent ✓";
+                note.textContent = "Thank you — I'll get back to you soon.";
+                note.style.color = "var(--teal-label)";
+                form.reset();
+              } else {
+                btn.textContent = "Send message →";
+                note.textContent =
+                  "Something went wrong — please email directly.";
+                note.style.color = "#e0413a";
+              }
+            })
+            .catch(() => {
+              btn.textContent = "Send message →";
+              note.textContent =
+                "Something went wrong — please email directly.";
+              note.style.color = "#e0413a";
+            });
+          setTimeout(() => {
+            if (btn.textContent === "Message sent ✓")
+              btn.textContent = "Send message →";
+          }, 4000);
+        });
+
+      /* ================= THREE.JS — bokeh / rack-focus background (kept — she liked this) ================= */
+      const threeCanvas = document.getElementById("three-canvas");
+      const renderer = new THREE.WebGLRenderer({
+        canvas: threeCanvas,
+        antialias: true,
+        alpha: false,
+      });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setClearColor(0x05090a, 1);
+      const scene3d = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(
+        55,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        100,
+      );
+      camera.position.set(0, 0, 9);
+
+      /* layer 1: crisp "dust" dots — sharpen/blur with mouse-driven rack focus, now just a quiet texture behind the beacons */
+      const COUNT = 55;
+      const positions = new Float32Array(COUNT * 3);
+      const randoms = new Float32Array(COUNT);
+      const depths = new Float32Array(COUNT);
+      const warms = new Float32Array(COUNT);
+      for (let i = 0; i < COUNT; i++) {
+        positions[i * 3] = (Math.random() - 0.5) * 20;
+        positions[i * 3 + 1] = (Math.random() - 0.5) * 12;
+        positions[i * 3 + 2] = (Math.random() - 0.5) * 14;
+        randoms[i] = Math.random() * Math.PI * 2;
+        depths[i] = Math.random();
+        warms[i] = Math.random() > 0.9 ? 1 : 0;
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+      geo.setAttribute("aRandom", new THREE.BufferAttribute(randoms, 1));
+      geo.setAttribute("aDepth", new THREE.BufferAttribute(depths, 1));
+      geo.setAttribute("aWarm", new THREE.BufferAttribute(warms, 1));
+
+      const uniforms = {
+        uTime: { value: 0 },
+        uFocus: { value: 0.5 },
+        uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
+        uBoost: { value: 1.6 },
+        uCoolColor: { value: new THREE.Color(0x26bfad) },
+      };
+      const vertexShader = `
+        attribute float aRandom; attribute float aDepth; attribute float aWarm;
+        uniform float uTime; uniform float uFocus; uniform float uPixelRatio;
+        varying float vOpacity; varying float vWarm;
+        void main() {
+          vec3 pos = position;
+          pos.x += sin(uTime*0.06 + aRandom*6.28) * 0.6;
+          pos.y += cos(uTime*0.05 + aRandom*6.28) * 0.45;
+          float depthDiff = abs(aDepth - uFocus);
+          float focusAmount = 1.0 - smoothstep(0.0, 0.55, depthDiff);
+          vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+          float size = mix(46.0, 5.0, focusAmount);
+          gl_PointSize = size * uPixelRatio * (5.0 / -mvPosition.z);
+          vOpacity = mix(0.04, 0.3, focusAmount);
+          vWarm = aWarm;
+          gl_Position = projectionMatrix * mvPosition;
+        }`;
+      const fragmentShader = `
+        precision mediump float; uniform float uBoost; uniform vec3 uCoolColor; varying float vOpacity; varying float vWarm;
+        void main() {
+          float d = length(gl_PointCoord - vec2(0.5));
+          float alpha = pow(smoothstep(0.5, 0.0, d), 1.6) * vOpacity * uBoost;
+          vec3 warmC = vec3(1.0, 0.6, 0.33);
+          vec3 color = mix(uCoolColor, warmC, vWarm);
+          gl_FragColor = vec4(color, alpha);
+        }`;
+      const material = new THREE.ShaderMaterial({
+        uniforms,
+        vertexShader,
+        fragmentShader,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      });
+      const points = new THREE.Points(geo, material);
+      scene3d.add(points);
+
+      /* layer 2: slow diffuse "beacons" — a handful of big soft glows drifting in the current accent color, some bigger, some smaller */
+      const GLOW_COUNT = 9;
+      const gPositions = new Float32Array(GLOW_COUNT * 3);
+      const gRandoms = new Float32Array(GLOW_COUNT);
+      const gWarms = new Float32Array(GLOW_COUNT);
+      const gScales = new Float32Array(GLOW_COUNT);
+      for (let i = 0; i < GLOW_COUNT; i++) {
+        gPositions[i * 3] = (Math.random() - 0.5) * 22;
+        gPositions[i * 3 + 1] = (Math.random() - 0.5) * 13;
+        gPositions[i * 3 + 2] = (Math.random() - 0.5) * 10 - 2.0;
+        gRandoms[i] = Math.random() * Math.PI * 2;
+        gWarms[i] = Math.random() > 0.88 ? 1 : 0;
+        gScales[i] = 1.1 + Math.random() * 1.6;
+      }
+      const glowGeo = new THREE.BufferGeometry();
+      glowGeo.setAttribute(
+        "position",
+        new THREE.BufferAttribute(gPositions, 3),
+      );
+      glowGeo.setAttribute("aRandom", new THREE.BufferAttribute(gRandoms, 1));
+      glowGeo.setAttribute("aWarm", new THREE.BufferAttribute(gWarms, 1));
+      glowGeo.setAttribute("aScale", new THREE.BufferAttribute(gScales, 1));
+      const glowUniforms = {
+        uTime: { value: 0 },
+        uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
+        uBoost: { value: 1.6 },
+        uCoolColor: { value: new THREE.Color(0x21b3a3) },
+      };
+      const glowVertex = `
+        attribute float aRandom; attribute float aWarm; attribute float aScale;
+        uniform float uTime; uniform float uPixelRatio;
+        varying float vWarm;
+        void main() {
+          vec3 pos = position;
+          pos.x += sin(uTime*0.012 + aRandom*6.28) * 1.4;
+          pos.y += cos(uTime*0.009 + aRandom*6.28) * 1.1;
+          vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+          gl_PointSize = 300.0 * aScale * uPixelRatio * (5.0 / -mvPosition.z);
+          vWarm = aWarm;
+          gl_Position = projectionMatrix * mvPosition;
+        }`;
+      const glowFragment = `
+        precision mediump float; uniform float uBoost; uniform vec3 uCoolColor; varying float vWarm;
+        void main() {
+          float d = length(gl_PointCoord - vec2(0.5));
+          float alpha = pow(smoothstep(0.5, 0.03, d), 1.0) * 0.09 * uBoost;
+          vec3 warmC = vec3(1.0, 0.58, 0.3);
+          vec3 color = mix(uCoolColor, warmC, vWarm);
+          gl_FragColor = vec4(color, alpha);
+        }`;
+      const glowMaterial = new THREE.ShaderMaterial({
+        uniforms: glowUniforms,
+        vertexShader: glowVertex,
+        fragmentShader: glowFragment,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      });
+      const glowPoints = new THREE.Points(glowGeo, glowMaterial);
+      scene3d.add(glowPoints);
+
+      /* ---------- accent color picker: pick any swatch, it becomes the site's accent ---------- */
+      const THEMES = [
+        {
+          key: "teal",
+          swatch: "#2ddcc4",
+          teal: "#2ddcc4",
+          tealDim: "#1a8f82",
+          tealLabel: "#7ff0de",
+          tealRgb: "45,220,196",
+          bg3: "#0d1a1b",
+          dust: 0x26bfad,
+          glow: 0x21b3a3,
+          muted: "#93a9a6",
+        },
+        {
+          key: "magenta",
+          swatch: "#c81dc2",
+          teal: "#c81dc2",
+          tealDim: "#7d1279",
+          tealLabel: "#f07dea",
+          tealRgb: "200,29,194",
+          bg3: "#1a0d1a",
+          dust: 0xc81dc2,
+          glow: 0xb01aab,
+          muted: "#a8939f",
+        },
+        {
+          key: "amber",
+          swatch: "#f2b354",
+          teal: "#f2b354",
+          tealDim: "#a8752a",
+          tealLabel: "#ffd28a",
+          tealRgb: "242,179,84",
+          bg3: "#17130f",
+          dust: 0xf2b354,
+          glow: 0xe0a050,
+          muted: "#a89e93",
+        },
+      ];
+      let currentTheme = "teal";
+      function applyTheme(key, persist) {
+        const t = THEMES.find((x) => x.key === key) || THEMES[0];
+        currentTheme = t.key;
+        const root = document.documentElement.style;
+        root.setProperty("--teal", t.teal);
+        root.setProperty("--teal-dim", t.tealDim);
+        root.setProperty("--teal-label", t.tealLabel);
+        root.setProperty("--teal-rgb", t.tealRgb);
+        root.setProperty("--bg3", t.bg3);
+        root.setProperty("--muted", t.muted);
+        uniforms.uCoolColor.value.setHex(t.dust);
+        glowUniforms.uCoolColor.value.setHex(t.glow);
+        renderMenuThemes();
+        if (persist) {
+          try {
+            localStorage.setItem("adelina-theme", t.key);
+          } catch (e) {}
+        }
+      }
+      function renderMenuThemes() {
+        const wrap = document.getElementById("menu-themes");
+        wrap.innerHTML = "";
+        // all themes in one row, inside the menu — the active one sits slightly larger
+        THEMES.forEach((t) => {
+          const b = document.createElement("button");
+          b.className =
+            "menu-theme-dot" + (t.key === currentTheme ? " active" : "");
+          b.style.background = `radial-gradient(circle at 35% 30%, ${t.tealLabel}, ${t.teal} 55%, ${t.tealDim} 100%)`;
+          b.title = t.key;
+          b.setAttribute("aria-label", `${t.key} accent color`);
+          b.addEventListener("click", (e) => {
+            e.stopPropagation();
+            applyTheme(t.key, true);
+          });
+          wrap.appendChild(b);
+        });
+      }
+      (function restoreSavedTheme() {
+        let saved = null;
+        try {
+          saved = localStorage.getItem("adelina-theme");
+        } catch (e) {}
+        applyTheme(THEMES.some((t) => t.key === saved) ? saved : "teal", false);
+      })();
+
+      addEventListener("resize", () => {
+        camera.aspect = innerWidth / innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(innerWidth, innerHeight);
+        uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2);
+        glowUniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 2);
+      });
+
+      let targetFocus = 0.5,
+        currentFocus = 0.5,
+        targetCamX = 0,
+        currentCamX = 0;
+      window.addEventListener("mousemove", (e) => {
+        targetFocus = e.clientY / window.innerHeight;
+        targetCamX = (e.clientX / window.innerWidth - 0.5) * 1.7;
+      });
+      window.addEventListener(
+        "touchmove",
+        (e) => {
+          const t = e.touches[0];
+          if (!t) return;
+          targetFocus = t.clientY / window.innerHeight;
+          targetCamX = (t.clientX / window.innerWidth - 0.5) * 1.2;
+        },
+        { passive: true },
+      );
+
+      let gyroEnabled = false;
+      function enableGyro() {
+        if (
+          typeof DeviceOrientationEvent !== "undefined" &&
+          typeof DeviceOrientationEvent.requestPermission === "function"
+        ) {
+          DeviceOrientationEvent.requestPermission()
+            .then((r) => {
+              if (r === "granted") gyroEnabled = true;
+            })
+            .catch(() => {});
+        } else {
+          gyroEnabled = true;
+        }
+      }
+      window.addEventListener(
+        "touchstart",
+        () => {
+          if (!gyroEnabled) enableGyro();
+        },
+        { once: true, passive: true },
+      );
+      window.addEventListener("deviceorientation", (e) => {
+        if (!gyroEnabled) return;
+        const gx = (e.gamma || 0) / 45;
+        const gy = ((e.beta || 0) - 30) / 60;
+        targetFocus = Math.max(0, Math.min(1, 0.5 + gy * 0.5));
+        targetCamX = Math.max(-1, Math.min(1, gx)) * 0.8;
+      });
+
+      let t3 = 0;
+      let currentBoost = 1.6;
+      (function animate() {
+        requestAnimationFrame(animate);
+        t3 += 0.01;
+        currentFocus += (targetFocus - currentFocus) * 0.11;
+        currentCamX += (targetCamX - currentCamX) * 0.11;
+        const targetBoost = currentIndex === 0 ? 1.6 : 1.0;
+        currentBoost += (targetBoost - currentBoost) * 0.03;
+        uniforms.uTime.value = t3;
+        uniforms.uFocus.value = currentFocus;
+        uniforms.uBoost.value = currentBoost;
+        glowUniforms.uBoost.value = currentBoost;
+        glowUniforms.uTime.value = t3;
+        camera.position.x = currentCamX;
+        camera.lookAt(0, 0, 0);
+        renderer.render(scene3d, camera);
+      })();
+    </script>
+  </body>
+</html>
