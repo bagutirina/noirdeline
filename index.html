@@ -1342,6 +1342,14 @@
         width: 100%;
         appearance: none;
       }
+      .form-group input::placeholder,
+      .form-group textarea::placeholder {
+        color: color-mix(in srgb, var(--muted) 55%, var(--bg3));
+        opacity: 1;
+      }
+      .form-group select.placeholder {
+        color: color-mix(in srgb, var(--muted) 55%, var(--bg3));
+      }
       .form-group input:focus,
       .form-group textarea:focus,
       .form-group select:focus {
@@ -1879,7 +1887,7 @@
                 </div>
                 <div class="form-group">
                   <label>Project type</label>
-                  <select name="type">
+                  <select name="type" id="project-type">
                     <option value="">Select...</option>
                     <option>Music Video</option>
                     <option>Commercial</option>
@@ -3050,6 +3058,14 @@
         });
       });
 
+      /* ---------- project-type select: dims like the other placeholders until a real option is picked ---------- */
+      const projectType = document.getElementById("project-type");
+      function updateProjectTypeStyle() {
+        projectType.classList.toggle("placeholder", projectType.value === "");
+      }
+      projectType.addEventListener("change", updateProjectTypeStyle);
+      updateProjectTypeStyle();
+
       /* ---------- contact form (AJAX submit) ---------- */
       document
         .getElementById("contact-form")
@@ -3076,6 +3092,7 @@
                 note.textContent = "Thank you — I'll get back to you soon.";
                 note.style.color = "var(--teal-label)";
                 form.reset();
+                updateProjectTypeStyle();
               } else {
                 btn.textContent = "Send message →";
                 note.textContent =
