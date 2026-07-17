@@ -495,23 +495,9 @@
         align-items: center;
         gap: 10px;
       }
-      .intro-hint::before {
-        content: "↓";
-        color: var(--teal-label);
-        animation: bob 1.6s ease-in-out infinite;
-      }
       .intro-hint .hint-accent {
-        color: var(--teal-label);
+        color: var(--white);
         font-weight: 500;
-      }
-      @keyframes bob {
-        0%,
-        100% {
-          transform: translateY(0);
-        }
-        50% {
-          transform: translateY(4px);
-        }
       }
       .intro-actions {
         display: flex;
@@ -1552,6 +1538,36 @@
         .scene {
           padding: 84px 6% 22px 6%;
         }
+        .eyebrow {
+          font-size: 10px;
+          letter-spacing: 0.2em;
+          margin-bottom: 14px;
+        }
+        #scene-intro .intro-name {
+          font-size: 42px;
+        }
+        .intro-handle {
+          font-size: 13px;
+          margin-top: 12px;
+        }
+        .intro-sub {
+          font-size: 14.5px;
+          line-height: 1.6;
+          margin-top: 16px;
+        }
+        .intro-hint {
+          font-size: 11px;
+          margin-top: 22px;
+        }
+        .intro-actions {
+          gap: 10px;
+          margin-top: 22px;
+        }
+        .btn-primary,
+        .btn-ghost {
+          padding: 13px 22px;
+          font-size: 10.5px;
+        }
         .reel-card {
           height: min(28vh, 220px);
         }
@@ -1566,8 +1582,12 @@
         .shot-loc {
           display: none;
         }
-        .tl-clip span {
+        .tl-clip .tl-name {
           display: none;
+        }
+        .tl-clip {
+          justify-content: center;
+          padding: 0 4px;
         }
         .hud {
           font-size: 9px;
@@ -2018,7 +2038,7 @@
         clip.className = "tl-clip";
         clip.style.flex = s.dur;
         clip.dataset.index = i;
-        clip.innerHTML = `<span>${String(i).padStart(2, "0")} — ${s.name.toUpperCase()}</span>`;
+        clip.innerHTML = `<span class="tl-num">${String(i).padStart(2, "0")}</span><span class="tl-name"> — ${s.name.toUpperCase()}</span>`;
         clip.addEventListener("click", () => {
           if (!dragging) goToScene(i);
         });
@@ -3225,14 +3245,14 @@
         },
         {
           key: "magenta",
-          swatch: "#c81dc2",
-          teal: "#c81dc2",
-          tealDim: "#7d1279",
-          tealLabel: "#f07dea",
-          tealRgb: "200,29,194",
-          bg3: "#1a0d1a",
-          dust: 0xc81dc2,
-          glow: 0xb01aab,
+          swatch: "#c94ec4",
+          teal: "#c94ec4",
+          tealDim: "#8a3487",
+          tealLabel: "#f0a8ec",
+          tealRgb: "201,78,196",
+          bg3: "#1a0f1a",
+          dust: 0xc94ec4,
+          glow: 0xa8449f,
           muted: "#a8939f",
         },
         {
