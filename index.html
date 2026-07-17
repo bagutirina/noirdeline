@@ -3234,16 +3234,16 @@
       /* ---------- accent color picker: pick any swatch, it becomes the site's accent ---------- */
       const THEMES = [
         {
-          key: "magenta",
-          swatch: "#c9668f",
-          teal: "#c9668f",
-          tealDim: "#8a3f5e",
-          tealLabel: "#f0b8d0",
-          tealRgb: "201,102,143",
-          bg3: "#1a1015",
-          dust: 0xc9668f,
-          glow: 0xb0567c,
-          muted: "#a89299",
+          key: "violet",
+          swatch: "#ae6ecf",
+          teal: "#ae6ecf",
+          tealDim: "#773399",
+          tealLabel: "#d0abe3",
+          tealRgb: "174,110,207",
+          bg3: "#150f1a",
+          dust: 0xae6ecf,
+          glow: 0x9346b9,
+          muted: "#a193a8",
         },
         {
           key: "teal",
@@ -3270,7 +3270,7 @@
           muted: "#a89e93",
         },
       ];
-      let currentTheme = "magenta";
+      let currentTheme = "violet";
       function applyTheme(key, persist) {
         const t = THEMES.find((x) => x.key === key) || THEMES[0];
         currentTheme = t.key;
@@ -3314,7 +3314,7 @@
           saved = localStorage.getItem("adelina-theme");
         } catch (e) {}
         applyTheme(
-          THEMES.some((t) => t.key === saved) ? saved : "magenta",
+          THEMES.some((t) => t.key === saved) ? saved : "violet",
           false,
         );
       })();
