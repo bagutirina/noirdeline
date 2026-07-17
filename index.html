@@ -967,10 +967,6 @@
         padding: 4px 5% 70px;
       }
       .cat-view-grid img {
-        width: auto;
-        max-width: 100%;
-        height: auto;
-        max-height: 640px;
         display: block;
         margin: 0 0 14px;
         break-inside: avoid;
@@ -989,9 +985,6 @@
         .cat-view-grid {
           column-count: 2;
         }
-        .cat-view-grid img {
-          max-height: 520px;
-        }
       }
       @media (max-width: 640px) {
         .cat-view-grid {
@@ -1000,7 +993,6 @@
         }
         .cat-view-grid img {
           margin-bottom: 8px;
-          max-height: 420px;
         }
       }
 
@@ -2812,12 +2804,48 @@
 
       /* ---------- category gallery + lightbox viewer (generic — works for any local category) ----------
          file lists (with real w/h) are known exact, so the grid renders immediately — no
-         network probing/waiting. Each <img> gets an explicit CSS aspect-ratio (not the
-         width/height attributes — those only hint the ratio and proved unreliable together
-         with column-count masonry), so the browser reserves the right box before the photo
-         even starts loading and the columns never reflow/jump as photos come in. If a file
-         genuinely doesn't exist it just quietly removes that tile instead of showing a
-         broken-image icon. */
+         network probing/waiting. Rather than trust the browser to resolve an "auto" width
+         capped by a max-height before the photo has loaded (unreliable together with
+         column-count masonry — it would still reflow as images came in), each photo's
+         on-screen width/height is computed explicitly, in pixels, before its <img> even
+         starts loading: fill the column, unless that would exceed the height cap, in which
+         case shrink proportionally (never cropped, never stretched). Recomputed on resize.
+         If a file genuinely doesn't exist it just quietly removes that tile instead of
+         showing a broken-image icon. */
+      function galleryLayout() {
+        const w = window.innerWidth;
+        if (w <= 640) return { columns: 1, maxHeight: 420 };
+        if (w <= 1100) return { columns: 2, maxHeight: 520 };
+        return { columns: 3, maxHeight: 640 };
+      }
+      function sizeCatViewImg(img, grid, layout) {
+        const w = Number(img.dataset.w);
+        const h = Number(img.dataset.h);
+        const cs = getComputedStyle(grid);
+        const gap = 14; // cosmetic only — matches column-gap, doesn't need to be exact
+        const contentWidth =
+          grid.clientWidth -
+          parseFloat(cs.paddingLeft) -
+          parseFloat(cs.paddingRight);
+        const colWidth =
+          (contentWidth - gap * (layout.columns - 1)) / layout.columns;
+        let width = colWidth;
+        let height = (width * h) / w;
+        if (height > layout.maxHeight) {
+          height = layout.maxHeight;
+          width = (height * w) / h;
+        }
+        img.style.width = Math.round(width) + "px";
+        img.style.height = Math.round(height) + "px";
+      }
+      function resizeCatViewImgs() {
+        if (!document.getElementById("cat-view").classList.contains("open"))
+          return;
+        const grid = document.getElementById("cat-view-grid");
+        const layout = galleryLayout();
+        catViewImgs().forEach((img) => sizeCatViewImg(img, grid, layout));
+      }
+      window.addEventListener("resize", resizeCatViewImgs);
       function openCatView(cat) {
         isPlaying = false;
         const view = document.getElementById("cat-view");
@@ -2825,11 +2853,14 @@
         document.getElementById("cat-view-title").textContent = cat.name;
         grid.innerHTML = "";
         view.classList.add("open");
+        const layout = galleryLayout();
         cat.photos.forEach((p, i) => {
           const img = document.createElement("img");
           img.loading = "lazy";
           img.alt = `${cat.name} ${i + 1}`;
-          img.style.aspectRatio = `${p.w} / ${p.h}`;
+          img.dataset.w = p.w;
+          img.dataset.h = p.h;
+          sizeCatViewImg(img, grid, layout);
           img.src = `${cat.folder}/${p.file}`;
           img.addEventListener("error", () => img.remove());
           img.addEventListener("click", () => {
