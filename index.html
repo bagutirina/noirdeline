@@ -962,16 +962,18 @@
         color: #04201c;
       }
       .cat-view-grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 14px;
+        column-count: 3;
+        column-gap: 14px;
         padding: 4px 5% 70px;
       }
       .cat-view-grid img {
-        height: 320px;
         width: auto;
         max-width: 100%;
+        height: auto;
+        max-height: 640px;
         display: block;
+        margin: 0 0 14px;
+        break-inside: avoid;
         cursor: pointer;
         background: var(--bg3);
         filter: brightness(0.92);
@@ -984,16 +986,21 @@
         transform: scale(1.015);
       }
       @media (max-width: 1100px) {
+        .cat-view-grid {
+          column-count: 2;
+        }
         .cat-view-grid img {
-          height: 260px;
+          max-height: 520px;
         }
       }
       @media (max-width: 640px) {
         .cat-view-grid {
-          gap: 8px;
+          column-count: 1;
+          column-gap: 8px;
         }
         .cat-view-grid img {
-          height: 200px;
+          margin-bottom: 8px;
+          max-height: 420px;
         }
       }
 
