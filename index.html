@@ -96,12 +96,12 @@
         inset: 0;
         z-index: 0;
         background: linear-gradient(
-          100deg,
+          59deg,
           var(--bg) 0%,
           var(--bg) 35%,
-          rgba(5, 9, 10, 0.55) 52%,
-          rgba(5, 9, 10, 0.25) 60%,
-          rgba(5, 9, 10, 0.08) 70%,
+          rgba(5, 9, 10, 0.55) 70%,
+          rgba(5, 9, 10, 0.25) 76%,
+          rgba(5, 9, 10, 0.08) 80%,
           transparent 82%
         );
       }
@@ -2144,6 +2144,21 @@
          its timeline — so autoplay never just sits still on a static screen. */
       let lastSpotlightIdx = -1;
       let lastReelIdx = -1;
+      let lastAboutIdx = -1;
+      // a gentler, slower alternative to el.scrollTo({behavior:"smooth"}) — the native
+      // version is quick and fixed-duration, this lets us set our own pace and easing
+      function smoothScrollTo(el, target, duration = 900) {
+        const start = el.scrollTop;
+        const change = target - start;
+        const startTime = performance.now();
+        function step(now) {
+          const t = Math.min(1, (now - startTime) / duration);
+          const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+          el.scrollTop = start + change * eased;
+          if (t < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      }
       function updateSceneMotion(idx, progress) {
         if (idx === 1 && filmstrip) {
           const max = filmstrip.scrollWidth - filmstrip.clientWidth;
@@ -2209,11 +2224,39 @@
           items.forEach((it, i) => {
             it.style.opacity = i < shown ? "1" : "0.25";
           });
+          const activeIdx = Math.min(shown, items.length) - 1;
+          if (activeIdx >= 0 && activeIdx !== lastAboutIdx) {
+            lastAboutIdx = activeIdx;
+            const el = document.getElementById("about-scroll");
+            const item = items[activeIdx];
+            if (el && item) {
+              const itemRect = item.getBoundingClientRect();
+              const elRect = el.getBoundingClientRect();
+              // only nudge the scroll if the newly-lit item isn't already visible —
+              // no point moving anything when it's already on screen
+              const alreadyVisible =
+                itemRect.top >= elRect.top && itemRect.bottom <= elRect.bottom;
+              if (!alreadyVisible) {
+                const target =
+                  el.scrollTop +
+                  (itemRect.top - elRect.top) -
+                  (el.clientHeight - itemRect.height) / 2;
+                smoothScrollTo(
+                  el,
+                  Math.max(
+                    0,
+                    Math.min(el.scrollHeight - el.clientHeight, target),
+                  ),
+                );
+              }
+            }
+          }
         }
       }
       function resetSceneMotion() {
         lastSpotlightIdx = -1;
         lastReelIdx = -1;
+        lastAboutIdx = -1;
         if (filmstrip)
           Array.from(filmstrip.children).forEach((c) =>
             c.classList.remove("active"),
@@ -2229,6 +2272,8 @@
         if (ps) ps.scrollTop = 0;
         const cs = document.getElementById("credits-scroll");
         if (cs) cs.scrollTop = 0;
+        const as = document.getElementById("about-scroll");
+        if (as) as.scrollTop = 0;
       }
 
       /* keyboard */
