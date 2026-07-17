@@ -982,14 +982,6 @@
         filter: brightness(1.05);
         transform: scale(1.015);
       }
-      .cat-view-loading {
-        padding: 50px 5%;
-        font-family: var(--font-mono);
-        font-size: 12px;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        color: var(--teal-label);
-      }
       @media (max-width: 1100px) {
         .cat-view-grid {
           column-count: 3;
@@ -2507,10 +2499,10 @@
          TO ADD A NEW LOCAL CATEGORY LATER: drop the files in images/<folder>/, name them
          <prefix>_000.jpg, <prefix>_001.jpg, ... sequentially, put one representative shot
          named exactly as `main` in that same folder, then add an entry here with folder/
-         prefix/ext/main/count. `count` is just a rough estimate of how many photos are in
-         there — the gallery auto-discovers everything up to (count + 24), so adding a few
-         more photos later needs NO code change at all. Only bump `count` if you add more
-         than ~24 beyond what's already configured. */
+         prefix/ext/main/numStart/count. `count` must be the exact number of files from
+         numStart to the last one, sequential with no gaps — the gallery no longer probes
+         the network to discover files, it renders the expected list immediately. Bump
+         `count` whenever photos are added or removed. */
       const photoCats = [
         {
           name: "Portraits",
@@ -2605,7 +2597,19 @@
           tag: "Design",
           folder: "images/graphic",
           prefix: "graphic",
-          ext: ["jpg", "png"],
+          ext: "png",
+          // this folder mixes jpg/png — exact extension per index, no runtime guessing
+          extMap: {
+            1: "jpg",
+            5: "jpg",
+            6: "jpg",
+            13: "jpg",
+            17: "jpg",
+            24: "jpg",
+            28: "jpg",
+            30: "jpg",
+            33: "jpg",
+          },
           main: "graphic.png",
           numStart: 1,
           count: 34,
@@ -2636,92 +2640,58 @@
         photoGrid.appendChild(el);
       });
 
-      /* ---------- category gallery + lightbox viewer (generic — works for any local category) ---------- */
-      const photoCatCache = new Map();
-      async function probePhotos(cat) {
-        if (photoCatCache.has(cat.name)) return photoCatCache.get(cat.name);
-        const { folder, prefix, count } = cat;
-        // ext can be a single extension ("jpg") or, for folders with mixed
-        // formats (e.g. graphic/, jpg+png side by side), an array to try in order
-        const exts = Array.isArray(cat.ext) ? cat.ext : [cat.ext];
-        const start = cat.numStart ?? 0;
-        const buffer = 24; // auto-extends this far past `count` before giving up — see note above
-        const chunk = 16; // parallel probes per batch, keeps discovery fast without hammering the server
-        const found = [];
-        let i = start;
-        const upper = start + count + buffer;
-        const probeOne = (n) =>
-          exts.reduce(
-            (chain, ext) =>
-              chain.then(
-                (hit) =>
-                  hit ||
-                  new Promise((res) => {
-                    const src = `${folder}/${prefix}_${String(n).padStart(3, "0")}.${ext}`;
-                    const img = new Image();
-                    img.onload = () => res(src);
-                    img.onerror = () => res(null);
-                    img.src = src;
-                  }),
-              ),
-            Promise.resolve(null),
-          );
-        while (i <= upper) {
-          const batch = [];
-          for (let k = 0; k < chunk && i <= upper; k++, i++) batch.push(i);
-          const results = await Promise.all(batch.map(probeOne));
-          const hits = results.filter(Boolean);
-          found.push(...hits);
-          // a whole batch with nothing found (after we've already found photos) means we've run past the end
-          if (hits.length === 0 && found.length > 0 && batch.length === chunk)
-            break;
-        }
-        photoCatCache.set(cat.name, found);
-        return found;
-      }
-
-      let currentCatPhotos = [];
+      /* ---------- category gallery + lightbox viewer (generic — works for any local category) ----------
+         file lists are known exact (see the doc note above), so the grid renders immediately —
+         no network probing/waiting. Each <img> resolves itself: on a mixed-format folder it
+         if a slot genuinely doesn't exist it just quietly removes that tile instead of
+         showing a broken-image icon — no retries, no guessing, one request per photo. */
       function openCatView(cat) {
         isPlaying = false;
         const view = document.getElementById("cat-view");
         const grid = document.getElementById("cat-view-grid");
         document.getElementById("cat-view-title").textContent = cat.name;
-        grid.innerHTML = `<div class="cat-view-loading">Loading gallery…</div>`;
+        grid.innerHTML = "";
         view.classList.add("open");
-        probePhotos(cat).then((photos) => {
-          if (!view.classList.contains("open")) return; // closed before it finished loading
-          currentCatPhotos = photos;
-          grid.innerHTML = "";
-          photos.forEach((src, i) => {
-            const img = document.createElement("img");
-            img.src = src;
-            img.loading = "lazy";
-            img.alt = `${cat.name} ${i + 1}`;
-            img.addEventListener("click", () => openLightbox(i));
-            grid.appendChild(img);
+        const start = cat.numStart ?? 0;
+        for (let k = 0; k < cat.count; k++) {
+          const num = start + k;
+          const n = String(num).padStart(3, "0");
+          const ext = (cat.extMap && cat.extMap[num]) || cat.ext;
+          const img = document.createElement("img");
+          img.loading = "lazy";
+          img.alt = `${cat.name} ${k + 1}`;
+          img.src = `${cat.folder}/${cat.prefix}_${n}.${ext}`;
+          img.addEventListener("error", () => img.remove());
+          img.addEventListener("click", () => {
+            openLightbox(Array.from(grid.children).indexOf(img));
           });
-        });
+          grid.appendChild(img);
+        }
       }
       function closeCatView() {
         document.getElementById("cat-view").classList.remove("open");
       }
 
+      function catViewImgs() {
+        return Array.from(
+          document.getElementById("cat-view-grid").querySelectorAll("img"),
+        );
+      }
       let lightboxIndex = 0;
       function openLightbox(i) {
         lightboxIndex = i;
-        document.getElementById("lightbox-img").src =
-          currentCatPhotos[lightboxIndex];
+        document.getElementById("lightbox-img").src = catViewImgs()[i].src;
         document.getElementById("lightbox").classList.add("open");
       }
       function closeLightbox() {
         document.getElementById("lightbox").classList.remove("open");
       }
       function lightboxNav(delta) {
-        const n = currentCatPhotos.length;
-        if (!n) return;
-        lightboxIndex = (lightboxIndex + delta + n) % n;
+        const imgs = catViewImgs();
+        if (!imgs.length) return;
+        lightboxIndex = (lightboxIndex + delta + imgs.length) % imgs.length;
         document.getElementById("lightbox-img").src =
-          currentCatPhotos[lightboxIndex];
+          imgs[lightboxIndex].src;
       }
 
       /* ---------- filmography shot list ---------- */
