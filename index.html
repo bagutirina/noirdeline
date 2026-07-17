@@ -513,7 +513,7 @@
         color: #04201c;
         background: radial-gradient(
           ellipse 85% 55% at center,
-          color-mix(in srgb, var(--teal) 78%, white 22%) 0%,
+          color-mix(in srgb, var(--teal) 90%, white 10%) 0%,
           var(--teal) 80%
         );
         padding: 15px 28px;
@@ -531,7 +531,7 @@
       .btn-primary:hover {
         background: radial-gradient(
           ellipse 85% 55% at center,
-          color-mix(in srgb, var(--teal-label) 78%, white 22%) 0%,
+          color-mix(in srgb, var(--teal-label) 90%, white 10%) 0%,
           var(--teal-label) 80%
         );
         transform: translateY(-2px);
@@ -1354,7 +1354,7 @@
       .form-submit {
         background: radial-gradient(
           ellipse 85% 55% at center,
-          color-mix(in srgb, var(--teal) 78%, white 22%) 0%,
+          color-mix(in srgb, var(--teal) 90%, white 10%) 0%,
           var(--teal) 80%
         );
         color: #04201c;
@@ -1375,7 +1375,7 @@
       .form-submit:hover {
         background: radial-gradient(
           ellipse 85% 55% at center,
-          color-mix(in srgb, var(--teal-label) 78%, white 22%) 0%,
+          color-mix(in srgb, var(--teal-label) 90%, white 10%) 0%,
           var(--teal-label) 80%
         );
         transform: translateY(-2px);
@@ -3234,6 +3234,18 @@
       /* ---------- accent color picker: pick any swatch, it becomes the site's accent ---------- */
       const THEMES = [
         {
+          key: "magenta",
+          swatch: "#c9668f",
+          teal: "#c9668f",
+          tealDim: "#8a3f5e",
+          tealLabel: "#f0b8d0",
+          tealRgb: "201,102,143",
+          bg3: "#1a1015",
+          dust: 0xc9668f,
+          glow: 0xb0567c,
+          muted: "#a89299",
+        },
+        {
           key: "teal",
           swatch: "#2ddcc4",
           teal: "#2ddcc4",
@@ -3244,18 +3256,6 @@
           dust: 0x26bfad,
           glow: 0x21b3a3,
           muted: "#93a9a6",
-        },
-        {
-          key: "magenta",
-          swatch: "#c94ec4",
-          teal: "#c94ec4",
-          tealDim: "#8a3487",
-          tealLabel: "#f0a8ec",
-          tealRgb: "201,78,196",
-          bg3: "#1a0f1a",
-          dust: 0xc94ec4,
-          glow: 0xa8449f,
-          muted: "#a8939f",
         },
         {
           key: "amber",
@@ -3270,7 +3270,7 @@
           muted: "#a89e93",
         },
       ];
-      let currentTheme = "teal";
+      let currentTheme = "magenta";
       function applyTheme(key, persist) {
         const t = THEMES.find((x) => x.key === key) || THEMES[0];
         currentTheme = t.key;
@@ -3313,7 +3313,10 @@
         try {
           saved = localStorage.getItem("adelina-theme");
         } catch (e) {}
-        applyTheme(THEMES.some((t) => t.key === saved) ? saved : "teal", false);
+        applyTheme(
+          THEMES.some((t) => t.key === saved) ? saved : "magenta",
+          false,
+        );
       })();
 
       addEventListener("resize", () => {
