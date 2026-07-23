@@ -459,7 +459,11 @@
         width: 5px;
       }
       .scroll-body::-webkit-scrollbar-thumb {
-        background: rgba(var(--teal-rgb), 0.3);
+        background: rgba(255, 255, 255, 0.1);
+        transition: background 0.3s;
+      }
+      .scroll-body:hover::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.32);
       }
       .scene.active {
         opacity: 1;
@@ -468,7 +472,11 @@
         width: 5px;
       }
       .scene::-webkit-scrollbar-thumb {
-        background: rgba(var(--teal-rgb), 0.3);
+        background: rgba(255, 255, 255, 0.1);
+        transition: background 0.3s;
+      }
+      .scene:hover::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.32);
       }
 
       .eyebrow {
