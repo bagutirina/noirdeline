@@ -1288,8 +1288,8 @@
         width: 1px;
         background: linear-gradient(
           to bottom,
-          var(--teal),
-          rgba(var(--teal-rgb), 0.05)
+          #3b7a72,
+          rgba(59, 122, 114, 0.05)
         );
       }
       .career-item {
@@ -1309,12 +1309,12 @@
         height: 9px;
         border-radius: 50%;
         background: var(--bg);
-        border: 2px solid var(--teal);
+        border: 2px solid #3b7a72;
       }
       .career-year {
         font-family: var(--font-mono);
         font-size: 11px;
-        color: var(--teal-label);
+        color: color-mix(in srgb, #3b7a72 75%, white 25%);
         letter-spacing: 0.08em;
       }
       .career-item b {
@@ -1423,12 +1423,8 @@
         min-height: 96px;
       }
       .form-submit {
-        background: radial-gradient(
-          ellipse 85% 55% at center,
-          color-mix(in srgb, var(--teal) 90%, white 10%) 0%,
-          var(--teal) 80%
-        );
-        color: #04201c;
+        background: #3b7a72;
+        color: #fff;
         border: none;
         padding: 13px 28px;
         /* font-family: var(--font-mono); */
@@ -1444,11 +1440,7 @@
         margin-top: 20px;
       }
       .form-submit:hover {
-        background: radial-gradient(
-          ellipse 85% 55% at center,
-          color-mix(in srgb, var(--teal-label) 90%, white 10%) 0%,
-          var(--teal-label) 80%
-        );
+        background: color-mix(in srgb, #3b7a72 85%, white 15%);
         transform: translateY(-2px);
       }
       .form-note {
