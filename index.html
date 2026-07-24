@@ -52,11 +52,32 @@
         --font-body: "Inter", sans-serif;
         --timeline-h: 64px;
       }
-      html,
-      body {
+      html {
         height: 100%;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+      }
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+        transition: background 0.3s;
+      }
+      ::-webkit-scrollbar-track:hover {
+        background: rgba(59, 122, 114, 0.08);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        transition: background 0.3s;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: color-mix(in srgb, #3b7a72 65%, black 35%);
       }
       body {
+        min-height: 100%;
+        padding-bottom: calc(var(--timeline-h) + 24px);
         background: var(--bg);
         background-image:
           linear-gradient(
@@ -79,7 +100,6 @@
         color: var(--white);
         font-family: var(--font-body);
         font-weight: 300;
-        overflow: hidden;
         transition: background-color 0.5s ease;
       }
 
@@ -407,39 +427,50 @@
         transform: rotate(0deg);
       }
 
-      /* ---------- stage / scenes ---------- */
+      /* ---------- stage / scenes ----------
+         the site is now one continuous vertical document: scenes stack
+         normally, in natural document flow, and the whole page scrolls
+         with the browser's own scrollbar — no internal per-section
+         scroll, no horizontal paging. Only the Intro hero keeps a fixed
+         one-screen height (set in px by JS); the Reel filmstrip keeps its
+         own horizontal scroll for the film cards. */
       .stage {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: var(--timeline-h);
-        overflow: hidden;
+        position: relative;
         z-index: 1;
       }
       .scene-track {
-        display: flex;
-        height: 100%;
-        transition: transform 0.85s cubic-bezier(0.65, 0, 0.2, 1);
-        will-change: transform;
+        display: block;
       }
       .scene {
-        width: 100vw;
-        height: 100%;
-        flex-shrink: 0;
-        overflow-y: auto;
-        overflow-x: hidden;
+        width: 100%;
         padding: 112px 8% 40px 8%;
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
-        opacity: 0.25;
-        transition: opacity 0.6s ease;
+      }
+      /* a little extra breathing room between Credits and Contact */
+      #scene-contact {
+        padding-top: 190px;
+        padding-bottom: 80px;
+      }
+      /* extra room above Contact's small "Contact" eyebrow, on top of the
+         section's own padding above — used to time the Roll Camera arrival
+         so the eyebrow (and the title/form below it) stay tucked under the
+         footer rather than sitting flush at top */
+      #scene-contact .eyebrow {
+        margin-top: 15vh;
+      }
+      /* Reel fills exactly one screen — top spacing + title + filmstrip
+         band + bottom spacing add up to 100vh (border-box), so while Roll
+         Camera scrubs the filmstrip in place, no other section peeks in
+         above or below it. .filmstrip-outer already has flex:1 and just
+         absorbs whatever's left after the eyebrow/title. */
+      #scene-reel {
+        height: 100vh;
       }
       .intro-hero {
         position: relative;
         flex: none;
-        min-height: 100%;
       }
       .intro-wrap {
         display: flex;
@@ -447,36 +478,10 @@
         justify-content: center;
         height: 100%;
       }
-      /* used by Photo & Credits: keeps the eyebrow/title pinned, only this part scrolls/advances */
+      /* Photo, Credits & Contact: eyebrow/title flow right into their content below, no
+         internal scroll — the whole page just keeps scrolling down naturally */
       .scroll-body {
-        flex: 1;
-        min-height: 0;
-        overflow-y: auto;
         margin-top: 8px;
-        padding-right: 22px;
-      }
-      .scroll-body::-webkit-scrollbar {
-        width: 5px;
-      }
-      .scroll-body::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1);
-        transition: background 0.3s;
-      }
-      .scroll-body:hover::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.32);
-      }
-      .scene.active {
-        opacity: 1;
-      }
-      .scene::-webkit-scrollbar {
-        width: 5px;
-      }
-      .scene::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1);
-        transition: background 0.3s;
-      }
-      .scene:hover::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.32);
       }
 
       .eyebrow {
@@ -631,11 +636,18 @@
          actually shows through the holes, like light through real film perforations */
       .filmstrip-outer {
         position: relative;
-        flex: 1;
+        /* sized to its own content (the film cards), not stretched to fill
+           the section — flex:1 was forcing the whole leftover screen height
+           onto this band even once the cards themselves had already hit
+           their own cap, leaving dead empty space above/below them inside
+           it. margin: auto 0 instead centers this naturally-sized band in
+           whatever room is left after the title, so real breathing space
+           shows up above it (title) and below it (footer) instead. */
+        flex: 0 0 auto;
         display: flex;
         align-items: center;
         min-height: 0;
-        margin-top: 24px;
+        margin: auto 0;
         padding: 20px 0;
         background: #181818;
         border-top: 3px solid #0a0908;
@@ -677,6 +689,7 @@
         align-items: center;
         gap: 16px;
         overflow-x: auto;
+        overflow-y: hidden;
         width: 100%;
         padding: 0 4px 6px;
         scrollbar-width: none;
@@ -728,7 +741,11 @@
       .reel-card {
         position: relative;
         flex-shrink: 0;
-        height: min(46vh, 380px);
+        /* self-contained — a fraction of the viewport, capped both ends —
+           so it never depends on how tall its (now content-sized) parent
+           band happens to be, and never grows so large it eats the gaps
+           we're trying to keep around the band */
+        height: clamp(200px, 38vh, 400px);
         width: auto;
         aspect-ratio: 16/9;
         background: var(--bg3);
@@ -1236,11 +1253,11 @@
         text-align: right;
       }
 
-      /* ---------- about (lives under Intro now, reached by scrolling down) ---------- */
+      /* ---------- about (its own section now, right under Intro) ---------- */
       .about-lead {
-        margin-top: 190px;
+        margin-top: 0;
       }
-      #scene-intro .about-wrap {
+      #scene-about .about-wrap {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 70px;
@@ -1310,12 +1327,20 @@
         border-radius: 50%;
         background: var(--bg);
         border: 2px solid #3b7a72;
+        transition: background 0.4s ease;
+      }
+      .career-item.active::before {
+        background: #3b7a72;
       }
       .career-year {
         font-family: var(--font-mono);
         font-size: 11px;
         color: color-mix(in srgb, #3b7a72 75%, white 25%);
         letter-spacing: 0.08em;
+        transition: color 0.4s ease;
+      }
+      .career-item.active .career-year {
+        color: color-mix(in srgb, #3b7a72 45%, white 55%);
       }
       .career-item b {
         display: block;
@@ -1579,7 +1604,7 @@
       }
 
       @media (max-width: 900px) {
-        #scene-intro .about-wrap,
+        #scene-about .about-wrap,
         #scene-contact .contact-wrap {
           grid-template-columns: 1fr;
           gap: 40px;
@@ -1623,6 +1648,9 @@
         .scene {
           padding: 84px 6% 22px 6%;
         }
+        #scene-contact {
+          padding-top: 150px;
+        }
         .intro-photo,
         .intro-scrim,
         .intro-wash {
@@ -1664,7 +1692,7 @@
           padding-right: 16px;
         }
         .reel-card {
-          height: min(28vh, 220px);
+          height: clamp(150px, 30vh, 220px);
         }
         .photo-grid {
           grid-template-columns: 1fr;
@@ -1778,13 +1806,15 @@
                 <button class="btn-primary" id="roll-btn" onclick="pressPlay()">
                   ▶ Roll Camera
                 </button>
-                <button class="btn-ghost" onclick="goToScene(4)">
+                <button class="btn-ghost" onclick="goToScene(5)">
                   Cut to Contact →
                 </button>
               </div>
             </div>
           </div>
+        </section>
 
+        <section class="scene" id="scene-about" data-scene="1">
           <div class="about-lead">
             <div class="eyebrow">Who's Behind the Camera</div>
             <h2 class="scene-title">About</h2>
@@ -1844,7 +1874,7 @@
           <div class="about-spacer" id="about-spacer" aria-hidden="true"></div>
         </section>
 
-        <section class="scene" id="scene-reel" data-scene="1">
+        <section class="scene" id="scene-reel" data-scene="2">
           <div class="eyebrow">Selected Work</div>
           <h2 class="scene-title">The Reel</h2>
           <div class="filmstrip-outer">
@@ -1882,19 +1912,15 @@
           </div>
         </section>
 
-        <section class="scene" id="scene-photo" data-scene="2">
+        <section class="scene" id="scene-photo" data-scene="3">
           <div class="eyebrow">Photography</div>
           <h2 class="scene-title">Behind the Stills</h2>
           <div class="scroll-body" id="photo-scroll">
             <div class="photo-grid" id="photo-grid"></div>
-            <p class="photo-hint">
-              Live galleries for now — full-resolution originals landing here
-              soon.
-            </p>
           </div>
         </section>
 
-        <section class="scene" id="scene-credits" data-scene="3">
+        <section class="scene" id="scene-credits" data-scene="4">
           <div class="eyebrow">Filmography</div>
           <h2 class="scene-title">Credits</h2>
           <div class="scroll-body" id="credits-scroll">
@@ -1909,7 +1935,7 @@
           </div>
         </section>
 
-        <section class="scene" id="scene-contact" data-scene="4">
+        <section class="scene" id="scene-contact" data-scene="5">
           <div class="eyebrow">Contact</div>
           <h2 class="scene-title">Let's Make Something</h2>
           <div class="scroll-body" id="contact-scroll">
@@ -2090,29 +2116,23 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
       /* =========================================================
-         SCENE / TIMELINE SYSTEM
-         The whole site is one horizontal reel. Scenes are "clips";
-         navigation happens through the bottom timeline scrubber,
-         not a conventional page menu.
+         SCENE / SCROLL SYSTEM
+         The site is one continuous vertical page. Scenes stack in
+         normal document flow; navigation is native scrolling. The
+         bottom timeline bar is a live reflection of scroll position
+         (which scene is in view, and how far through the page you
+         are) plus a quick-jump control — it no longer "drives" the
+         page the way it used to.
       ========================================================= */
       const scenes = [
-        { key: "intro", name: "Intro", dur: 22 },
-        { key: "reel", name: "Reel", dur: 24 },
+        { key: "intro", name: "Intro", dur: 12 },
+        { key: "about", name: "About", dur: 18 },
+        { key: "reel", name: "Reel", dur: 16 },
         { key: "photo", name: "Photo", dur: 18 },
         { key: "credits", name: "Credits", dur: 20 },
         { key: "contact", name: "Contact", dur: 10 },
       ];
-      const total = scenes.reduce((a, s) => a + s.dur, 0);
-      const starts = [];
-      {
-        let acc = 0;
-        scenes.forEach((s) => {
-          starts.push(acc);
-          acc += s.dur;
-        });
-      }
 
-      const track = document.getElementById("scene-track");
       const sceneEls = Array.from(document.querySelectorAll(".scene"));
       const tlTrack = document.getElementById("tl-track");
       const tlTrackWrap = document.getElementById("tl-track-wrap");
@@ -2120,339 +2140,603 @@
       const hudText = document.getElementById("hud-text");
       const playIcon = document.getElementById("play-icon");
 
-      let currentTime = 0.001;
       let currentIndex = 0;
       let isPlaying = false;
       let dragging = false;
+      // non-null exactly while our own eased scroll (smoothScrollWindowTo,
+      // used by nudgeIntoView) is animating — declared up here, ahead of
+      // updatePlayhead below, since that reads it on every scroll event
+      // from the moment the page loads.
+      let nudgeRAF = null;
 
-      /* build timeline clips */
+      /* build timeline clips — widths are just a proportional visual hint now,
+         not a duration. There's deliberately no separate "click" handler here:
+         the track's own pointerdown/scrubToRatio below already handles a
+         plain click as a zero-movement drag, positioning the pin AND the
+         screen together at the exact point clicked. A second click handler
+         calling goToScene on top of that used to fire right after (pointerup
+         always precedes click, so it always re-triggered), silently undoing
+         whatever scrubToRatio had just set — that's what caused the pin to
+         "jump" to a different spot than what was clicked. */
       scenes.forEach((s, i) => {
         const clip = document.createElement("div");
         clip.className = "tl-clip";
         clip.style.flex = s.dur;
         clip.dataset.index = i;
         clip.innerHTML = `<span class="tl-num">${String(i).padStart(2, "0")}</span><span class="tl-name"> — ${s.name.toUpperCase()}</span>`;
-        clip.addEventListener("click", () => {
-          if (!dragging) goToScene(i);
-        });
         tlTrack.appendChild(clip);
       });
       const tlClips = Array.from(tlTrack.querySelectorAll(".tl-clip"));
 
-      function indexForTime(t) {
-        for (let i = scenes.length - 1; i >= 0; i--)
-          if (t >= starts[i]) return i;
-        return 0;
+      function setActiveIndex(i) {
+        if (i === currentIndex) return;
+        currentIndex = i;
+        tlClips.forEach((c, idx) => c.classList.toggle("active", idx === i));
+        menuItems.forEach((m, idx) => m.classList.toggle("active", idx === i));
+        hudText.textContent = `REC · SC ${String(i + 1).padStart(2, "0")} — ${scenes[i].name.toUpperCase()}`;
       }
 
       function renderUI() {
-        const idx = indexForTime(currentTime);
-        if (idx !== currentIndex) {
-          currentIndex = idx;
-          track.style.transform = `translateX(-${currentIndex * 100}vw)`;
-          sceneEls.forEach((el, i) =>
-            el.classList.toggle("active", i === currentIndex),
-          );
-          tlClips.forEach((c, i) =>
-            c.classList.toggle("active", i === currentIndex),
-          );
-          menuItems.forEach((m, i) =>
-            m.classList.toggle("active", i === currentIndex),
-          );
-          hudText.textContent = `REC · SC ${String(currentIndex + 1).padStart(2, "0")} — ${scenes[currentIndex].name.toUpperCase()}`;
-        }
-        tlPlayhead.style.left = (currentTime / total) * 100 + "%";
         playIcon.innerHTML = isPlaying
           ? '<rect x="5" y="3" width="5" height="18"/><rect x="14" y="3" width="5" height="18"/>'
           : '<polygon points="5,3 19,12 5,21"/>';
       }
+
+      /* which scene is "current" is decided by real scroll position — whichever
+         scene occupies a band near the top of the viewport wins. Works the same
+         whether the user drags the page by hand or Roll Camera auto-scrolls it */
+      const sceneObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const i = sceneEls.indexOf(entry.target);
+              if (i !== -1) setActiveIndex(i);
+            }
+          });
+        },
+        { rootMargin: "-35% 0px -55% 0px", threshold: 0 },
+      );
+      sceneEls.forEach((el) => sceneObserver.observe(el));
+
+      /* footer playhead normally just reflects how far down the whole
+         document we are — but during a scene whose "movement" isn't page
+         scroll (About's dot-fill, Reel's filmstrip scrub), it instead
+         tracks progress *within that clip's own width* in the footer */
+      function updatePlayhead() {
+        // Every scripted phase (clap, dot-fill, filmstrip scrub, photo
+        // walkthrough, the Credits→Contact scroll) and every manual pin
+        // drag positions the pin itself, locally, via setPlayheadInClip —
+        // this generic whole-document-scroll version must never fight
+        // those. It's gated on three things, not on which scene happens to
+        // be "current": isPlaying covers a Roll Camera run start-to-finish,
+        // regardless of how the IntersectionObserver's own async timing
+        // updates currentIndex mid-scroll (which, on a long leg like
+        // Credits→Contact, can flip a little before the animation itself
+        // actually finishes); dragging covers a manual pin drag; and
+        // nudgeRAF covers the tail of any of our own eased scrolls
+        // (nudgeIntoView), which can keep animating for a few hundred ms
+        // after a plain click already ended the drag — waking this back up
+        // in that gap was exactly what caused the pin to jump to an
+        // unrelated spot while the screen still landed correctly.
+        if (isPlaying || dragging || nudgeRAF) return;
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        const frac =
+          max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+        tlPlayhead.style.left = frac * 100 + "%";
+      }
+      window.addEventListener("scroll", updatePlayhead, { passive: true });
+      updatePlayhead();
+
+      function setPlayheadInClip(clipIndex, frac) {
+        const clip = tlClips[clipIndex];
+        if (!clip) return;
+        const trackRect = tlTrack.getBoundingClientRect();
+        const clipRect = clip.getBoundingClientRect();
+        const leftPx =
+          clipRect.left -
+          trackRect.left +
+          Math.max(0, Math.min(1, frac)) * clipRect.width;
+        tlPlayhead.style.left = (leftPx / trackRect.width) * 100 + "%";
+      }
+
       // init active states
       sceneEls[0].classList.add("active");
       tlClips[0].classList.add("active");
       renderUI();
 
-      // pins the hero (photo + name) to exactly one screen's worth of height, in
-      // real pixels — a plain CSS min-height:100% on a flex item can come out a few
-      // pixels short or long depending on the browser/device, which is exactly what
-      // let a sliver of About peek in on load on some screens. This removes the guesswork.
+      // the hero (photo + name) stays exactly one screen tall — measured in real
+      // pixels against the viewport, minus the scene's own top padding (which
+      // clears the fixed header). About simply flows right below it, no jump needed.
       function syncIntroHero() {
-        // the hero should fill exactly #scene-intro's own content box (one screen,
-        // minus its top/bottom padding) — clientHeight alone includes that padding,
-        // which is what was making the hero overshoot a full screen
         const el = document.getElementById("scene-intro");
         const hero = document.querySelector("#scene-intro .intro-hero");
         if (!el || !hero) return;
         const cs = getComputedStyle(el);
         const padTop = parseFloat(cs.paddingTop) || 0;
-        const padBottom = parseFloat(cs.paddingBottom) || 0;
-        hero.style.height = el.clientHeight - padTop - padBottom + "px";
+        hero.style.height = window.innerHeight - padTop + "px";
       }
+      syncIntroHero();
+      window.addEventListener("resize", syncIntroHero);
+      window.addEventListener("load", syncIntroHero);
 
-      // how far below the fixed header the About title should land after the hard
-      // cut — shared by the spacer calc below and the jump logic further down, so
-      // they can never drift out of sync with each other
-      const ABOUT_TOP_GAP = 160;
+      // Reel likewise stays exactly one screen tall — measured the same way
+      // (real px against window.innerHeight, not a bare 100vh unit), because
+      // on mobile 100vh is often taller than what's actually visible once the
+      // browser's address bar is accounted for, which was cutting the bottom
+      // of the section off. The fixed footer timeline bar also floats on top
+      // of whatever's beneath it, so its height has to come out of the
+      // section's own box too — otherwise the last ~64-90px of the filmstrip
+      // band sit right behind it, invisible/unusable. The filmstrip band
+      // (flex:1) absorbs whatever's left after that.
+      function syncReelHeight() {
+        const el = document.getElementById("scene-reel");
+        const footer = document.querySelector(".timeline-bar");
+        if (!el) return;
+        const footerH = footer ? footer.offsetHeight : 0;
+        el.style.height = window.innerHeight - footerH + "px";
+      }
+      syncReelHeight();
+      window.addEventListener("resize", syncReelHeight);
+      window.addEventListener("load", syncReelHeight);
 
-      // adds only the exact bit of empty space below About (if any) that the hard-cut
-      // jump needs in order to be reachable — no more, since that was the sole reason
-      // for the extra room in the first place
-      function syncAboutSpacer() {
-        const el = document.getElementById("scene-intro");
-        const lead = document.querySelector("#scene-intro .about-lead");
-        const spacer = document.getElementById("about-spacer");
-        if (!el || !lead || !spacer) return;
-        spacer.style.minHeight = "0px"; // reset first so it doesn't affect its own measurement
-        const leadRect = lead.getBoundingClientRect();
-        const elRect = el.getBoundingClientRect();
-        const target = leadRect.top - elRect.top - ABOUT_TOP_GAP;
-        const maxScroll = el.scrollHeight - el.clientHeight;
-        spacer.style.minHeight = Math.max(0, target - maxScroll) + "px";
-      }
-      function syncIntroLayout() {
-        syncIntroHero();
-        syncAboutSpacer();
-      }
-      syncIntroLayout();
-      window.addEventListener("resize", syncIntroLayout);
-      window.addEventListener("load", syncIntroLayout);
-
-      function goToTime(t) {
-        currentTime = Math.max(0.001, Math.min(total - 0.001, t));
-        renderUI();
-        // scrub to any point and the scene's content (filmstrip/spotlight/credits/about) catches up
-        // to exactly where it would be if the timeline had actually played there
-        const idx = indexForTime(currentTime);
-        const progress = Math.min(
-          1,
-          Math.max(0, (currentTime - starts[idx]) / scenes[idx].dur),
-        );
-        updateSceneMotion(idx, progress);
-      }
       function goToScene(i) {
+        i = Math.max(0, Math.min(scenes.length - 1, i));
         isPlaying = false;
-        resetSceneMotion();
-        goToTime(starts[i] + 0.05);
+        stopAutoScroll();
+        renderUI();
+        sceneEls[i].scrollIntoView({ behavior: "smooth", block: "start" });
       }
       function nextScene() {
-        goToScene(Math.min(scenes.length - 1, currentIndex + 1));
+        goToScene(currentIndex + 1);
       }
       function prevScene() {
-        goToScene(Math.max(0, currentIndex - 1));
+        goToScene(currentIndex - 1);
       }
-      // the clapperboard beat: hush the screen, slam the bar shut, use that cover to
-      // skip past the brief hero window (so About is already framed the instant the
-      // bar clears), then start rolling — shared by Roll Camera and by the bottom
-      // Play button whenever it's starting completely fresh from 00:00
-      function startPlaybackWithClap() {
-        const overlay = document.getElementById("clap-overlay");
-        const top = document.getElementById("clap-top");
-        overlay.classList.add("show");
-        setTimeout(() => {
-          top.classList.add("clap");
-          setTimeout(() => {
-            const heroFrac = INTRO_HERO_DUR / scenes[0].dur;
-            const aboutStart = starts[0] + scenes[0].dur * heroFrac + 0.05;
-            if (currentTime < aboutStart) goToTime(aboutStart);
-            isPlaying = true;
-            renderUI();
 
-            setTimeout(() => {
+      /* Roll Camera presents the site as a scripted tour, section by
+         section — each one gets whatever "movement" actually suits it,
+         rather than one continuous scroll for everything:
+           00 Intro    — just the clapperboard beat, page doesn't move
+           01 About    — hard cut to About's top, then the list lights up
+                         item by item (no scroll)
+           02 Reel     — hard cut to Reel's top, then the filmstrip scrubs
+                         itself (page still doesn't scroll)
+           03/04       — Photo → Credits: normal continuous scroll, same
+                         gentle pace as before
+           05 Contact  — arrives and just sits still, nothing left to reveal
+         Any manual scroll input, or pressing pause, cancels whatever phase
+         is running and freezes exactly where it is — no snap-back. */
+      const AUTO_SCROLL_SPEED = 55; // px/sec, used for the Photo→Credits leg
+      let playToken = 0;
+      function stopAutoScroll() {
+        playToken++;
+      }
+      // a plain cancel-aware pause, used to linger a moment on a finished
+      // beat (e.g. the last career dot) before cutting to the next section
+      function pauseFor(ms, token) {
+        return new Promise((resolve) => {
+          setTimeout(() => resolve(token === playToken && isPlaying), ms);
+        });
+      }
+      function goToSceneInstant(i) {
+        const el = sceneEls[i];
+        if (!el) return;
+        window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY);
+      }
+      // continuous scroll to an exact target Y at a steady pace — used only
+      // for the normal Photo→Credits leg
+      function autoScrollTo(targetY, token, speed = AUTO_SCROLL_SPEED) {
+        return new Promise((resolve) => {
+          let lastT = null;
+          function step(now) {
+            if (token !== playToken || !isPlaying) return resolve(false);
+            if (lastT == null) lastT = now;
+            const dt = (now - lastT) / 1000;
+            lastT = now;
+            const dir = targetY > window.scrollY ? 1 : -1;
+            const next = window.scrollY + dir * speed * dt;
+            const reached = dir > 0 ? next >= targetY : next <= targetY;
+            window.scrollTo(0, reached ? targetY : next);
+            if (reached) return resolve(true);
+            requestAnimationFrame(step);
+          }
+          requestAnimationFrame(step);
+        });
+      }
+      // About: lights the career dots up one by one, at a fixed pace — if
+      // cancelled partway, whatever's already lit just stays that way, and
+      // resuming continues from the first unlit item rather than restarting.
+      // The footer pin glides smoothly across the whole time (one continuous
+      // motion, not a jump per dot); the dots themselves still flip on their
+      // own beat, timed to land exactly when the pin passes their mark.
+      // nudges the page just enough to bring an element clear of the fixed
+      // header/footer — a no-op if it's already comfortably visible (which
+      // is always true on desktop, where the whole list fits one screen)
+      // a custom eased scroll, gentler and more fluid than the browser's own
+      // native "smooth" (which tends to feel abrupt over short distances) —
+      // safe to call again mid-animation, it just re-eases from wherever it
+      // currently is
+      function smoothScrollWindowTo(target, duration = 550) {
+        if (nudgeRAF) cancelAnimationFrame(nudgeRAF);
+        const start = window.scrollY;
+        const change = target - start;
+        if (Math.abs(change) < 1) return;
+        const startTime = performance.now();
+        function step(now) {
+          const t = Math.min(1, (now - startTime) / duration);
+          const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+          window.scrollTo(0, start + change * eased);
+          nudgeRAF = t < 1 ? requestAnimationFrame(step) : null;
+        }
+        nudgeRAF = requestAnimationFrame(step);
+      }
+      // the target scrollY that would bring `el` clear of the fixed
+      // header/footer — null if it's already comfortably visible. Pure/
+      // stable regardless of current scroll position, so both the animated
+      // nudge (Play) and a direct jump (manual pin drag) can share it and
+      // always agree on exactly where "revealed" means for that element.
+      function computeNudgeTarget(el) {
+        const header = document.querySelector(".site-header");
+        const footer = document.querySelector(".timeline-bar");
+        const topSafe = (header ? header.offsetHeight : 0) + 16;
+        const bottomSafe = (footer ? footer.offsetHeight : 0) + 90;
+        const r = el.getBoundingClientRect();
+        if (r.top >= topSafe && r.bottom <= window.innerHeight - bottomSafe)
+          return null;
+        let target;
+        if (r.bottom > window.innerHeight - bottomSafe) {
+          target =
+            window.scrollY + (r.bottom - (window.innerHeight - bottomSafe));
+        } else {
+          target = window.scrollY - (topSafe - r.top);
+        }
+        return Math.max(0, target);
+      }
+      function nudgeIntoView(el) {
+        const target = computeNudgeTarget(el);
+        if (target == null) return;
+        smoothScrollWindowTo(target);
+      }
+      // where Roll Camera's Credits→Contact leg actually stops — not with
+      // Contact's title flush at the top, but with it just tucked under the
+      // footer bar, still hidden. (A plain jump to Contact — the menu, the
+      // keyboard, the "Cut to Contact" button — still lands on the normal,
+      // fully-visible page; this one's only used by the scripted tour and
+      // by dragging the pin through clips 04/05.)
+      function contactRevealTarget() {
+        const eyebrowEl = document.querySelector("#scene-contact .eyebrow");
+        const footer = document.querySelector(".timeline-bar");
+        if (!eyebrowEl)
+          return sceneEls[5].getBoundingClientRect().top + window.scrollY;
+        const footerH = footer ? footer.offsetHeight : 0;
+        const eyebrowBottom =
+          eyebrowEl.getBoundingClientRect().bottom + window.scrollY;
+        return Math.max(0, eyebrowBottom - (window.innerHeight - footerH) + 8);
+      }
+      // where the Credits→Contact leg settles once fully revealed — a touch
+      // past the section's own bare top, so the title rides a little higher
+      // on screen than a plain arrival would (rather than sitting right at
+      // the very top edge, just under the header).
+      function contactSettledTop() {
+        const base = sceneEls[5].getBoundingClientRect().top + window.scrollY;
+        return base + 170;
+      }
+      function playCareerReveal(token) {
+        return new Promise((resolve) => {
+          const perItem = 650;
+          const total = careerItems.length * perItem;
+          const startShown = careerItems.filter((it) =>
+            it.classList.contains("active"),
+          ).length;
+          const startFrac = startShown / careerItems.length;
+          if (startFrac >= 1) return resolve(true);
+          const remaining = total * (1 - startFrac);
+          const start = performance.now();
+          let lastShown = startShown;
+          function step(now) {
+            if (token !== playToken || !isPlaying) return resolve(false);
+            const t = Math.min(1, (now - start) / remaining);
+            const frac = startFrac + t * (1 - startFrac);
+            const shown = Math.min(
+              careerItems.length,
+              Math.ceil(frac * careerItems.length),
+            );
+            for (let k = 0; k < shown; k++)
+              careerItems[k].classList.add("active");
+            if (shown > lastShown) {
+              nudgeIntoView(careerItems[shown - 1]);
+              lastShown = shown;
+            }
+            setPlayheadInClip(1, frac);
+            if (t < 1) requestAnimationFrame(step);
+            else resolve(true);
+          }
+          requestAnimationFrame(step);
+        });
+      }
+      // Reel: scrubs the filmstrip across all cards over a fixed duration —
+      // never touches the page scroll. Resumes from wherever the strip
+      // already is (never snaps back to the start).
+      function playFilmstripScrub(token, duration = 8500) {
+        return new Promise((resolve) => {
+          if (!filmstrip) return resolve(true);
+          const max = filmstrip.scrollWidth - filmstrip.clientWidth;
+          if (max <= 0) return resolve(true);
+          const startPos = filmstrip.scrollLeft;
+          const remaining = max - startPos;
+          if (remaining <= 0) return resolve(true);
+          const effectiveDuration = duration * (remaining / max);
+          const start = performance.now();
+          function step(now) {
+            if (token !== playToken || !isPlaying) return resolve(false);
+            const t = Math.min(1, (now - start) / effectiveDuration);
+            filmstrip.scrollLeft = startPos + t * remaining;
+            setPlayheadInClip(2, (startPos + t * remaining) / max);
+            if (t < 1) requestAnimationFrame(step);
+            else resolve(true);
+          }
+          requestAnimationFrame(step);
+        });
+      }
+      // Photo: walks through the album cards one at a time, left to right,
+      // row by row — the current one gets the same "hovered" spotlight look
+      // as a real hover, with a smooth scroll-into-view if it's off-screen.
+      // Resumes from whichever card is already spotlighted, not the start.
+      function playPhotoWalkthrough(token, perCard = 900) {
+        return new Promise((resolve) => {
+          if (!photoGrid || !photoGrid.children.length) return resolve(true);
+          const cards = Array.from(photoGrid.children);
+          const total = cards.length * perCard;
+          const startIdx = Math.max(
+            0,
+            cards.findIndex((c) => c.classList.contains("spotlight")),
+          );
+          const startFrac = startIdx / cards.length;
+          if (startFrac >= 1) return resolve(true);
+          const remaining = total * (1 - startFrac);
+          const start = performance.now();
+          let lastShown = -1;
+          function step(now) {
+            if (token !== playToken || !isPlaying) return resolve(false);
+            const t = Math.min(1, (now - start) / remaining);
+            const frac = startFrac + t * (1 - startFrac);
+            const shown = Math.min(
+              cards.length - 1,
+              Math.floor(frac * cards.length),
+            );
+            if (shown !== lastShown) {
+              cards.forEach((c, k) =>
+                c.classList.toggle("spotlight", k === shown),
+              );
+              nudgeIntoView(cards[shown]);
+              lastShown = shown;
+            }
+            setPlayheadInClip(3, frac);
+            if (t < 1) requestAnimationFrame(step);
+            else resolve(true);
+          }
+          requestAnimationFrame(step);
+        });
+      }
+      // Credits: one single continuous, slow scroll spanning the section's
+      // entire own top down to just short of Contact — the whole credits
+      // list scrolls by naturally along the way. The footer pin glides
+      // across clip 04's own width in exact lockstep the whole time. It
+      // finishes with Contact's title tucked just under the footer bar
+      // (still hidden, not flush at the top) and the pin exactly at the
+      // start of clip 05 — the same instant, no separate leg needed after
+      // this one. Resumes from wherever the scroll already is if
+      // interrupted, never snaps back to the top.
+      function playCreditsToContact(token, duration = 16000) {
+        return new Promise((resolve) => {
+          const creditsEl = sceneEls[4];
+          if (!creditsEl) return resolve(true);
+          const top = creditsEl.getBoundingClientRect().top + window.scrollY;
+          const target = contactRevealTarget();
+          if (target <= top) {
+            setPlayheadInClip(4, 1);
+            return resolve(true);
+          }
+          const startFrac = Math.max(
+            0,
+            Math.min(1, (window.scrollY - top) / (target - top)),
+          );
+          if (startFrac >= 1) {
+            setPlayheadInClip(4, 1);
+            return resolve(true);
+          }
+          const remaining = duration * (1 - startFrac);
+          const start = performance.now();
+          function step(now) {
+            if (token !== playToken || !isPlaying) return resolve(false);
+            const t = Math.min(1, (now - start) / remaining);
+            const frac = startFrac + t * (1 - startFrac);
+            window.scrollTo(0, top + frac * (target - top));
+            setPlayheadInClip(4, frac);
+            if (t < 1) requestAnimationFrame(step);
+            else resolve(true);
+          }
+          requestAnimationFrame(step);
+        });
+      }
+      // Contact: the screen is already exactly where it needs to be
+      // (Contact's title flush at the top) — nothing left to scroll. The
+      // pin just keeps gliding on its own, all the way to the very end of
+      // the footer bar, to mark the tour as actually finished.
+      function playContactPinAdvance(token, duration = 1800) {
+        return new Promise((resolve) => {
+          const start = performance.now();
+          function step(now) {
+            if (token !== playToken || !isPlaying) return resolve(false);
+            const t = Math.min(1, (now - start) / duration);
+            setPlayheadInClip(5, t);
+            if (t < 1) requestAnimationFrame(step);
+            else resolve(true);
+          }
+          requestAnimationFrame(step);
+        });
+      }
+      // Intro: the clapperboard beat — hush, slam the bar shut, lift it. The
+      // footer pin glides across the whole 00 segment in sync with this beat.
+      function playClap(token) {
+        const HUSH = 700,
+          CLOSE = 550,
+          LIFT = 260;
+        const total = HUSH + CLOSE + LIFT;
+        return new Promise((resolve) => {
+          const overlay = document.getElementById("clap-overlay");
+          const top = document.getElementById("clap-top");
+          overlay.classList.add("show");
+          const start = performance.now();
+          function tick(now) {
+            if (token !== playToken || !isPlaying) return;
+            const elapsed = now - start;
+            setPlayheadInClip(0, Math.min(1, elapsed / total));
+            if (elapsed < total) requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+          setTimeout(() => {
+            if (token !== playToken || !isPlaying) {
               overlay.classList.remove("show");
-              top.classList.remove("clap");
-            }, 260);
-          }, 550);
-        }, 700);
+              return resolve(false);
+            }
+            top.classList.add("clap");
+            setTimeout(() => {
+              setTimeout(() => {
+                overlay.classList.remove("show");
+                top.classList.remove("clap");
+              }, LIFT);
+              resolve(token === playToken && isPlaying);
+            }, CLOSE);
+          }, HUSH);
+        });
+      }
+      async function runPresentation() {
+        const token = ++playToken;
+        isPlaying = true;
+        renderUI();
+        let idx = currentIndex;
+
+        if (idx <= 0) {
+          if (!(await playClap(token))) return;
+          goToSceneInstant(1);
+          idx = 1;
+        }
+        if (idx <= 1) {
+          if (!(await playCareerReveal(token))) return;
+          if (!(await pauseFor(900, token))) return;
+          goToSceneInstant(2);
+          idx = 2;
+        }
+        if (idx <= 2) {
+          if (!(await playFilmstripScrub(token))) return;
+          goToSceneInstant(3);
+          idx = 3;
+        }
+        if (idx <= 3) {
+          if (!(await playPhotoWalkthrough(token))) return;
+          // land cleanly on Credits' top — its title/eyebrow is exactly
+          // what's on screen the instant this segment starts
+          goToSceneInstant(4);
+          idx = 4;
+        }
+        if (idx <= 4) {
+          // one single continuous, slow scroll for this whole segment —
+          // from Credits' own top down to just short of Contact, the
+          // credits list scrolling by naturally along the way. The pin
+          // glides across clip 04's width in exact lockstep the entire
+          // time. It finishes with Contact's eyebrow tucked under the
+          // footer bar and the pin exactly at the start of clip 05.
+          if (!(await playCreditsToContact(token))) return;
+          idx = 5;
+        }
+        if (idx <= 5) {
+          // the moment clip 05 begins: one decisive smooth scroll the rest
+          // of the way, so the "Contact" eyebrow rises clear of the footer
+          // and the whole page — title and form included — comes into view.
+          // The default AUTO_SCROLL_SPEED (55px/s) was tuned for the old
+          // gentle Photo→Credits crawl; at that pace this leg reads as a
+          // stalled half-scroll that never quite arrives, not the clean
+          // "jump — but animated" she's after. A much faster speed here
+          // still animates (not an instant cut) but actually completes.
+          const contactTop = contactSettledTop();
+          if (!(await autoScrollTo(contactTop, token, 900))) return;
+          // then the screen stays put — only the pin keeps going, the rest
+          // of the way to the very end of the bar, marking the tour as done
+          if (!(await playContactPinAdvance(token))) return;
+        }
+        isPlaying = false;
+        renderUI();
       }
       function pressPlay() {
-        startPlaybackWithClap();
+        runPresentation();
       }
       function togglePlay() {
         if (isPlaying) {
           // pause simply freezes everything exactly where it is — no snap back
           isPlaying = false;
           renderUI();
+          stopAutoScroll();
           return;
         }
-        // starting from a full stop: if the timer never left 00:00, roll it in with
-        // the same clapperboard beat as Roll Camera, so the footer timer only starts
-        // moving once the bar has actually cleared — never mid-hush
-        if (currentTime <= 0.05) {
-          startPlaybackWithClap();
-          return;
-        }
-        isPlaying = true;
-        renderUI();
+        runPresentation();
       }
+      // any manual scroll input from the user gently pauses the presentation,
+      // so it never fights the person's own hand
+      ["wheel", "touchstart"].forEach((evt) =>
+        window.addEventListener(
+          evt,
+          () => {
+            if (isPlaying) togglePlay();
+          },
+          { passive: true },
+        ),
+      );
 
-      /* content inside a scene keeps moving while it plays — filmstrip scrubs,
-         photo spotlight cycles, credits scroll like an end-crawl, about reveals
-         its timeline — so autoplay never just sits still on a static screen. */
-      let lastSpotlightIdx = -1;
-      let lastReelIdx = -1;
-      let lastAboutIdx = -1;
-      let introPhase = null; // "hero" | "about" — which half of the merged Intro/About scene we're on
-      const INTRO_HERO_DUR = 1.5; // just long enough for the striped cut bar to show and clear, then straight to About
-      // a gentler, slower alternative to el.scrollTo({behavior:"smooth"}) — the native
-      // version is quick and fixed-duration, this lets us set our own pace and easing
-      function smoothScrollTo(el, target, duration = 700) {
-        const start = el.scrollTop;
-        const change = target - start;
-        const startTime = performance.now();
-        function step(now) {
-          const t = Math.min(1, (now - startTime) / duration);
-          const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-          el.scrollTop = start + change * eased;
-          if (t < 1) requestAnimationFrame(step);
-        }
-        requestAnimationFrame(step);
-      }
-      function updateSceneMotion(idx, progress) {
-        if (idx === 0) {
-          // the hero never scrolls away under the timer — it just sits there until
-          // the timer crosses into the About portion, then it's a hard cut down,
-          // like an edit, not a slow scroll through Adelina's photo
-          const el = document.getElementById("scene-intro");
-          const items = document.querySelectorAll("#scene-intro .career-item");
-          const heroFrac = INTRO_HERO_DUR / scenes[0].dur;
-          if (progress < heroFrac) {
-            if (introPhase !== "hero") {
-              introPhase = "hero";
-              el.scrollTop = 0;
-              lastAboutIdx = -1;
-            }
-            items.forEach((it) => {
-              it.style.opacity = "0.25";
-            });
-          } else {
-            if (introPhase !== "about") {
-              introPhase = "about";
-              const lead = document.querySelector("#scene-intro .about-lead");
-              if (lead) {
-                // measured live off the rendered box, targeting the About title
-                // itself (not an assumed hero height) — lands with a small, fixed
-                // bit of breathing room under the header, on any screen size
-                const leadRect = lead.getBoundingClientRect();
-                const elRect = el.getBoundingClientRect();
-                el.scrollTop =
-                  el.scrollTop + (leadRect.top - elRect.top) - ABOUT_TOP_GAP;
-              } else {
-                el.scrollTop = el.scrollHeight;
-              }
-            }
-            const aboutProgress = (progress - heroFrac) / (1 - heroFrac);
-            const shown = Math.ceil(aboutProgress * items.length);
-            items.forEach((it, i) => {
-              it.style.opacity = i < shown ? "1" : "0.25";
-            });
-            const activeIdx = Math.min(shown, items.length) - 1;
-            if (activeIdx >= 0 && activeIdx !== lastAboutIdx) {
-              lastAboutIdx = activeIdx;
-              const item = items[activeIdx];
-              if (item) {
-                const itemRect = item.getBoundingClientRect();
-                const elRect = el.getBoundingClientRect();
-                // only nudge the scroll if the newly-lit item isn't already visible
-                const alreadyVisible =
-                  itemRect.top >= elRect.top &&
-                  itemRect.bottom <= elRect.bottom;
-                if (!alreadyVisible) {
-                  const target =
-                    el.scrollTop +
-                    (itemRect.top - elRect.top) -
-                    (el.clientHeight - itemRect.height) / 2;
-                  smoothScrollTo(
-                    el,
-                    Math.max(
-                      0,
-                      Math.min(el.scrollHeight - el.clientHeight, target),
-                    ),
-                  );
-                }
-              }
-            }
-          }
-        } else if (idx === 1 && filmstrip) {
-          const max = filmstrip.scrollWidth - filmstrip.clientWidth;
-          if (max > 0) filmstrip.scrollLeft = progress * max;
-          // whichever card sits closest to the center of the strip lights up, like the photo spotlight
-          const cards = filmstrip.children;
-          if (cards.length) {
-            const stripRect = filmstrip.getBoundingClientRect();
-            const centerX = stripRect.left + stripRect.width / 2;
-            let closest = 0,
-              closestDist = Infinity;
-            Array.from(cards).forEach((c, i) => {
-              const r = c.getBoundingClientRect();
-              const dist = Math.abs(r.left + r.width / 2 - centerX);
-              if (dist < closestDist) {
-                closestDist = dist;
-                closest = i;
-              }
-            });
-            if (closest !== lastReelIdx) {
-              lastReelIdx = closest;
-              Array.from(cards).forEach((c, i) =>
-                c.classList.toggle("active", i === closest),
-              );
-            }
-          }
-        } else if (idx === 2 && photoGrid) {
-          const cards = photoGrid.children;
-          const active = Math.min(
-            cards.length - 1,
-            Math.floor(progress * cards.length),
-          );
-          if (active !== lastSpotlightIdx) {
-            lastSpotlightIdx = active;
-            Array.from(cards).forEach((c, i) =>
-              c.classList.toggle("spotlight", i === active),
-            );
-            const el = document.getElementById("photo-scroll");
-            const card = cards[active];
-            if (el && card) {
-              const cardRect = card.getBoundingClientRect();
-              const elRect = el.getBoundingClientRect();
-              const target =
-                el.scrollTop +
-                (cardRect.top - elRect.top) -
-                (el.clientHeight - cardRect.height) / 2;
-              el.scrollTo({
-                top: Math.max(
-                  0,
-                  Math.min(el.scrollHeight - el.clientHeight, target),
-                ),
-                behavior: "smooth",
-              });
-            }
-          }
-        } else if (idx === 3) {
-          const el = document.getElementById("credits-scroll");
-          const max = el.scrollHeight - el.clientHeight;
-          if (max > 0) el.scrollTop = progress * max;
-        }
-      }
-      function resetSceneMotion() {
-        lastSpotlightIdx = -1;
-        lastReelIdx = -1;
-        lastAboutIdx = -1;
-        introPhase = null;
-        if (filmstrip)
-          Array.from(filmstrip.children).forEach((c) =>
-            c.classList.remove("active"),
-          );
-        if (photoGrid)
-          Array.from(photoGrid.children).forEach((c) =>
-            c.classList.remove("spotlight"),
-          );
-        document.querySelectorAll("#scene-intro .career-item").forEach((it) => {
-          it.style.opacity = "";
+      /* About's career items are always visible/readable now (no opacity
+         gating). The dots fill in progressively as you scroll past them —
+         each one that's crossed the mid-line stays filled, like a progress
+         trail, not just whichever one is currently centered. Works the same
+         on manual scroll or during Roll Camera autoplay. */
+      const careerItems = Array.from(
+        document.querySelectorAll("#scene-about .career-item"),
+      );
+      function updateCareerProgress() {
+        if (!careerItems.length) return;
+        const lineY = window.innerHeight * 0.5;
+        careerItems.forEach((it) => {
+          const r = it.getBoundingClientRect();
+          it.classList.toggle("active", r.top + r.height / 2 < lineY);
         });
-        const introEl = document.getElementById("scene-intro");
-        if (introEl) introEl.scrollTop = 0;
-        const ps = document.getElementById("photo-scroll");
-        if (ps) ps.scrollTop = 0;
-        const cs = document.getElementById("credits-scroll");
-        if (cs) cs.scrollTop = 0;
+      }
+      window.addEventListener("scroll", updateCareerProgress, {
+        passive: true,
+      });
+      window.addEventListener("resize", updateCareerProgress);
+      updateCareerProgress();
+
+      /* Reel filmstrip: whichever card sits closest to the center of the
+         strip lights up — purely reactive to the filmstrip's own scroll,
+         not tied to page scroll at all */
+      function updateReelActiveCard() {
+        if (!filmstrip) return;
+        const cards = filmstrip.children;
+        if (!cards.length) return;
+        const stripRect = filmstrip.getBoundingClientRect();
+        const centerX = stripRect.left + stripRect.width / 2;
+        let closest = 0,
+          closestDist = Infinity;
+        Array.from(cards).forEach((c, i) => {
+          const r = c.getBoundingClientRect();
+          const dist = Math.abs(r.left + r.width / 2 - centerX);
+          if (dist < closestDist) {
+            closestDist = dist;
+            closest = i;
+          }
+        });
+        Array.from(cards).forEach((c, i) =>
+          c.classList.toggle("active", i === closest),
+        );
       }
 
       /* keyboard */
@@ -2535,86 +2819,164 @@
       });
       menuItems[0].classList.add("active");
 
-      /* drag-to-scrub on timeline */
-      function timeFromPointer(clientX) {
-        const rect = tlTrackWrap.getBoundingClientRect();
-        const ratio = Math.max(
-          0,
-          Math.min(1, (clientX - rect.left) / rect.width),
-        );
-        return ratio * total;
+      /* drag-to-scrub on the footer timeline. Over most of the bar this
+         scrubs real page scroll, same as before — but over the 01-About and
+         02-Reel clips specifically, there's no page scroll to scrub (those
+         sections don't move the page during Roll Camera either), so
+         dragging there instead scrubs THAT section's own progress directly
+         — the dot-fill state, or the filmstrip position — exactly mirroring
+         whatever Roll Camera would show at that pin position. */
+      let dragZone = -1;
+      // scrubs the clapperboard bar itself to match a position within the 00
+      // segment — no page scroll, transitions disabled so it tracks the
+      // pointer 1:1 instead of animating on its own pace
+      function setClapProgress(frac) {
+        const overlay = document.getElementById("clap-overlay");
+        const stack = overlay.querySelector(".clap-stack");
+        const top = document.getElementById("clap-top");
+        overlay.style.transition = "none";
+        stack.style.transition = "none";
+        top.style.transition = "none";
+        const fadeIn = Math.min(1, frac / 0.4);
+        const closeT = Math.max(0, Math.min(1, (frac - 0.4) / 0.3));
+        overlay.style.opacity = fadeIn;
+        stack.style.opacity = fadeIn;
+        stack.style.transform = `scale(${0.45 + 0.55 * fadeIn})`;
+        top.style.transform = `rotate(${-16 + 16 * closeT}deg)`;
+        overlay.classList.toggle("show", frac > 0.001);
       }
-      let dragMoved = false;
+      // hands the clap elements back to their normal CSS-driven state once
+      // the drag leaves the 00 segment (or ends)
+      function clearClapScrub() {
+        const overlay = document.getElementById("clap-overlay");
+        const stack = overlay.querySelector(".clap-stack");
+        const top = document.getElementById("clap-top");
+        overlay.classList.remove("show");
+        top.classList.remove("clap");
+        [overlay, stack, top].forEach((el) => {
+          el.style.transition = "";
+          el.style.opacity = "";
+          el.style.transform = "";
+        });
+      }
+      function scrubToRatio(ratio) {
+        const trackRect = tlTrack.getBoundingClientRect();
+        const xPx = Math.max(
+          0,
+          Math.min(trackRect.width, ratio * trackRect.width),
+        );
+        let idx = 0;
+        let localFrac = 0;
+        for (let k = 0; k < tlClips.length; k++) {
+          const r = tlClips[k].getBoundingClientRect();
+          const left = r.left - trackRect.left;
+          const right = left + r.width;
+          if (xPx >= left - 0.5 && xPx <= right + 0.5) {
+            idx = k;
+            localFrac = r.width > 0 ? (xPx - left) / r.width : 0;
+            break;
+          }
+        }
+        // claim currentIndex synchronously, right now — the scroll jump
+        // below (goToSceneInstant) fires its own "scroll" event, and the
+        // IntersectionObserver that normally updates currentIndex only
+        // reacts to that asynchronously, a frame or more later. Without
+        // this, updatePlayhead could wake up in that gap still thinking
+        // we're on the previous scene, decide zones 0-3 don't apply, and
+        // stomp the pin we're about to set with a whole-document scroll
+        // fraction instead.
+        setActiveIndex(idx);
+        if (dragZone === 0 && idx !== 0) clearClapScrub();
+        if (idx === 0) {
+          if (dragZone !== 0) goToSceneInstant(0);
+          setClapProgress(localFrac);
+          setPlayheadInClip(0, localFrac);
+        } else if (idx === 1) {
+          if (dragZone !== 1) goToSceneInstant(1);
+          // same ceil() Play uses, so a given fraction always lights the
+          // same number of dots whether it got there by play or by drag
+          const shown = Math.min(
+            careerItems.length,
+            Math.ceil(localFrac * careerItems.length),
+          );
+          careerItems.forEach((it, i) =>
+            it.classList.toggle("active", i < shown),
+          );
+          setPlayheadInClip(1, localFrac);
+        } else if (idx === 2) {
+          if (dragZone !== 2) goToSceneInstant(2);
+          if (filmstrip) {
+            const max = filmstrip.scrollWidth - filmstrip.clientWidth;
+            if (max > 0) filmstrip.scrollLeft = localFrac * max;
+          }
+          setPlayheadInClip(2, localFrac);
+        } else if (idx === 3) {
+          if (dragZone !== 3) goToSceneInstant(3);
+          if (photoGrid && photoGrid.children.length) {
+            const cards = Array.from(photoGrid.children);
+            const shown = Math.min(
+              cards.length - 1,
+              Math.floor(localFrac * cards.length),
+            );
+            cards.forEach((c, k) =>
+              c.classList.toggle("spotlight", k === shown),
+            );
+            nudgeIntoView(cards[shown]);
+          }
+          setPlayheadInClip(3, localFrac);
+        } else if (idx === 4) {
+          // Credits: Play scrolls continuously from this section's own top
+          // to the same "just short of Contact" point over the whole clip
+          // — so dragging here interpolates between those exact same two
+          // points, landing on precisely the same scroll position Play
+          // would show at that fraction.
+          if (dragZone !== 4) goToSceneInstant(4);
+          const top = sceneEls[4].getBoundingClientRect().top + window.scrollY;
+          const target = contactRevealTarget();
+          if (target > top) {
+            window.scrollTo(0, top + localFrac * (target - top));
+          }
+          setPlayheadInClip(4, localFrac);
+        } else if (idx === 5) {
+          // Contact: Play only spends a brief instant at the "still hidden"
+          // position right at the very start of this clip, then reveals the
+          // full page and stays there for virtually all of it — so dragging
+          // anywhere here shows that steady, fully-revealed state (eyebrow,
+          // title and form all visible), same as Play does for nearly the
+          // whole width of this clip.
+          if (dragZone !== 5) {
+            window.scrollTo(0, contactSettledTop());
+          }
+          setPlayheadInClip(5, localFrac);
+        }
+        dragZone = idx;
+      }
+      function ratioFromPointer(clientX) {
+        const rect = tlTrackWrap.getBoundingClientRect();
+        return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      }
       function endDrag() {
         if (!dragging) return;
         dragging = false;
+        if (dragZone === 0) clearClapScrub();
+        dragZone = -1;
         tlTrackWrap.classList.remove("dragging");
-        track.style.transition = ""; // hand scene transitions back to their normal eased animation
       }
       tlTrackWrap.addEventListener("pointerdown", (e) => {
         dragging = true;
-        dragMoved = false;
         isPlaying = false;
+        stopAutoScroll();
+        dragZone = -1;
         tlTrackWrap.classList.add("dragging");
-        goToTime(timeFromPointer(e.clientX)); // plain click still gets the nice eased jump
+        scrubToRatio(ratioFromPointer(e.clientX));
         tlTrackWrap.setPointerCapture(e.pointerId);
       });
       tlTrackWrap.addEventListener("pointermove", (e) => {
         if (!dragging) return;
-        if (!dragMoved) {
-          dragMoved = true;
-          track.style.transition = "none";
-        } // real drag starts: follow the pointer 1:1, no easing lag
-        goToTime(timeFromPointer(e.clientX));
+        scrubToRatio(ratioFromPointer(e.clientX));
       });
       tlTrackWrap.addEventListener("pointerup", endDrag);
       tlTrackWrap.addEventListener("pointercancel", endDrag);
-
-      /* swipe on stage (touch only, horizontal) */
-      let touchStartX = null;
-      document.querySelector(".stage").addEventListener(
-        "touchstart",
-        (e) => {
-          touchStartX = e.touches[0].clientX;
-        },
-        { passive: true },
-      );
-      document.querySelector(".stage").addEventListener(
-        "touchend",
-        (e) => {
-          if (touchStartX === null) return;
-          const dx = e.changedTouches[0].clientX - touchStartX;
-          if (Math.abs(dx) > 60) {
-            dx < 0 ? nextScene() : prevScene();
-          }
-          touchStartX = null;
-        },
-        { passive: true },
-      );
-
-      /* autoplay loop */
-      let lastT = performance.now();
-      function playLoop(now) {
-        const dt = (now - lastT) / 1000;
-        lastT = now;
-        if (isPlaying && !dragging) {
-          currentTime += dt;
-          if (currentTime >= total - 0.05) {
-            currentTime = total - 0.05;
-            isPlaying = false;
-            // reaching the very end also just freezes in place, same as any pause
-          }
-          renderUI();
-          const idx = indexForTime(currentTime);
-          const progress = Math.min(
-            1,
-            Math.max(0, (currentTime - starts[idx]) / scenes[idx].dur),
-          );
-          updateSceneMotion(idx, progress);
-        }
-        requestAnimationFrame(playLoop);
-      }
-      requestAnimationFrame(playLoop);
 
       /* ---------- film grain ---------- */
       (function grain() {
@@ -2695,6 +3057,10 @@
           <div class="reel-label"><b>${item.title}</b><span>${item.role}</span></div>`;
         filmstrip.appendChild(card);
       });
+      filmstrip.addEventListener("scroll", updateReelActiveCard, {
+        passive: true,
+      });
+      updateReelActiveCard();
 
       /* left/right nudge zones — hold down for a gentle continuous glide, like scrubbing
          a reel by hand, and let go to stop; a lot more natural than a fixed jump per click */
@@ -2707,22 +3073,11 @@
         window.removeEventListener("pointerup", stopFilmstripGlide);
         window.removeEventListener("pointercancel", stopFilmstripGlide);
       }
-      // keep the footer timeline (playhead + active reel-card highlight) in step
-      // with wherever the filmstrip ends up, exactly as if the user had scrubbed it there
-      function syncTimelineToFilmstrip() {
-        const max = filmstrip.scrollWidth - filmstrip.clientWidth;
-        const progress = max > 0 ? filmstrip.scrollLeft / max : 0;
-        currentTime = starts[1] + progress * scenes[1].dur;
-        renderUI();
-        updateSceneMotion(1, progress);
-      }
       function startFilmstripGlide(dir) {
-        isPlaying = false;
         stopFilmstripGlide();
         const speed = 6; // px per frame — a gentle, constant glide
         const step = () => {
           filmstrip.scrollLeft += dir * speed;
-          syncTimelineToFilmstrip();
           filmstripGlideRAF = requestAnimationFrame(step);
         };
         filmstripGlideRAF = requestAnimationFrame(step);
@@ -4183,8 +4538,6 @@
         targetFocus = Math.max(0, Math.min(1, 0.5 + gy * 0.5));
         targetCamX = Math.max(-1, Math.min(1, gx)) * 0.8;
       });
-
-      //
 
       let t3 = 0;
       let currentBoost = 1.6;
