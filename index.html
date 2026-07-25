@@ -2394,7 +2394,21 @@
         hero.style.height = window.innerHeight - padTop - footerH + "px";
       }
       syncIntroHero();
-      window.addEventListener("resize", syncIntroHero);
+      // Mobile browsers fire their own 'resize' event mid-scroll whenever
+      // the address bar collapses/expands (innerHeight changes, innerWidth
+      // doesn't) — recomputing the hero's height right then, while a finger
+      // scroll is still settling, is what read as the page taking a small
+      // reverse-scroll/snap right as the gesture ended: the photo's bottom
+      // edge and the text (both anchored relative to the hero's own height)
+      // jumped to match the newly-resized box. Only resync on an actual
+      // width change (rotation, real window resize) — a same-width resize
+      // is the address bar, not a real layout change, so it's ignored.
+      let lastHeroWidth = window.innerWidth;
+      window.addEventListener("resize", () => {
+        if (window.innerWidth === lastHeroWidth) return;
+        lastHeroWidth = window.innerWidth;
+        syncIntroHero();
+      });
       window.addEventListener("load", syncIntroHero);
 
       // the hero's text detaches from the photo as you scroll past it —
@@ -2491,7 +2505,15 @@
         el.style.height = window.innerHeight - footerH + "px";
       }
       syncReelHeight();
-      window.addEventListener("resize", syncReelHeight);
+      // same address-bar-vs-real-resize guard as the intro hero above —
+      // otherwise scrolling past Reel on mobile would get the same small
+      // reverse-scroll/snap glitch whenever the toolbar collapses.
+      let lastReelWidth = window.innerWidth;
+      window.addEventListener("resize", () => {
+        if (window.innerWidth === lastReelWidth) return;
+        lastReelWidth = window.innerWidth;
+        syncReelHeight();
+      });
       window.addEventListener("load", syncReelHeight);
 
       /* header: fully transparent over the hero, gains a soft blurred
