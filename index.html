@@ -183,6 +183,15 @@
           transparent 80%
         );
       }
+      /* fades out on scroll (JS) alongside .intro-wrap's own parallax —
+         a plain opacity fade only, no movement of its own, so it just
+         recedes into the page background rather than detaching/rising
+         the way the text layer does. */
+      .intro-photo,
+      .intro-scrim,
+      .intro-wash {
+        transition: opacity 0.12s linear;
+      }
       #grain {
         position: fixed;
         inset: 0;
@@ -1749,13 +1758,6 @@
         .intro-wash {
           mix-blend-mode: soft-light;
           background: linear-gradient(
-            to top,
-            rgba(26, 132, 120, 0.95) 0%,
-            rgba(26, 132, 120, 0.6) 25%,
-            rgba(26, 132, 120, 0.15) 48%,
-            transparent 68%
-          );
-          background: linear-gradient(
             100deg,
             rgba(26, 132, 120, 0.95) 0%,
             rgba(26, 132, 120, 0.6) 45%,
@@ -2388,11 +2390,17 @@
       // the way, so by about half the hero's height it's nearly gone while
       // the photo (untouched here, scrolling at its own normal pace) is
       // still clearly there and the next section is already showing below.
-      // Only .intro-wrap gets this treatment — the photo/scrim/wash layers
-      // are left exactly as they are.
+      // .intro-wrap (the text) gets the dip+rise translateY treatment below.
+      // The photo/scrim/wash layers get their own, simpler fade — pure
+      // opacity, no transform of any kind — so the photo just recedes into
+      // the page background as you scroll, instead of detaching/lifting the
+      // way the text does.
       const introWrapEl = document.querySelector("#scene-intro .intro-wrap");
       const introHeroForParallax = document.querySelector(
         "#scene-intro .intro-hero",
+      );
+      const introPhotoLayers = document.querySelectorAll(
+        "#scene-intro .intro-photo, #scene-intro .intro-scrim, #scene-intro .intro-wash",
       );
       // Eased 0→1 ramp between edge0/edge1 with zero slope at both ends —
       // used instead of a hard min/max clamp so there's no corner in the
@@ -2432,6 +2440,15 @@
         const rise = Math.pow(riseU, 1.4) * 420;
         introWrapEl.style.transform = `translateY(${dip - rise}px)`;
         introWrapEl.style.opacity = 1 - Math.pow(t, 1.3);
+        // Photo layers: opacity only, no transform — a plain recede into
+        // the page background, independent of the text's dip/rise. Uses
+        // smoothstep (not the same power curve as the text) so it fades
+        // out evenly across the full scroll range instead of tailing off
+        // fast near the end the way the text's opacity does.
+        const photoFade = 1 - smoothstep(0, 1, t);
+        introPhotoLayers.forEach((el) => {
+          el.style.opacity = photoFade;
+        });
       }
       let heroParallaxRAF = null;
       function queueHeroParallax() {
