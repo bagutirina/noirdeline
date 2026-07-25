@@ -140,6 +140,18 @@
         background-position: 60% 30%;
         background-repeat: no-repeat;
       }
+      /* two stacked layers over the hero photo, not one:
+         .intro-scrim (below, normal blend) does the actual darkening that
+         keeps the text readable — soft-light alone only colors, it never
+         darkens, so without this layer the text sits on the raw photo.
+         .intro-wash (above, soft-light) is the teal "gel" — colors the
+         dark areas only, leaves the highlights (the light in her hair)
+         alone, so it reads as colored light hitting the scene rather than
+         a flat UI tint. Both bleed the full hero width via the same
+         -112px/-8vw insets as the photo itself — never narrow this to
+         .intro-wrap's own box, or the gel's edge shows as a hard vertical
+         seam partway across the screen instead of fading out over the
+         photo. */
       .intro-scrim {
         position: absolute;
         top: -112px;
@@ -149,9 +161,10 @@
         z-index: 0;
         background: linear-gradient(
           100deg,
-          #0c0a09 33%,
-          rgba(12, 10, 9, 0.72) 52%,
-          rgba(12, 10, 9, 0.12) 78%
+          rgba(12, 10, 9, 0.92) 0%,
+          rgba(12, 10, 9, 0.8) 28%,
+          rgba(12, 10, 9, 0.35) 48%,
+          rgba(12, 10, 9, 0) 66%
         );
       }
       .intro-wash {
@@ -161,11 +174,13 @@
         bottom: 0;
         left: -8vw;
         z-index: 0;
-        mix-blend-mode: multiply;
+        mix-blend-mode: soft-light;
         background: linear-gradient(
-          19deg,
-          rgba(9, 25, 24, 0.4),
-          rgba(5, 9, 10, 0.05) 85%
+          100deg,
+          rgba(26, 132, 120, 0.95) 0%,
+          rgba(26, 132, 120, 0.6) 45%,
+          rgba(26, 132, 120, 0.15) 68%,
+          transparent 80%
         );
       }
       #grain {
@@ -568,7 +583,7 @@
       #scene-intro .intro-name {
         font-family: var(--font-display);
         font-size: clamp(52px, 9vw, 120px);
-        line-height: 0.94;
+        line-height: 1.08;
         letter-spacing: 0.01em;
         text-transform: uppercase;
       }
@@ -1683,34 +1698,70 @@
           grid-template-columns: 1fr;
           gap: 40px;
         }
+      }
+      /* TABLET (≤1024px): the desktop .intro-photo insets (left:11vw,
+         right:-25vw — tuned wide, to shift the crop past the background
+         crew member) leave an ~19vw gap at this narrower width, with
+         nothing behind it but the plain page background — visible as a
+         band down the left edge. Pulled back to a neutral, symmetric
+         bleed here (matching .intro-scrim/.intro-wash's own -8vw) so the
+         photo covers edge to edge again. Desktop (>1024) is untouched —
+         this only fixes .intro-photo. .intro-scrim/.intro-wash keep their
+         own base inset always (never offset here) — a diagonal gradient
+         was tried and rejected (concentrates the dark end into one corner
+         instead of a band, reads as a stain), and below 1024px soft-light
+         has no midtones to work with, so it goes invisible over a mostly-
+         dark base — switched to a plain vertical gradient + normal blend
+         instead. Text drops to the bottom to sit clear of the now-clearer
+         photo. */
+      @media (max-width: 1024px) {
+        .intro-photo {
+          right: -8vw;
+          left: -8vw;
+        }
         #scene-intro .intro-wrap {
           max-width: 100%;
           justify-content: flex-end;
-          padding-bottom: 20px;
+          padding-bottom: 110px;
         }
+        #scene-intro .intro-name {
+          font-size: clamp(48px, 9vw, 72px);
+        }
+        /* same trick as desktop, just rotated to bottom→top since the text
+           sits at the bottom here instead of the left: scrim holds near-
+           solid black for a real stretch first (rgba stays at .95 from 0%
+           to 30%, not just a single point), THEN fades through midtones
+           to fully clear. soft-light on .intro-wash can't lighten/tint
+           pure black at all (that's the whole mechanism) — so over that
+           solid-black stretch the teal is invisible and it just reads as
+           black; only once the scrim itself has faded into greys does the
+           teal actually become visible, i.e. "black holds, then a green
+           light" instead of green everywhere down low. */
         .intro-scrim {
-          background-image:
-            linear-gradient(
-              to bottom,
-              transparent 0%,
-              transparent 32%,
-              rgba(5, 9, 10, 0.5) 48%,
-              rgba(5, 9, 10, 0.5) 100%
-            ),
-            linear-gradient(
-              to bottom,
-              transparent 0%,
-              transparent 42%,
-              rgba(5, 9, 10, 0.65) 58%,
-              rgba(5, 9, 10, 0.92) 100%
-            );
-          background-size:
-            55% 100%,
-            100% 100%;
-          background-position:
-            left top,
-            left top;
-          background-repeat: no-repeat, no-repeat;
+          background: linear-gradient(
+            to top,
+            rgba(12, 10, 9, 0.95) 0%,
+            rgba(12, 10, 9, 0.95) 18%,
+            rgba(12, 10, 9, 0.55) 45%,
+            rgba(12, 10, 9, 0) 65%
+          );
+        }
+        .intro-wash {
+          mix-blend-mode: soft-light;
+          background: linear-gradient(
+            to top,
+            rgba(26, 132, 120, 0.95) 0%,
+            rgba(26, 132, 120, 0.6) 25%,
+            rgba(26, 132, 120, 0.15) 48%,
+            transparent 68%
+          );
+          background: linear-gradient(
+            100deg,
+            rgba(26, 132, 120, 0.95) 0%,
+            rgba(26, 132, 120, 0.6) 45%,
+            rgba(26, 132, 120, 0.15) 68%,
+            transparent 80%
+          );
         }
       }
       @media (max-width: 768px) {
@@ -1722,13 +1773,6 @@
         }
         .intro-photo {
           top: -150px;
-          right: -6vw;
-          bottom: 0;
-          left: -6vw;
-        }
-        .intro-scrim,
-        .intro-wash {
-          top: -84px;
           right: -6vw;
           bottom: 0;
           left: -6vw;
@@ -1801,6 +1845,33 @@
         .tl-btn {
           width: 30px;
           height: 30px;
+        }
+      }
+      /* true small-phone refinements only — .intro-photo's own position is
+         untouched here on purpose. Scrim/wash are no longer restated at
+         this size — the ≤1024px block's "black holds, then a green light"
+         version already applies all the way down (it's not scoped to a
+         lower bound), so mobile now gets the exact same effect as
+         tablet, not a separate weaker one. */
+      @media (max-width: 640px) {
+        /* the tablet block above already sets these same three properties
+           (it applies at every width ≤1024px, not just down to 641) —
+           restated here only to tighten padding-bottom a touch further
+           for true small phones. */
+        #scene-intro .intro-wrap {
+          max-width: 100%;
+          justify-content: flex-end;
+          padding-bottom: 100px;
+        }
+        .intro-actions {
+          flex-direction: column;
+        }
+        .btn-primary,
+        .btn-ghost {
+          width: 100%;
+          justify-content: center;
+          padding: 16px;
+          font-size: 13px;
         }
       }
     </style>
