@@ -45,7 +45,7 @@
         --bg2: #0a1314;
         --bg3: #0d1a1b;
         --white: #edf5f4;
-        --muted: #93a9a6;
+        --muted: color-mix(in srgb, #e8e2d7 45%, #9d6e26 55%);
         --border: rgba(255, 255, 255, 0.08);
         --font-display: "Anton", sans-serif;
         --font-mono: "IBM Plex Mono", monospace;
@@ -54,6 +54,10 @@
       }
       html {
         height: 100%;
+        /* .intro-photo's box now bleeds ~30vw past the right edge of the
+           viewport on purpose (to shift the crop) — without this, that
+           would create a horizontal scrollbar / extra page width. */
+        overflow-x: hidden;
         scrollbar-width: thin;
         scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
       }
@@ -113,23 +117,36 @@
       /* ---------- intro hero photo: full-bleed, edge to edge, real photo carries the page ---------- */
       .intro-photo {
         position: absolute;
-        /* bleeds past .intro-hero's own box, out to the true screen edges — cancels
-           .scene's padding (112px/40px top-bottom, 8% left-right) exactly */
+        /* bleeds past .intro-hero's own box on top/sides only — cancels .scene's
+           padding there. Bottom stays flush (0): #scene-intro now has
+           padding-bottom:0 so .intro-hero's own JS-computed height already ends
+           exactly at the footer's top edge, nothing left to cancel. */
         top: -112px;
-        right: -8vw;
-        bottom: -40px;
-        left: -8vw;
+        /* pushed way further right than the other bleed layers on purpose —
+           this shifts the whole box (and everything cover computes inside it)
+           right, so the crew member behind Adelina falls off the right edge
+           of the viewport instead of showing. */
+        right: -25vw;
+        bottom: 0;
+        left: 11vw;
         z-index: 0;
-        background-image: url(images/adelina-portrait.jpg);
-        background-size: 90% auto;
-        background-position: -642% 28%;
+        overflow: hidden;
         filter: grayscale(0.12) contrast(1.08) saturate(0.85);
+      }
+      .intro-photo::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: url(images/adelina-portrait.jpg);
+        background-size: cover;
+        background-position: 60% 30%;
+        background-repeat: no-repeat;
       }
       .intro-scrim {
         position: absolute;
         top: -112px;
         right: -8vw;
-        bottom: -40px;
+        bottom: 0;
         left: -8vw;
         z-index: 0;
         background: linear-gradient(
@@ -146,7 +163,7 @@
         position: absolute;
         top: -112px;
         right: -8vw;
-        bottom: -40px;
+        bottom: 0;
         left: -8vw;
         z-index: 0;
         mix-blend-mode: multiply;
@@ -176,10 +193,38 @@
         right: 0;
         height: 76px;
         z-index: 49;
-        /* background: rgba(6, 11, 12, 0.92); */
-        /* backdrop-filter: blur(14px); */
-        /* -webkit-backdrop-filter: blur(14px); */
-        /* border-bottom: 1px solid var(--border); */
+        background: transparent;
+        border-bottom: 1px solid transparent;
+        transition:
+          background 0.4s ease,
+          backdrop-filter 0.4s ease,
+          border-color 0.4s ease;
+      }
+      /* transparent over the hero, so nothing cuts across the photo — once
+         you've scrolled past it, it gains a soft blurred backing so header
+         controls stay legible over whatever content is now behind them */
+      .site-header.scrolled {
+        background: rgba(6, 11, 12, 0.82);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border-bottom: 1px solid var(--border);
+      }
+      /* text that fades and rises into place as you scroll to it, instead
+         of just appearing — applied once per element (never re-hides on
+         scrolling back up) via an IntersectionObserver */
+      .reveal {
+        opacity: 0;
+        transform: translateY(28px);
+        transition:
+          opacity 0.8s cubic-bezier(0.16, 0.7, 0.2, 1),
+          transform 0.8s cubic-bezier(0.16, 0.7, 0.2, 1);
+      }
+      .reveal.in-view {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .reveal-delay-1 {
+        transition-delay: 0.1s;
       }
       /* ---------- HUD ---------- */
       .hud {
@@ -505,11 +550,25 @@
       /* ---------- intro ---------- */
       #scene-intro {
         position: relative;
+        /* .intro-hero's JS-computed height already stops exactly at the footer's
+           top edge (viewport - footerH). The shared .scene bottom padding would
+           add 40px (22px on mobile) of extra section height below that, which is
+           exactly what was poking the photo out behind/around the footer bar. */
+        padding-bottom: 0;
       }
       #scene-intro .intro-wrap {
         position: relative;
         z-index: 1;
         max-width: 620px;
+        will-change: transform, opacity;
+        /* the parallax JS only updates this on the browser's native 'scroll'
+           event, which fires in irregular, sometimes-coarse steps (especially
+           with a click-wheel mouse) — without this, each step is an instant
+           snap to the new value, which reads as choppy. This short transition
+           just interpolates between those snaps so it looks continuous. */
+        transition:
+          transform 0.12s linear,
+          opacity 0.12s linear;
       }
       #scene-intro .intro-name {
         font-family: var(--font-display);
@@ -517,6 +576,45 @@
         line-height: 0.94;
         letter-spacing: 0.01em;
         text-transform: uppercase;
+      }
+      /* the hero's own text cascades in on page load, one line after
+         another — each piece starts faded/dropped a little, then settles
+         into place, staggered by animation-delay so they don't all land at
+         once. Scoped to the hero specifically: other sections' eyebrows use
+         the scroll-triggered .reveal treatment instead, not this. */
+      @keyframes heroFadeUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      #scene-intro .intro-wrap > .eyebrow,
+      #scene-intro .intro-name,
+      #scene-intro .intro-handle,
+      #scene-intro .intro-sub,
+      #scene-intro .intro-hint,
+      #scene-intro .intro-actions {
+        opacity: 0;
+        transform: translateY(22px);
+        animation: heroFadeUp 0.8s ease forwards;
+      }
+      #scene-intro .intro-wrap > .eyebrow {
+        animation-delay: 0.2s;
+      }
+      #scene-intro .intro-name {
+        animation-delay: 0.35s;
+      }
+      #scene-intro .intro-handle {
+        animation-delay: 0.55s;
+      }
+      #scene-intro .intro-sub {
+        animation-delay: 0.7s;
+      }
+      #scene-intro .intro-hint {
+        animation-delay: 0.85s;
+      }
+      #scene-intro .intro-actions {
+        animation-delay: 0.95s;
       }
       .intro-handle {
         display: inline-flex;
@@ -697,46 +795,13 @@
       .filmstrip::-webkit-scrollbar {
         display: none;
       }
-      /* floating nudge buttons, parked just outside the film itself — never sit on the
-         clips or frame them, so they read as a separate control, not part of the reel */
-      .filmstrip-nav {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        z-index: 3;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        border: 1px solid rgba(255, 255, 255, 0.16);
-        background: rgba(5, 9, 10, 0.55);
-        padding: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--muted);
-        cursor: pointer;
-        opacity: 0.75;
-        transition:
-          opacity 0.25s ease,
-          color 0.25s ease,
-          border-color 0.25s ease;
+      /* no more arrow buttons — the strip itself is directly draggable:
+         a swipe on touch (native), a click-and-drag on desktop (below) */
+      .filmstrip {
+        cursor: grab;
       }
-      .filmstrip-nav.left {
-        left: -16px;
-      }
-      .filmstrip-nav.right {
-        right: -16px;
-      }
-      .filmstrip-nav:hover {
-        opacity: 1;
-        color: var(--teal-label);
-        border-color: var(--teal);
-      }
-      .filmstrip-nav:active svg {
-        transform: scale(0.85);
-      }
-      .filmstrip-nav svg {
-        transition: transform 0.15s ease;
+      .filmstrip.dragging {
+        cursor: grabbing;
       }
       .reel-card {
         position: relative;
@@ -1638,10 +1703,11 @@
             left top;
           background-repeat: no-repeat, no-repeat;
         }
-        .intro-photo {
+        .intro-photo::before {
           background-size: cover;
           background-position: center 12%;
           background-repeat: no-repeat;
+          transform: none;
         }
       }
       @media (max-width: 768px) {
@@ -1656,7 +1722,7 @@
         .intro-wash {
           top: -84px;
           right: -6vw;
-          bottom: -22px;
+          bottom: 0;
           left: -6vw;
         }
         .eyebrow {
@@ -1816,8 +1882,8 @@
 
         <section class="scene" id="scene-about" data-scene="1">
           <div class="about-lead">
-            <div class="eyebrow">Who's Behind the Camera</div>
-            <h2 class="scene-title">About</h2>
+            <div class="eyebrow reveal">Who's Behind the Camera</div>
+            <h2 class="scene-title reveal reveal-delay-1">About</h2>
           </div>
           <div class="about-wrap">
             <div>
@@ -1875,54 +1941,24 @@
         </section>
 
         <section class="scene" id="scene-reel" data-scene="2">
-          <div class="eyebrow">Selected Work</div>
-          <h2 class="scene-title">The Reel</h2>
+          <div class="eyebrow reveal">Selected Work</div>
+          <h2 class="scene-title reveal reveal-delay-1">The Reel</h2>
           <div class="filmstrip-outer">
-            <button
-              class="filmstrip-nav left"
-              id="filmstrip-prev"
-              aria-label="Scroll reel left"
-            >
-              <svg width="18" height="16" viewBox="0 0 28 24" fill="none">
-                <path
-                  d="M19 4l-8 8 8 8M11 4l-8 8 8 8"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </button>
             <div class="filmstrip" id="filmstrip"></div>
-            <button
-              class="filmstrip-nav right"
-              id="filmstrip-next"
-              aria-label="Scroll reel right"
-            >
-              <svg width="18" height="16" viewBox="0 0 28 24" fill="none">
-                <path
-                  d="M9 4l8 8-8 8M17 4l8 8-8 8"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </button>
           </div>
         </section>
 
         <section class="scene" id="scene-photo" data-scene="3">
-          <div class="eyebrow">Photography</div>
-          <h2 class="scene-title">Behind the Stills</h2>
+          <div class="eyebrow reveal">Photography</div>
+          <h2 class="scene-title reveal reveal-delay-1">Behind the Stills</h2>
           <div class="scroll-body" id="photo-scroll">
             <div class="photo-grid" id="photo-grid"></div>
           </div>
         </section>
 
         <section class="scene" id="scene-credits" data-scene="4">
-          <div class="eyebrow">Filmography</div>
-          <h2 class="scene-title">Credits</h2>
+          <div class="eyebrow reveal">Filmography</div>
+          <h2 class="scene-title reveal reveal-delay-1">Credits</h2>
           <div class="scroll-body" id="credits-scroll">
             <div class="shotlist-head">
               <div>SC#</div>
@@ -1937,11 +1973,13 @@
 
         <section class="scene" id="scene-contact" data-scene="5">
           <div class="eyebrow">Contact</div>
-          <h2 class="scene-title">Let's Make Something</h2>
+          <h2 class="scene-title reveal reveal-delay-1">
+            Let's Make Something
+          </h2>
           <div class="scroll-body" id="contact-scroll">
             <div class="contact-wrap">
               <div>
-                <p class="contact-intro">
+                <p class="contact-intro reveal">
                   Have a project, a set, or a story that needs a camera? Reach
                   out — replies within a day or two.
                 </p>
@@ -2244,20 +2282,89 @@
       tlClips[0].classList.add("active");
       renderUI();
 
-      // the hero (photo + name) stays exactly one screen tall — measured in real
-      // pixels against the viewport, minus the scene's own top padding (which
-      // clears the fixed header). About simply flows right below it, no jump needed.
+      // the hero (photo + name) stays exactly one screen tall — measured in
+      // real pixels against the viewport, minus the scene's own top padding
+      // (which clears the fixed header) AND the fixed footer's own height,
+      // which was missing before: the footer floats on top of whatever's
+      // beneath it, so without subtracting it the hero's box actually ran
+      // taller than what's visible above the bar, and the photo kept
+      // showing well after the text had scrolled away. About simply flows
+      // right below the hero, no jump needed.
       function syncIntroHero() {
         const el = document.getElementById("scene-intro");
         const hero = document.querySelector("#scene-intro .intro-hero");
+        const footer = document.querySelector(".timeline-bar");
         if (!el || !hero) return;
         const cs = getComputedStyle(el);
         const padTop = parseFloat(cs.paddingTop) || 0;
-        hero.style.height = window.innerHeight - padTop + "px";
+        const footerH = footer ? footer.offsetHeight : 0;
+        hero.style.height = window.innerHeight - padTop - footerH + "px";
       }
       syncIntroHero();
       window.addEventListener("resize", syncIntroHero);
       window.addEventListener("load", syncIntroHero);
+
+      // the hero's text detaches from the photo as you scroll past it —
+      // it rides up faster than the page itself moves and fades out along
+      // the way, so by about half the hero's height it's nearly gone while
+      // the photo (untouched here, scrolling at its own normal pace) is
+      // still clearly there and the next section is already showing below.
+      // Only .intro-wrap gets this treatment — the photo/scrim/wash layers
+      // are left exactly as they are.
+      const introWrapEl = document.querySelector("#scene-intro .intro-wrap");
+      const introHeroForParallax = document.querySelector(
+        "#scene-intro .intro-hero",
+      );
+      // Eased 0→1 ramp between edge0/edge1 with zero slope at both ends —
+      // used instead of a hard min/max clamp so there's no corner in the
+      // rate of change (which is what feels like a "snap" when scrolling
+      // back through the clamp point).
+      function smoothstep(edge0, edge1, x) {
+        const u = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+        return u * u * (3 - 2 * u);
+      }
+      function updateHeroParallax() {
+        if (!introWrapEl || !introHeroForParallax) return;
+        const heroH = introHeroForParallax.offsetHeight || window.innerHeight;
+        // Spread over more scroll distance than before (0.7 vs 0.55) so the
+        // whole thing reads slower / less rushed.
+        const t = Math.max(0, Math.min(1, window.scrollY / (heroH * 0.7)));
+        // Two motions layered instead of one flat translateY:
+        // 1) "dip" — a tiny settle downward in just the first ~22% of the
+        //    scroll, back to 0 by t=0.22. On its own this reads as the text
+        //    sinking slightly, like it's being pressed before it lifts.
+        // 2) "rise" — only kicks in after t=0.12 (so it overlaps the tail of
+        //    the dip) and uses an eased power curve, so it starts slow and
+        //    accelerates — no sudden jump the moment you start scrolling.
+        // The crossover between the two (dip fading out as rise ramps up)
+        // is what creates the "sinks, then detaches and lifts away" feel,
+        // and because it's a pure function of scrollY it plays out exactly
+        // once per pass through the hero and reverses cleanly on scroll-up —
+        // no re-triggering, no jerkiness.
+        // dip/riseT used a hard clamp (min/max) before, which is continuous
+        // in VALUE but has a sharp corner in its RATE of change right at the
+        // clamp point (0.22 and 0.12) — that corner is what read as a small
+        // "catch"/snap when scrolling back through it. smoothstep() eases
+        // into and out of each clamp with zero velocity at both ends, so
+        // there's no corner left to feel, in either scroll direction.
+        const dipU = smoothstep(0, 0.22, t);
+        const dip = 55 * Math.sin(Math.PI * dipU);
+        const riseU = smoothstep(0.12, 1, t);
+        const rise = Math.pow(riseU, 1.4) * 420;
+        introWrapEl.style.transform = `translateY(${dip - rise}px)`;
+        introWrapEl.style.opacity = 1 - Math.pow(t, 1.3);
+      }
+      let heroParallaxRAF = null;
+      function queueHeroParallax() {
+        if (heroParallaxRAF) return;
+        heroParallaxRAF = requestAnimationFrame(() => {
+          heroParallaxRAF = null;
+          updateHeroParallax();
+        });
+      }
+      window.addEventListener("scroll", queueHeroParallax, { passive: true });
+      window.addEventListener("resize", queueHeroParallax);
+      updateHeroParallax();
 
       // Reel likewise stays exactly one screen tall — measured the same way
       // (real px against window.innerHeight, not a bare 100vh unit), because
@@ -2278,6 +2385,40 @@
       syncReelHeight();
       window.addEventListener("resize", syncReelHeight);
       window.addEventListener("load", syncReelHeight);
+
+      /* header: fully transparent over the hero, gains a soft blurred
+         backing once you've scrolled a little — so it never cuts across
+         the photo, but also never leaves controls sitting unreadable over
+         whatever scrolls underneath them later. */
+      const siteHeaderEl = document.querySelector(".site-header");
+      function updateHeaderScrolled() {
+        if (!siteHeaderEl) return;
+        siteHeaderEl.classList.toggle("scrolled", window.scrollY > 40);
+      }
+      window.addEventListener("scroll", updateHeaderScrolled, {
+        passive: true,
+      });
+      updateHeaderScrolled();
+
+      /* text that fades + rises into place the first time it scrolls into
+         view, instead of just appearing — a one-time reveal (unobserve
+         once shown, never re-hides scrolling back up). Deliberately left
+         off Contact's own eyebrow, since its exact position is what times
+         Roll Camera's Credits→Contact arrival — animating it could shift
+         that measurement mid-transition. */
+      const revealEls = document.querySelectorAll(".reveal");
+      const revealObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("in-view");
+              revealObserver.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.15, rootMargin: "0px 0px -10% 0px" },
+      );
+      revealEls.forEach((el) => revealObserver.observe(el));
 
       function goToScene(i) {
         i = Math.max(0, Math.min(scenes.length - 1, i));
@@ -3062,36 +3203,55 @@
       });
       updateReelActiveCard();
 
-      /* left/right nudge zones — hold down for a gentle continuous glide, like scrubbing
-         a reel by hand, and let go to stop; a lot more natural than a fixed jump per click */
-      const filmstripPrev = document.getElementById("filmstrip-prev");
-      const filmstripNext = document.getElementById("filmstrip-next");
-      let filmstripGlideRAF = null;
-      function stopFilmstripGlide() {
-        if (filmstripGlideRAF) cancelAnimationFrame(filmstripGlideRAF);
-        filmstripGlideRAF = null;
-        window.removeEventListener("pointerup", stopFilmstripGlide);
-        window.removeEventListener("pointercancel", stopFilmstripGlide);
-      }
-      function startFilmstripGlide(dir) {
-        stopFilmstripGlide();
-        const speed = 6; // px per frame — a gentle, constant glide
-        const step = () => {
-          filmstrip.scrollLeft += dir * speed;
-          filmstripGlideRAF = requestAnimationFrame(step);
-        };
-        filmstripGlideRAF = requestAnimationFrame(step);
-        window.addEventListener("pointerup", stopFilmstripGlide);
-        window.addEventListener("pointercancel", stopFilmstripGlide);
-      }
-      filmstripPrev.addEventListener("pointerdown", (e) => {
-        e.preventDefault();
-        startFilmstripGlide(-1);
+      /* no more arrow buttons — touch already scrolls the strip natively
+         (overflow-x: auto handles a finger swipe on its own). Desktop mice
+         don't get that for free though, so click-and-drag is added here by
+         hand — mouse pointers only, so native touch scrolling is never
+         intercepted or fought with. A small movement threshold tells a real
+         drag apart from a plain click, so tapping a card still opens its
+         video normally when the user isn't dragging. */
+      const filmDrag = {
+        active: false,
+        moved: false,
+        startX: 0,
+        startScroll: 0,
+      };
+      filmstrip.addEventListener("pointerdown", (e) => {
+        if (e.pointerType !== "mouse") return;
+        filmDrag.active = true;
+        filmDrag.moved = false;
+        filmDrag.startX = e.clientX;
+        filmDrag.startScroll = filmstrip.scrollLeft;
+        filmstrip.setPointerCapture(e.pointerId);
+        filmstrip.classList.add("dragging");
       });
-      filmstripNext.addEventListener("pointerdown", (e) => {
-        e.preventDefault();
-        startFilmstripGlide(1);
+      filmstrip.addEventListener("pointermove", (e) => {
+        if (!filmDrag.active) return;
+        const dx = e.clientX - filmDrag.startX;
+        if (Math.abs(dx) > 4) filmDrag.moved = true;
+        filmstrip.scrollLeft = filmDrag.startScroll - dx;
       });
+      function endFilmDrag() {
+        if (!filmDrag.active) return;
+        filmDrag.active = false;
+        filmstrip.classList.remove("dragging");
+      }
+      filmstrip.addEventListener("pointerup", endFilmDrag);
+      filmstrip.addEventListener("pointercancel", endFilmDrag);
+      // swallow the click that follows a real drag, before it ever reaches
+      // a reel-card's own onclick (which opens its video) — capture phase
+      // runs before the card's own bubble-phase handler
+      filmstrip.addEventListener(
+        "click",
+        (e) => {
+          if (filmDrag.moved) {
+            e.preventDefault();
+            e.stopPropagation();
+            filmDrag.moved = false;
+          }
+        },
+        true,
+      );
 
       function openVideo(id) {
         isPlaying = false;
