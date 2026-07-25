@@ -45,7 +45,7 @@
         --bg2: #0a1314;
         --bg3: #0d1a1b;
         --white: #edf5f4;
-        --muted: color-mix(in srgb, #e8e2d7 45%, #9d6e26 55%);
+        --muted: #cac6af;
         --border: rgba(255, 255, 255, 0.08);
         --font-display: "Anton", sans-serif;
         --font-mono: "IBM Plex Mono", monospace;
@@ -4634,12 +4634,15 @@
         });
       }
       (function restoreSavedTheme() {
-        // Selectorul de teme e ascuns momentan, deci ignoram orice
-        // valoare salvata anterior in localStorage si fortam mereu teal.
+        // Selectorul de teme e ascuns momentan. Nu mai chemam applyTheme() aici —
+        // asta rescria --muted si --teal peste valorile din :root (paleta
+        // TEAL PROFUND + gold-ul reglat pentru subtext), intorcandu-le la un
+        // preset vechi ("teal": #19b8a6 / #93a9a6) de fiecare data cand se
+        // incarca pagina. :root ramane sursa unica de adevar pentru culori.
         try {
           localStorage.removeItem("adelina-theme");
         } catch (e) {}
-        applyTheme("teal", false);
+        renderMenuThemes();
       })();
 
       addEventListener("resize", () => {
