@@ -36,16 +36,14 @@
       :root {
         --teal: #2ddcc4;
         --teal-dim: #1a8f82;
-        --teal-label: #7ff0de;
+        --teal-label: #1a8478;
         --teal-rgb: 45, 220, 196;
         --amber: #ff9d5c;
-        --gold: #f2a93b; /* "high" din paleta Teal Profund, folosit deocamdată doar la Intro */
-        --gold-dim: #9d6e26;
-        --bg: #05090a;
+        --bg: #0c0a09;
         --bg2: #0a1314;
         --bg3: #0d1a1b;
-        --white: #edf5f4;
-        --muted: #cac6af;
+        --white: #f4efe8;
+        --muted: #ede4d8;
         --border: rgba(255, 255, 255, 0.08);
         --font-display: "Anton", sans-serif;
         --font-mono: "IBM Plex Mono", monospace;
@@ -150,13 +148,10 @@
         left: -8vw;
         z-index: 0;
         background: linear-gradient(
-          59deg,
-          var(--bg) 0%,
-          var(--bg) 35%,
-          rgba(5, 9, 10, 0.55) 70%,
-          rgba(5, 9, 10, 0.25) 76%,
-          rgba(5, 9, 10, 0.08) 80%,
-          transparent 82%
+          100deg,
+          #0c0a09 33%,
+          rgba(12, 10, 9, 0.72) 52%,
+          rgba(12, 10, 9, 0.12) 78%
         );
       }
       .intro-wash {
@@ -245,7 +240,7 @@
         width: 6px;
         height: 6px;
         border-radius: 50%;
-        background: #e0413a;
+        background: #e05a4a;
         animation: recBlink 1.4s infinite;
       }
       @keyframes recBlink {
@@ -639,6 +634,11 @@
       .intro-handle:hover {
         color: var(--white);
       }
+      /* hero-specific opacities on top of the shared warm cream (#ede4d8) —
+         body text is never colored, only this base tone at varying alpha */
+      #scene-intro .intro-handle {
+        color: rgba(237, 228, 216, 0.5);
+      }
       .intro-sub {
         font-size: 17px;
         color: var(--muted);
@@ -646,6 +646,9 @@
         line-height: 1.7;
         margin-top: 22px;
         font-weight: 300;
+      }
+      #scene-intro .intro-sub {
+        color: rgba(237, 228, 216, 0.78);
       }
       .intro-hint {
         font-family: var(--font-mono);
@@ -656,13 +659,19 @@
         align-items: center;
         gap: 10px;
       }
+      #scene-intro .intro-hint {
+        color: rgba(237, 228, 216, 0.45);
+      }
       .hint-accent {
         color: var(--white);
         font-weight: 500;
       }
+      #scene-intro .hint-accent {
+        color: rgba(255, 255, 255, 0.9);
+      }
       .hint-gold {
-        color: var(--gold);
-        font-weight: 500;
+        color: #ffffff;
+        font-weight: 700;
       }
       .intro-actions {
         display: flex;
@@ -675,8 +684,8 @@
         font-size: 13px;
         letter-spacing: 0.06em;
         text-transform: uppercase;
-        color: #fff;
-        background: #3b7a72;
+        color: #04120f;
+        background: #1a8478;
         padding: 15px 24px;
         text-decoration: none;
         transition:
@@ -690,7 +699,7 @@
         cursor: pointer;
       }
       .btn-primary:hover {
-        background: color-mix(in srgb, #3b7a72 85%, white 15%);
+        background: color-mix(in srgb, #1a8478 85%, white 15%);
         transform: translateY(-2px);
       }
       .btn-primary:disabled {
@@ -704,7 +713,7 @@
         letter-spacing: 0.12em;
         text-transform: uppercase;
         color: var(--muted);
-        border: 1px solid rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(237, 228, 216, 0.28);
         padding: 15px 20px 15px 28px;
         text-decoration: none;
         transition:
@@ -1652,7 +1661,7 @@
         width: 7px;
         height: 7px;
         border-radius: 50%;
-        background: var(--gold);
+        background: var(--teal-label);
       }
       /* wider invisible hit-zone around the thin line, so grabbing it is easier */
       .tl-playhead::after {
