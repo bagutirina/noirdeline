@@ -1712,12 +1712,6 @@
             left top;
           background-repeat: no-repeat, no-repeat;
         }
-        .intro-photo::before {
-          background-size: cover;
-          background-position: center 12%;
-          background-repeat: no-repeat;
-          transform: none;
-        }
       }
       @media (max-width: 768px) {
         .scene {
@@ -1726,7 +1720,12 @@
         #scene-contact {
           padding-top: 150px;
         }
-        .intro-photo,
+        .intro-photo {
+          top: -150px;
+          right: -6vw;
+          bottom: 0;
+          left: -6vw;
+        }
         .intro-scrim,
         .intro-wash {
           top: -84px;
