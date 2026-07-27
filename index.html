@@ -1129,15 +1129,25 @@
         border-color: var(--teal);
         color: #04201c;
       }
+      /* row-based (not CSS column-count) on purpose: column-count fills
+         top-to-bottom per column first, so the reading order (left→right,
+         top→bottom) ends up column-major and doesn't match the order the
+         photos were added in — Adelina asked to keep that order. Each row
+         is its own explicit <div class="cat-row"> built in JS
+         (layoutCatViewGrid — a justified-row layout, every image in a row
+         is the same height, sized from its real known-upfront w/h before
+         it ever loads), not a single flex-wrap list left to the browser to
+         line-break on its own — see the comment on layoutCatViewGrid for
+         why. .cat-view-grid itself is just a plain block column of rows. */
       .cat-view-grid {
-        column-count: 3;
-        column-gap: 14px;
         padding: 4px 5% 70px;
+      }
+      .cat-row {
+        display: flex;
+        justify-content: flex-start;
       }
       .cat-view-grid img {
         display: block;
-        margin: 0 0 14px;
-        break-inside: avoid;
         cursor: pointer;
         background: var(--bg3);
         filter: brightness(0.92);
@@ -1149,18 +1159,9 @@
         filter: brightness(1.05);
         transform: scale(1.015);
       }
-      @media (max-width: 1100px) {
-        .cat-view-grid {
-          column-count: 2;
-        }
-      }
       @media (max-width: 640px) {
-        .cat-view-grid {
-          column-count: 1;
-          column-gap: 8px;
-        }
-        .cat-view-grid img {
-          margin-bottom: 8px;
+        .cat-row {
+          justify-content: center;
         }
       }
 
@@ -3472,244 +3473,191 @@
           main: "portrait.jpg",
           url: "https://adevancea.myportfolio.com/people",
           photos: [
-            { file: "portrait_000.jpg", w: 1920, h: 3412 },
-            { file: "portrait_001.jpg", w: 1920, h: 1280 },
-            { file: "portrait_002.jpg", w: 1920, h: 1280 },
-            { file: "portrait_003.jpg", w: 1920, h: 1161 },
+            { file: "portrait_000.jpg", w: 1920, h: 1080 },
+            { file: "portrait_001.jpg", w: 1920, h: 781 },
+            { file: "portrait_002.jpg", w: 1920, h: 2364 },
+            { file: "portrait_003.jpg", w: 1920, h: 1080 },
             { file: "portrait_004.jpg", w: 1920, h: 1081 },
             { file: "portrait_005.jpg", w: 1920, h: 1080 },
-            { file: "portrait_006.jpg", w: 960, h: 1377 },
+            { file: "portrait_006.jpg", w: 1920, h: 1080 },
             { file: "portrait_007.jpg", w: 1920, h: 1080 },
-            { file: "portrait_008.jpg", w: 1920, h: 1080 },
-            { file: "portrait_009.jpg", w: 1920, h: 1280 },
-            { file: "portrait_010.jpg", w: 1920, h: 1280 },
+            { file: "portrait_008.jpg", w: 1920, h: 3412 },
+            { file: "portrait_009.jpg", w: 1920, h: 1080 },
+            { file: "portrait_010.jpg", w: 1920, h: 1080 },
             { file: "portrait_011.jpg", w: 1920, h: 1080 },
-            { file: "portrait_012.jpg", w: 1920, h: 2791 },
+            { file: "portrait_012.jpg", w: 1920, h: 1080 },
             { file: "portrait_013.jpg", w: 1920, h: 1080 },
-            { file: "portrait_014.jpg", w: 1920, h: 1216 },
-            { file: "portrait_015.jpg", w: 1920, h: 1080 },
-            { file: "portrait_016.jpg", w: 1920, h: 1280 },
-            { file: "portrait_017.jpg", w: 1920, h: 1280 },
-            { file: "portrait_018.jpg", w: 1920, h: 1280 },
-            { file: "portrait_019.jpg", w: 1920, h: 1280 },
-            { file: "portrait_020.jpg", w: 1920, h: 1280 },
-            { file: "portrait_021.jpg", w: 1920, h: 1280 },
-            { file: "portrait_022.jpg", w: 1920, h: 1280 },
-            { file: "portrait_023.jpg", w: 1920, h: 1280 },
-            { file: "portrait_024.jpg", w: 960, h: 1440 },
-            { file: "portrait_025.jpg", w: 1920, h: 1081 },
+            { file: "portrait_014.jpg", w: 1920, h: 3412 },
+            { file: "portrait_015.jpg", w: 1920, h: 1140 },
+            { file: "portrait_016.jpg", w: 1920, h: 1080 },
+            { file: "portrait_017.jpg", w: 1920, h: 1080 },
+            { file: "portrait_018.jpg", w: 1920, h: 1080 },
+            { file: "portrait_019.jpg", w: 1920, h: 1080 },
+            { file: "portrait_020.jpg", w: 1920, h: 1080 },
+            { file: "portrait_021.jpg", w: 1920, h: 1080 },
+            { file: "portrait_022.jpg", w: 1920, h: 1080 },
+            { file: "portrait_023.jpg", w: 1920, h: 1080 },
+            { file: "portrait_024.jpg", w: 1920, h: 1080 },
+            { file: "portrait_025.jpg", w: 1920, h: 3412 },
             { file: "portrait_026.jpg", w: 1920, h: 1080 },
             { file: "portrait_027.jpg", w: 1920, h: 1080 },
-            { file: "portrait_028.jpg", w: 1920, h: 1140 },
-            { file: "portrait_029.jpg", w: 1920, h: 1080 },
-            { file: "portrait_030.jpg", w: 960, h: 1706 },
-            { file: "portrait_031.jpg", w: 1920, h: 1280 },
-            { file: "portrait_032.jpg", w: 960, h: 1440 },
+            { file: "portrait_028.jpg", w: 1920, h: 1120 },
+            { file: "portrait_029.jpg", w: 1920, h: 985 },
+            { file: "portrait_030.jpg", w: 1920, h: 1080 },
+            { file: "portrait_031.jpg", w: 1920, h: 1080 },
+            { file: "portrait_032.jpg", w: 1920, h: 1080 },
             { file: "portrait_033.jpg", w: 1920, h: 1080 },
-            { file: "portrait_034.jpg", w: 1920, h: 2880 },
-            { file: "portrait_035.jpg", w: 960, h: 1466 },
-            { file: "portrait_036.jpg", w: 1920, h: 1081 },
-            { file: "portrait_037.jpg", w: 960, h: 1706 },
-            { file: "portrait_038.jpg", w: 1920, h: 1280 },
-            { file: "portrait_039.jpg", w: 1920, h: 1280 },
-            { file: "portrait_040.jpg", w: 1920, h: 1080 },
-            { file: "portrait_041.jpg", w: 1920, h: 1300 },
-            { file: "portrait_042.jpg", w: 1920, h: 1080 },
-            { file: "portrait_043.jpg", w: 1920, h: 3232 },
-            { file: "portrait_044.jpg", w: 1920, h: 1145 },
-            { file: "portrait_045.jpg", w: 1920, h: 1280 },
+            { file: "portrait_034.jpg", w: 1920, h: 3205 },
+            { file: "portrait_035.png", w: 1920, h: 1089 },
+            { file: "portrait_036.jpg", w: 1920, h: 1080 },
+            { file: "portrait_037.jpg", w: 1920, h: 1080 },
+            { file: "portrait_038.jpg", w: 1920, h: 1080 },
+            { file: "portrait_039.jpg", w: 1920, h: 1080 },
+            { file: "portrait_040.jpg", w: 1920, h: 3412 },
+            { file: "portrait_041.jpg", w: 1920, h: 1080 },
+            { file: "portrait_042.jpg", w: 1920, h: 1081 },
+            { file: "portrait_043.jpg", w: 1920, h: 1080 },
+            { file: "portrait_044.jpg", w: 1920, h: 1080 },
+            { file: "portrait_045.jpg", w: 1920, h: 3412 },
             { file: "portrait_046.jpg", w: 1920, h: 1080 },
-            { file: "portrait_047.jpg", w: 1920, h: 1016 },
-            { file: "portrait_048.jpg", w: 1920, h: 2679 },
-            { file: "portrait_049.jpg", w: 1920, h: 1280 },
-            { file: "portrait_050.jpg", w: 1200, h: 675 },
+            { file: "portrait_047.jpg", w: 1920, h: 2931 },
+            { file: "portrait_048.jpg", w: 1920, h: 3412 },
+            { file: "portrait_049.jpg", w: 1920, h: 3412 },
+            { file: "portrait_050.jpg", w: 1920, h: 3412 },
             { file: "portrait_051.jpg", w: 1920, h: 1080 },
-            { file: "portrait_052.jpg", w: 1920, h: 1280 },
-            { file: "portrait_053.jpg", w: 960, h: 1432 },
-            { file: "portrait_054.jpg", w: 1920, h: 1080 },
+            { file: "portrait_052.jpg", w: 1920, h: 1080 },
+            { file: "portrait_053.jpg", w: 1920, h: 2880 },
+            { file: "portrait_054.jpg", w: 1920, h: 1280 },
             { file: "portrait_055.jpg", w: 1920, h: 1280 },
-            { file: "portrait_056.jpg", w: 1920, h: 1280 },
-            { file: "portrait_057.jpg", w: 1920, h: 1080 },
-            { file: "portrait_058.jpg", w: 1920, h: 1080 },
-            { file: "portrait_059.jpg", w: 1920, h: 3072 },
+            { file: "portrait_056.jpg", w: 1920, h: 2615 },
+            { file: "portrait_057.jpg", w: 1920, h: 3412 },
+            { file: "portrait_058.jpg", w: 1920, h: 3412 },
+            { file: "portrait_059.jpg", w: 1920, h: 1080 },
             { file: "portrait_060.jpg", w: 1920, h: 1080 },
-            { file: "portrait_061.jpg", w: 960, h: 1291 },
-            { file: "portrait_062.jpg", w: 1920, h: 1280 },
-            { file: "portrait_063.jpg", w: 1920, h: 2880 },
-            { file: "portrait_064.jpg", w: 960, h: 1440 },
-            { file: "portrait_065.jpg", w: 1920, h: 1081 },
-            { file: "portrait_066.jpg", w: 1920, h: 1080 },
-            { file: "portrait_067.jpg", w: 1920, h: 1080 },
-            { file: "portrait_068.jpg", w: 960, h: 1440 },
-            { file: "portrait_069.jpg", w: 1920, h: 2420 },
-            { file: "portrait_070.jpg", w: 1920, h: 1080 },
-            { file: "portrait_071.jpg", w: 960, h: 1229 },
-            { file: "portrait_072.jpg", w: 1920, h: 1081 },
-            { file: "portrait_073.jpg", w: 960, h: 1706 },
-            { file: "portrait_074.jpg", w: 1920, h: 1280 },
+            { file: "portrait_061.jpg", w: 1920, h: 1080 },
+            { file: "portrait_062.jpg", w: 1920, h: 3412 },
+            { file: "portrait_063.jpg", w: 1920, h: 1080 },
+            { file: "portrait_064.jpg", w: 1920, h: 1080 },
+            { file: "portrait_065.jpg", w: 1920, h: 3412 },
+            { file: "portrait_066.jpg", w: 1920, h: 3412 },
+            { file: "portrait_067.jpg", w: 1920, h: 3175 },
+            { file: "portrait_068.jpg", w: 1920, h: 3119 },
+            { file: "portrait_069.jpg", w: 1920, h: 3412 },
+            { file: "portrait_070.png", w: 1920, h: 3412 },
+            { file: "portrait_071.jpg", w: 1920, h: 3232 },
+            { file: "portrait_072.jpg", w: 1920, h: 1080 },
+            { file: "portrait_073.jpg", w: 1920, h: 3223 },
+            { file: "portrait_074.jpg", w: 1920, h: 1194 },
             { file: "portrait_075.jpg", w: 1920, h: 1080 },
-            { file: "portrait_076.jpg", w: 960, h: 1706 },
-            { file: "portrait_077.jpg", w: 1920, h: 1080 },
+            { file: "portrait_076.jpg", w: 1920, h: 1080 },
+            { file: "portrait_077.jpg", w: 1920, h: 3412 },
             { file: "portrait_078.jpg", w: 1920, h: 1080 },
-            { file: "portrait_079.jpg", w: 1920, h: 1280 },
-            { file: "portrait_080.jpg", w: 1920, h: 2828 },
-            { file: "portrait_081.jpg", w: 960, h: 1706 },
+            { file: "portrait_079.jpg", w: 1920, h: 3412 },
+            { file: "portrait_080.jpg", w: 1920, h: 1080 },
+            { file: "portrait_081.jpg", w: 1920, h: 1080 },
             { file: "portrait_082.jpg", w: 1920, h: 1080 },
-            { file: "portrait_083.jpg", w: 1920, h: 2880 },
+            { file: "portrait_083.jpg", w: 1920, h: 3412 },
             { file: "portrait_084.jpg", w: 1920, h: 1080 },
-            { file: "portrait_085.jpg", w: 1920, h: 1080 },
-            { file: "portrait_086.jpg", w: 1920, h: 1280 },
-            { file: "portrait_087.jpg", w: 960, h: 1440 },
-            { file: "portrait_088.jpg", w: 1920, h: 1080 },
-            { file: "portrait_089.jpg", w: 1920, h: 2880 },
-            { file: "portrait_090.jpg", w: 1920, h: 2880 },
-            { file: "portrait_091.jpg", w: 1920, h: 975 },
+            { file: "portrait_085.jpg", w: 1920, h: 1280 },
+            { file: "portrait_086.jpg", w: 1920, h: 2582 },
+            { file: "portrait_087.jpg", w: 1920, h: 1360 },
+            { file: "portrait_088.jpg", w: 1920, h: 1280 },
+            { file: "portrait_089.jpg", w: 1920, h: 1280 },
+            { file: "portrait_090.jpg", w: 1920, h: 1280 },
+            { file: "portrait_091.jpg", w: 1920, h: 1280 },
             { file: "portrait_092.jpg", w: 1920, h: 1280 },
-            { file: "portrait_093.jpg", w: 960, h: 1706 },
+            { file: "portrait_093.jpg", w: 1920, h: 1280 },
             { file: "portrait_094.jpg", w: 1920, h: 1080 },
-            { file: "portrait_095.jpg", w: 1920, h: 1280 },
+            { file: "portrait_095.jpg", w: 1920, h: 1080 },
             { file: "portrait_096.jpg", w: 1920, h: 1080 },
-            { file: "portrait_097.jpg", w: 960, h: 1440 },
-            { file: "portrait_098.jpg", w: 1920, h: 1280 },
-            { file: "portrait_099.jpg", w: 1920, h: 1080 },
-            { file: "portrait_100.jpg", w: 1920, h: 2880 },
+            { file: "portrait_097.jpg", w: 1920, h: 1387 },
+            { file: "portrait_098.jpg", w: 1920, h: 2420 },
+            { file: "portrait_099.jpg", w: 1920, h: 1280 },
+            { file: "portrait_100.jpg", w: 1920, h: 2863 },
             { file: "portrait_101.jpg", w: 1920, h: 1280 },
-            { file: "portrait_102.jpg", w: 1920, h: 1280 },
+            { file: "portrait_102.jpg", w: 1920, h: 2914 },
             { file: "portrait_103.jpg", w: 1920, h: 1280 },
-            { file: "portrait_104.jpg", w: 1920, h: 1280 },
+            { file: "portrait_104.jpg", w: 1920, h: 2880 },
             { file: "portrait_105.jpg", w: 1920, h: 1280 },
-            { file: "portrait_106.jpg", w: 1920, h: 1054 },
-            { file: "portrait_107.jpg", w: 1920, h: 1080 },
-            { file: "portrait_108.jpg", w: 1920, h: 1080 },
-            { file: "portrait_109.jpg", w: 960, h: 1503 },
-            { file: "portrait_110.jpg", w: 1920, h: 1080 },
-            { file: "portrait_111.jpg", w: 960, h: 1706 },
-            { file: "portrait_112.jpg", w: 960, h: 1182 },
+            { file: "portrait_106.jpg", w: 1920, h: 2880 },
+            { file: "portrait_107.jpg", w: 1920, h: 2880 },
+            { file: "portrait_108.jpg", w: 1920, h: 1280 },
+            { file: "portrait_109.jpg", w: 1920, h: 1280 },
+            { file: "portrait_110.jpg", w: 1920, h: 2679 },
+            { file: "portrait_111.jpg", w: 1920, h: 1280 },
+            { file: "portrait_112.jpg", w: 1920, h: 2880 },
             { file: "portrait_113.jpg", w: 1920, h: 1080 },
-            { file: "portrait_114.jpg", w: 1920, h: 1012 },
-            { file: "portrait_115.jpg", w: 1920, h: 1280 },
+            { file: "portrait_114.jpg", w: 1920, h: 1080 },
+            { file: "portrait_115.jpg", w: 1920, h: 1080 },
             { file: "portrait_116.jpg", w: 1920, h: 1280 },
-            { file: "portrait_117.jpg", w: 1920, h: 2880 },
-            { file: "portrait_118.jpg", w: 1920, h: 2880 },
-            { file: "portrait_119.jpg", w: 1920, h: 1280 },
-            { file: "portrait_120.jpg", w: 1920, h: 1280 },
-            { file: "portrait_121.jpg", w: 1920, h: 2880 },
-            { file: "portrait_122.jpg", w: 1920, h: 1280 },
+            { file: "portrait_117.jpg", w: 1920, h: 1280 },
+            { file: "portrait_118.jpg", w: 1920, h: 1280 },
+            { file: "portrait_119.jpg", w: 1920, h: 1081 },
+            { file: "portrait_120.jpg", w: 1920, h: 1080 },
+            { file: "portrait_121.jpg", w: 1920, h: 1280 },
+            { file: "portrait_122.jpg", w: 1920, h: 2828 },
             { file: "portrait_123.jpg", w: 1920, h: 1280 },
-            { file: "portrait_124.jpg", w: 1920, h: 1112 },
-            { file: "portrait_125.jpg", w: 1920, h: 1080 },
-            { file: "portrait_126.jpg", w: 960, h: 1706 },
-            { file: "portrait_127.jpg", w: 1920, h: 1227 },
+            { file: "portrait_124.jpg", w: 1920, h: 1227 },
+            { file: "portrait_125.jpg", w: 1920, h: 2880 },
+            { file: "portrait_126.jpg", w: 1920, h: 1280 },
+            { file: "portrait_127.jpg", w: 1920, h: 1280 },
             { file: "portrait_128.jpg", w: 1920, h: 1280 },
-            { file: "portrait_129.jpg", w: 1920, h: 2914 },
-            { file: "portrait_130.jpg", w: 1920, h: 1280 },
-            { file: "portrait_131.jpg", w: 960, h: 1603 },
-            { file: "portrait_132.jpg", w: 1920, h: 1080 },
+            { file: "portrait_129.jpg", w: 1920, h: 1280 },
+            { file: "portrait_130.jpg", w: 1920, h: 1138 },
+            { file: "portrait_131.jpg", w: 1920, h: 1016 },
+            { file: "portrait_132.jpg", w: 1920, h: 1280 },
             { file: "portrait_133.jpg", w: 1920, h: 1280 },
-            { file: "portrait_134.jpg", w: 1920, h: 1080 },
-            { file: "portrait_135.jpg", w: 1920, h: 1280 },
-            { file: "portrait_136.jpg", w: 1920, h: 1338 },
-            { file: "portrait_137.jpg", w: 1920, h: 1280 },
+            { file: "portrait_134.jpg", w: 1920, h: 1280 },
+            { file: "portrait_135.jpg", w: 1920, h: 2880 },
+            { file: "portrait_136.jpg", w: 1920, h: 1280 },
+            { file: "portrait_137.jpg", w: 1920, h: 2863 },
             { file: "portrait_138.jpg", w: 1920, h: 1280 },
             { file: "portrait_139.jpg", w: 1920, h: 1280 },
-            { file: "portrait_140.jpg", w: 1920, h: 1280 },
-            { file: "portrait_141.jpg", w: 1920, h: 1080 },
-            { file: "portrait_142.jpg", w: 1920, h: 1081 },
+            { file: "portrait_140.jpg", w: 1920, h: 3095 },
+            { file: "portrait_141.jpg", w: 1920, h: 1280 },
+            { file: "portrait_142.jpg", w: 1920, h: 2754 },
             { file: "portrait_143.jpg", w: 1920, h: 1280 },
-            { file: "portrait_144.jpg", w: 1920, h: 1080 },
-            { file: "portrait_145.jpg", w: 960, h: 1440 },
-            { file: "portrait_146.jpg", w: 1920, h: 1080 },
-            { file: "portrait_147.jpg", w: 1920, h: 1080 },
-            { file: "portrait_148.jpg", w: 1920, h: 1138 },
-            { file: "portrait_149.jpg", w: 960, h: 1706 },
-            { file: "portrait_150.jpg", w: 1920, h: 1080 },
-            { file: "portrait_151.jpg", w: 1920, h: 1080 },
-            { file: "portrait_152.jpg", w: 960, h: 1440 },
+            { file: "portrait_144.jpg", w: 1920, h: 2569 },
+            { file: "portrait_145.jpg", w: 1920, h: 1280 },
+            { file: "portrait_146.jpg", w: 1920, h: 2880 },
+            { file: "portrait_147.jpg", w: 1920, h: 1280 },
+            { file: "portrait_148.jpg", w: 1920, h: 1280 },
+            { file: "portrait_149.jpg", w: 1920, h: 2880 },
+            { file: "portrait_150.jpg", w: 1920, h: 1280 },
+            { file: "portrait_151.jpg", w: 1920, h: 1280 },
+            { file: "portrait_152.jpg", w: 1920, h: 1280 },
             { file: "portrait_153.jpg", w: 1920, h: 1280 },
-            { file: "portrait_154.jpg", w: 1920, h: 1280 },
-            { file: "portrait_155.jpg", w: 1920, h: 1158 },
-            { file: "portrait_156.jpg", w: 1920, h: 1387 },
+            { file: "portrait_154.jpg", w: 1920, h: 1112 },
+            { file: "portrait_155.jpg", w: 1920, h: 1280 },
+            { file: "portrait_156.jpg", w: 1920, h: 1280 },
             { file: "portrait_157.jpg", w: 1920, h: 1280 },
-            { file: "portrait_158.jpg", w: 960, h: 1706 },
-            { file: "portrait_159.jpg", w: 1920, h: 781 },
-            { file: "portrait_160.jpg", w: 1920, h: 3119 },
-            { file: "portrait_161.jpg", w: 1920, h: 1345 },
-            { file: "portrait_162.jpg", w: 1920, h: 2620 },
-            { file: "portrait_163.jpg", w: 1920, h: 3412 },
-            { file: "portrait_164.jpg", w: 1920, h: 1089 },
+            { file: "portrait_158.jpg", w: 1920, h: 2791 },
+            { file: "portrait_159.jpg", w: 1920, h: 1280 },
+            { file: "portrait_160.jpg", w: 1920, h: 1280 },
+            { file: "portrait_161.jpg", w: 1920, h: 2880 },
+            { file: "portrait_162.jpg", w: 1920, h: 1280 },
+            { file: "portrait_163.jpg", w: 1920, h: 2880 },
+            { file: "portrait_164.jpg", w: 1920, h: 2880 },
             { file: "portrait_165.jpg", w: 1920, h: 1280 },
-            { file: "portrait_166.jpg", w: 1920, h: 1045 },
-            { file: "portrait_167.jpg", w: 1920, h: 1080 },
-            { file: "portrait_168.jpg", w: 960, h: 1706 },
-            { file: "portrait_169.jpg", w: 1920, h: 1080 },
-            { file: "portrait_170.jpg", w: 960, h: 1432 },
+            { file: "portrait_166.jpg", w: 1920, h: 1280 },
+            { file: "portrait_167.jpg", w: 1920, h: 1338 },
+            { file: "portrait_168.jpg", w: 1920, h: 2880 },
+            { file: "portrait_169.jpg", w: 1920, h: 1012 },
+            { file: "portrait_170.jpg", w: 1920, h: 1080 },
             { file: "portrait_171.jpg", w: 1920, h: 1080 },
             { file: "portrait_172.jpg", w: 1920, h: 1280 },
             { file: "portrait_173.jpg", w: 1920, h: 1280 },
-            { file: "portrait_174.jpg", w: 1920, h: 985 },
-            { file: "portrait_175.jpg", w: 1920, h: 2880 },
+            { file: "portrait_174.jpg", w: 1920, h: 2420 },
+            { file: "portrait_175.jpg", w: 1920, h: 1158 },
             { file: "portrait_176.jpg", w: 1920, h: 2880 },
             { file: "portrait_177.jpg", w: 1920, h: 1280 },
-            { file: "portrait_178.jpg", w: 1920, h: 1080 },
-            { file: "portrait_179.jpg", w: 1920, h: 1080 },
-            { file: "portrait_180.jpg", w: 1920, h: 1080 },
-            { file: "portrait_181.jpg", w: 1920, h: 2880 },
-            { file: "portrait_182.jpg", w: 960, h: 1612 },
-            { file: "portrait_183.jpg", w: 1920, h: 1194 },
+            { file: "portrait_178.jpg", w: 1920, h: 1280 },
+            { file: "portrait_179.jpg", w: 1920, h: 2880 },
+            { file: "portrait_180.jpg", w: 1920, h: 1081 },
+            { file: "portrait_181.jpg", w: 1920, h: 1045 },
+            { file: "portrait_182.jpg", w: 1920, h: 1081 },
+            { file: "portrait_183.jpg", w: 1920, h: 2880 },
             { file: "portrait_184.jpg", w: 1920, h: 1280 },
-            { file: "portrait_185.jpg", w: 1920, h: 1081 },
-            { file: "portrait_186.jpg", w: 1920, h: 1080 },
-            { file: "portrait_187.jpg", w: 1920, h: 1080 },
-            { file: "portrait_188.jpg", w: 960, h: 1706 },
-            { file: "portrait_189.jpg", w: 1920, h: 1080 },
-            { file: "portrait_190.jpg", w: 1920, h: 1080 },
-            { file: "portrait_191.jpg", w: 1920, h: 1280 },
-            { file: "portrait_192.jpg", w: 1920, h: 1080 },
-            { file: "portrait_193.jpg", w: 1920, h: 1280 },
-            { file: "portrait_194.jpg", w: 1920, h: 3412 },
-            { file: "portrait_195.jpg", w: 1920, h: 1280 },
-            { file: "portrait_196.jpg", w: 1920, h: 1080 },
-            { file: "portrait_197.jpg", w: 960, h: 1308 },
-            { file: "portrait_198.jpg", w: 1920, h: 1080 },
-            { file: "portrait_199.jpg", w: 1920, h: 1280 },
-            { file: "portrait_200.jpg", w: 1920, h: 2880 },
-            { file: "portrait_201.jpg", w: 1920, h: 1280 },
-            { file: "portrait_202.jpg", w: 960, h: 1706 },
-            { file: "portrait_203.jpg", w: 1920, h: 1360 },
-            { file: "portrait_204.jpg", w: 1920, h: 3175 },
-            { file: "portrait_205.jpg", w: 1920, h: 1280 },
-            { file: "portrait_206.jpg", w: 1920, h: 1080 },
-            { file: "portrait_207.jpg", w: 1920, h: 1080 },
-            { file: "portrait_208.jpg", w: 1920, h: 1280 },
-            { file: "portrait_209.jpg", w: 1920, h: 1080 },
-            { file: "portrait_210.jpg", w: 1920, h: 1080 },
-            { file: "portrait_211.jpg", w: 1920, h: 1080 },
-            { file: "portrait_212.jpg", w: 1920, h: 1080 },
-            { file: "portrait_213.jpg", w: 1920, h: 1280 },
-            { file: "portrait_214.jpg", w: 1920, h: 1120 },
-            { file: "portrait_215.jpg", w: 1920, h: 1280 },
-            { file: "portrait_216.jpg", w: 960, h: 1440 },
-            { file: "portrait_217.jpg", w: 1920, h: 1080 },
-            { file: "portrait_218.jpg", w: 1920, h: 1080 },
-            { file: "portrait_219.jpg", w: 1920, h: 3095 },
-            { file: "portrait_220.jpg", w: 1920, h: 2569 },
-            { file: "portrait_221.jpg", w: 1920, h: 1080 },
-            { file: "portrait_222.jpg", w: 1920, h: 1280 },
-            { file: "portrait_223.jpg", w: 1920, h: 1080 },
-            { file: "portrait_224.jpg", w: 1920, h: 1280 },
-            { file: "portrait_225.jpg", w: 960, h: 1706 },
-            { file: "portrait_226.jpg", w: 1920, h: 931 },
-            { file: "portrait_227.jpg", w: 1920, h: 1080 },
-            { file: "portrait_228.jpg", w: 1920, h: 1191 },
-            { file: "portrait_229.jpg", w: 960, h: 1210 },
-            { file: "portrait_230.jpg", w: 960, h: 1440 },
-            { file: "portrait_231.jpg", w: 1920, h: 1080 },
-            { file: "portrait_232.jpg", w: 1920, h: 1280 },
-            { file: "portrait_233.jpg", w: 1920, h: 3412 },
-            { file: "portrait_234.jpg", w: 1920, h: 1280 },
-            { file: "portrait_235.jpg", w: 1920, h: 1080 },
-            { file: "portrait_236.jpg", w: 1920, h: 1280 },
-            { file: "portrait_237.jpg", w: 1920, h: 1280 },
           ],
         },
         {
@@ -4327,46 +4275,126 @@
 
       /* ---------- category gallery + lightbox viewer (generic — works for any local category) ----------
          file lists (with real w/h) are known exact, so the grid renders immediately — no
-         network probing/waiting. Rather than trust the browser to resolve an "auto" width
-         capped by a max-height before the photo has loaded (unreliable together with
-         column-count masonry — it would still reflow as images came in), each photo's
-         on-screen width/height is computed explicitly, in pixels, before its <img> even
-         starts loading: fill the column, unless that would exceed the height cap, in which
-         case shrink proportionally (never cropped, never stretched). Recomputed on resize.
-         If a file genuinely doesn't exist it just quietly removes that tile instead of
-         showing a broken-image icon. */
+         network probing/waiting.
+
+         Sizing is a proper "justified row" layout (Flickr/Google Photos style),
+         not a per-image independent fit: images are walked in array order and
+         grouped into rows by accumulating their aspect ratios until a row at
+         the target height would reach the container's full width, then that
+         row's actual height is solved for so it fills edge to edge exactly —
+         every image in a row ends up the same height, different widths, and
+         the row count naturally varies (2 across, 3 across, whatever fits).
+         A simple flex-wrap of independently-sized images looked "masonry-ish"
+         but left dead black space under the shorter photo in a row, since a
+         flex row's height is set by its tallest child and flex-start doesn't
+         fill that gap — this fixes that by making every image IN a row
+         actually equal height, so there's no gap left to show.
+         Every image's on-screen width/height is computed in pixels before its
+         <img> even starts loading (from the known w/h, not the loaded image),
+         so nothing reflows as photos come in, and lazy loading is untouched.
+         If a file genuinely doesn't exist it just quietly removes that tile
+         instead of showing a broken-image icon (and reflows just that gap on
+         its own load-error, same as any other resize). */
       function galleryLayout() {
         const w = window.innerWidth;
-        if (w <= 640) return { columns: 1, maxHeight: 420 };
-        if (w <= 1100) return { columns: 2, maxHeight: 520 };
-        return { columns: 3, maxHeight: 640 };
+        // mobile: one photo per row, full width, true aspect ratio — no
+        // packing math needed at all at this width, and it's the plain,
+        // expected phone gallery pattern (stacked, not still trying to
+        // justify 2 photos onto one narrow line)
+        if (w <= 640) return { singleColumn: true, gap: 10 };
+        if (w <= 1100) return { targetHeight: 280, gap: 14, maxScale: 1.4 };
+        return { targetHeight: 340, gap: 14, maxScale: 1.5 };
       }
-      function sizeCatViewImg(img, grid, layout) {
-        const w = Number(img.dataset.w);
-        const h = Number(img.dataset.h);
+      function layoutCatViewGrid(grid, layout) {
+        if (layout.singleColumn) {
+          const imgs = Array.from(grid.querySelectorAll("img"));
+          if (!imgs.length) return;
+          const cs = getComputedStyle(grid);
+          const containerWidth =
+            grid.clientWidth -
+            parseFloat(cs.paddingLeft) -
+            parseFloat(cs.paddingRight);
+          grid.innerHTML = "";
+          imgs.forEach((img) => {
+            const ar = Number(img.dataset.w) / Number(img.dataset.h);
+            img.style.width = Math.round(containerWidth) + "px";
+            img.style.height = Math.round(containerWidth / ar) + "px";
+            const rowEl = document.createElement("div");
+            rowEl.className = "cat-row";
+            rowEl.style.marginBottom = layout.gap + "px";
+            rowEl.appendChild(img);
+            grid.appendChild(rowEl);
+          });
+          return;
+        }
+        // Grouping images purely by CSS flex-wrap (one flat row of flex
+        // items, letting the browser decide the line breaks) sounds
+        // simpler, but it means the WRAP decision has to land on exactly
+        // the same boundary as the math below, in real rendered pixels —
+        // one image even 1px over from Math.round and the browser wraps
+        // it one row early, which then throws off every row after it,
+        // leaving a growing gap at the end of each line. Building an
+        // explicit <div class="cat-row"> per row instead removes that
+        // dependency entirely: each row's image count is exactly what the
+        // math decided, full stop, regardless of any rounding.
+        const imgs = Array.from(grid.querySelectorAll("img"));
+        if (!imgs.length) return;
         const cs = getComputedStyle(grid);
-        const gap = 14; // cosmetic only — matches column-gap, doesn't need to be exact
-        const contentWidth =
+        const containerWidth =
           grid.clientWidth -
           parseFloat(cs.paddingLeft) -
           parseFloat(cs.paddingRight);
-        const colWidth =
-          (contentWidth - gap * (layout.columns - 1)) / layout.columns;
-        let width = colWidth;
-        let height = (width * h) / w;
-        if (height > layout.maxHeight) {
-          height = layout.maxHeight;
-          width = (height * w) / h;
+        const { targetHeight, gap, maxScale } = layout;
+        const rows = [];
+        let row = [];
+        let aspectSum = 0;
+        function pushRow() {
+          if (row.length) rows.push(row);
+          row = [];
+          aspectSum = 0;
         }
-        img.style.width = Math.round(width) + "px";
-        img.style.height = Math.round(height) + "px";
+        imgs.forEach((img) => {
+          const ar = Number(img.dataset.w) / Number(img.dataset.h);
+          row.push(img);
+          aspectSum += ar;
+          const totalGap = gap * (row.length - 1);
+          if (targetHeight * aspectSum + totalGap >= containerWidth) pushRow();
+        });
+        pushRow();
+
+        grid.innerHTML = "";
+        rows.forEach((rowImgs, rowIdx) => {
+          const rowAspectSum = rowImgs.reduce(
+            (sum, img) => sum + Number(img.dataset.w) / Number(img.dataset.h),
+            0,
+          );
+          const totalGap = gap * (rowImgs.length - 1);
+          let rowHeight = (containerWidth - totalGap) / rowAspectSum;
+          const isLastRow = rowIdx === rows.length - 1;
+          // the final, leftover row usually won't have enough images to
+          // reach full width — don't stretch it into oversized photos,
+          // just leave it at the normal target height instead
+          if (isLastRow && rowHeight > targetHeight * maxScale) {
+            rowHeight = targetHeight;
+          }
+          const rowEl = document.createElement("div");
+          rowEl.className = "cat-row";
+          rowEl.style.gap = gap + "px";
+          rowEl.style.marginBottom = gap + "px";
+          rowImgs.forEach((img) => {
+            const ar = Number(img.dataset.w) / Number(img.dataset.h);
+            img.style.height = Math.round(rowHeight) + "px";
+            img.style.width = Math.round(rowHeight * ar) + "px";
+            rowEl.appendChild(img);
+          });
+          grid.appendChild(rowEl);
+        });
       }
       function resizeCatViewImgs() {
         if (!document.getElementById("cat-view").classList.contains("open"))
           return;
         const grid = document.getElementById("cat-view-grid");
-        const layout = galleryLayout();
-        catViewImgs().forEach((img) => sizeCatViewImg(img, grid, layout));
+        layoutCatViewGrid(grid, galleryLayout());
       }
       window.addEventListener("resize", resizeCatViewImgs);
       function openCatView(cat) {
@@ -4376,21 +4404,25 @@
         document.getElementById("cat-view-title").textContent = cat.name;
         grid.innerHTML = "";
         view.classList.add("open");
-        const layout = galleryLayout();
         cat.photos.forEach((p, i) => {
           const img = document.createElement("img");
           img.loading = "lazy";
           img.alt = `${cat.name} ${i + 1}`;
           img.dataset.w = p.w;
           img.dataset.h = p.h;
-          sizeCatViewImg(img, grid, layout);
           img.src = `${cat.folder}/${p.file}`;
-          img.addEventListener("error", () => img.remove());
+          img.addEventListener("error", () => {
+            img.remove();
+            layoutCatViewGrid(grid, galleryLayout());
+          });
           img.addEventListener("click", () => {
-            openLightbox(Array.from(grid.children).indexOf(img));
+            // grid's direct children are now row <div>s, not images —
+            // look the image up in the flat, order-preserving img list
+            openLightbox(catViewImgs().indexOf(img));
           });
           grid.appendChild(img);
         });
+        layoutCatViewGrid(grid, galleryLayout());
       }
       function closeCatView() {
         document.getElementById("cat-view").classList.remove("open");
