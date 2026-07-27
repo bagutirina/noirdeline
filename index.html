@@ -1446,12 +1446,16 @@
       .career-year {
         font-family: var(--font-mono);
         font-size: 11px;
-        color: color-mix(in srgb, #3b7a72 75%, white 25%);
+        /* not yet reached — paler/washed out */
+        color: color-mix(in srgb, #3b7a72 45%, white 55%);
         letter-spacing: 0.08em;
         transition: color 0.65s ease;
       }
       .career-item.active .career-year {
-        color: color-mix(in srgb, #3b7a72 45%, white 55%);
+        /* already passed — stronger, more saturated green (swapped from
+           before, per Adelina's request: emphasis should land on what's
+           already been read, not on what's still ahead) */
+        color: color-mix(in srgb, #3b7a72 75%, white 25%);
       }
       .career-item b {
         display: block;
@@ -3022,13 +3026,21 @@
       /* About's career items are always visible/readable now (no opacity
          gating). The dots fill in progressively as you scroll past them —
          each one that's crossed the mid-line stays filled, like a progress
-         trail, not just whichever one is currently centered. Works the same
-         on manual scroll or during Roll Camera autoplay. */
+         trail, not just whichever one is currently centered — for MANUAL
+         scrolling. During Roll Camera, playCareerReveal() is the one and
+         only thing deciding which items are active, on its own timed
+         schedule; this function must stay out of its way then, because
+         the scripted scroll it drives still fires native 'scroll' events,
+         which used to reach this handler too — it would then toggle an
+         item back OFF if that item's own reveal hadn't yet pulled it past
+         the mid-line at that exact scroll position, which is exactly what
+         made the second-to-last dot (and its connecting line) intermittently
+         never end up lit. */
       const careerItems = Array.from(
         document.querySelectorAll("#scene-about .career-item"),
       );
       function updateCareerProgress() {
-        if (!careerItems.length) return;
+        if (!careerItems.length || isPlaying) return;
         const lineY = window.innerHeight * 0.5;
         careerItems.forEach((it) => {
           const r = it.getBoundingClientRect();
