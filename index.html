@@ -159,12 +159,21 @@
         bottom: 0;
         left: -8vw;
         z-index: 0;
+        /* the photo's own box starts at left:11vw (see .intro-photo below) —
+           everything left of that is flat page background, nothing to
+           blend with. Held near-solid black well past that point (94% all
+           the way to 25%) rather than already fading by ~16-28% like
+           before, so the photo's left edge — where it used to still show
+           through at ~85% scrim opacity — now stays essentially invisible
+           under it. Adelina's note: she wants more black, like a shadow
+           the camera diffusely emerges from, not a visible seam where the
+           photo starts. */
         background: linear-gradient(
           100deg,
-          rgba(12, 10, 9, 0.92) 0%,
-          rgba(12, 10, 9, 0.8) 28%,
-          rgba(12, 10, 9, 0.35) 48%,
-          rgba(12, 10, 9, 0) 66%
+          rgba(12, 10, 9, 0.97) 0%,
+          rgba(12, 10, 9, 0.94) 25%,
+          rgba(12, 10, 9, 0.55) 52%,
+          rgba(12, 10, 9, 0) 76%
         );
       }
       .intro-wash {
@@ -175,12 +184,15 @@
         left: -8vw;
         z-index: 0;
         mix-blend-mode: soft-light;
+        /* pushed out to match the scrim's longer hold above — soft-light
+           can't tint through near-solid black anyway, so the teal only
+           needs to pick up once the scrim itself starts giving way */
         background: linear-gradient(
           100deg,
           rgba(26, 132, 120, 0.95) 0%,
-          rgba(26, 132, 120, 0.6) 45%,
-          rgba(26, 132, 120, 0.15) 68%,
-          transparent 80%
+          rgba(26, 132, 120, 0.6) 50%,
+          rgba(26, 132, 120, 0.15) 70%,
+          transparent 84%
         );
       }
       /* fades out on scroll (JS) alongside .intro-wrap's own parallax —
@@ -188,7 +200,6 @@
          recedes into the page background rather than detaching/rising
          the way the text layer does. */
       .intro-photo,
-      .intro-scrim,
       .intro-wash {
         transition: opacity 0.12s linear;
       }
@@ -507,7 +518,7 @@
       }
       .scene {
         width: 100%;
-        padding: 112px 8% 40px 8%;
+        padding: 112px 7% 40px 7%;
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
@@ -696,7 +707,7 @@
         gap: 10px;
       }
       #scene-intro .intro-hint {
-        color: rgba(237, 228, 216, 0.45);
+        color: rgba(237, 228, 216, 0.9);
       }
       .hint-accent {
         color: var(--white);
@@ -1368,10 +1379,17 @@
       .about-lead {
         margin-top: 0;
       }
+      /* back to side-by-side (text+photos | timeline) — stacking them full
+         width left a big empty gap on the right where the (narrower than
+         full-width) text column ended, with everything else run in one
+         long strip down the left. Two columns uses the full section width
+         properly; the BTS photo pair lives under the tags in the text
+         column, in the space that column has left over below the (short)
+         paragraphs, next to the taller timeline. */
       #scene-about .about-wrap {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 70px;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 200px;
         align-items: start;
         padding-bottom: 20px;
       }
@@ -1380,9 +1398,12 @@
           enough room below About to scroll the hero fully out of view */
       }
       .about-text {
-        font-size: 16.5px;
+        font-size: 15px;
         line-height: 1.8;
         color: var(--muted);
+      }
+      .about-text + .about-text {
+        margin-top: 16px;
       }
       .about-text strong {
         color: var(--white);
@@ -1402,6 +1423,51 @@
         border: 1px solid var(--border);
         padding: 7px 13px;
         color: var(--muted);
+      }
+      /* the two behind-the-scenes stills Adelina asked to have on the page —
+         a small side-by-side pair under the tags, same column as the text
+         (the timeline already owns the right column), captioned once for
+         both since they're from the same production. Same visual language
+         as the rest of the site: no rounding, a hairline border, slightly
+         desaturated at rest, full color on hover — not a separate gallery,
+         just a supporting visual for the "Wednesday" line in the timeline. */
+      .about-photos {
+        display: flex;
+        gap: 15px;
+        margin-top: 28px;
+      }
+      .about-photos img {
+        width: 50%;
+        height: 320px;
+        object-fit: cover;
+        display: block;
+        cursor: pointer;
+        border: 1px solid var(--border);
+        filter: grayscale(0.25) brightness(0.95);
+        transition:
+          filter 0.3s,
+          transform 0.3s;
+      }
+      .about-photos img:hover {
+        filter: grayscale(0) brightness(1.05);
+        transform: scale(1.015);
+      }
+      .about-photos-caption {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--muted);
+        opacity: 0.6;
+        margin-top: 10px;
+        letter-spacing: 0.04em;
+      }
+      @media (max-width: 640px) {
+        .about-photos {
+          flex-direction: column;
+        }
+        .about-photos img {
+          width: 100%;
+          height: 220px;
+        }
       }
       .career-line {
         position: relative;
@@ -1719,8 +1785,11 @@
       }
 
       @media (max-width: 900px) {
-        #scene-about .about-wrap,
         #scene-contact .contact-wrap {
+          grid-template-columns: 1fr;
+          gap: 40px;
+        }
+        #scene-about .about-wrap {
           grid-template-columns: 1fr;
           gap: 40px;
         }
@@ -1767,7 +1836,7 @@
           background: linear-gradient(
             to top,
             rgba(12, 10, 9, 0.95) 0%,
-            rgba(12, 10, 9, 0.95) 24%,
+            rgba(12, 10, 9, 0.95) 36%,
             rgba(12, 10, 9, 0.55) 50%,
             rgba(12, 10, 9, 0) 70%
           );
@@ -1956,15 +2025,11 @@
                 ><span class="noir">noir</span>deline</a
               >
               <p class="intro-sub">
-                Tokyo-based camera operator, 1st/2nd assistant camera,
-                photographer and editor. Two degrees — Cinematography and
-                Computer Science — one obsession:
-                <span class="hint-gold">light</span>.
+                <span class="hint-gold">Japan</span>-based camera operator,
+                focus puller, photographer and editor.
               </p>
               <div class="intro-hint">
-                <span class="hint-accent">Transylvania</span> to
-                <span class="hint-accent">Tokyo</span> — always chasing the next
-                frame.
+                日本拠点 — カメラマン・フォーカスプラー・編集
               </div>
               <div class="intro-actions">
                 <button class="btn-primary" id="roll-btn" onclick="pressPlay()">
@@ -1984,20 +2049,36 @@
             <h2 class="scene-title reveal reveal-delay-1">About</h2>
           </div>
           <div class="about-wrap">
-            <div>
+            <div class="about-main">
               <p class="about-text">
-                Born and raised in Transylvania, Romania — now based in
-                <strong>Tokyo, Japan</strong>. Fluent in Romanian and English,
-                conversational in Japanese. Drawn to music videos, commercials
-                and film — and to what happens after the camera stops, in the
-                edit.
+                Born and raised in Transylvania, Romania, now based in Tokyo,
+                Japan. I hold a degree in Cinematography and work as a camera
+                assistant and cinematographer, photographer, and video editor.
               </p>
-              <div class="about-tags">
-                <div class="about-tag">Camera Operating</div>
-                <div class="about-tag">1st / 2nd AC</div>
-                <div class="about-tag">Video Editing</div>
-                <div class="about-tag">Photography</div>
-                <div class="about-tag">Tokyo-based</div>
+              <p class="about-text">
+                My focus is on music videos and film/TV work — storytelling
+                projects where camera and color become part of the narrative. I
+                also work on commercial productions alongside this. Outside of
+                set, I shoot and edit personal photography, drawn especially to
+                color and light. I speak Romanian and English fluently, and
+                Japanese conversationally.
+              </p>
+              <p class="about-text">
+                My work says more about me than words can — take a look through
+                the video and photo sections below.
+              </p>
+
+              <div class="about-photos">
+                <img
+                  src="images/about_1.jpg"
+                  alt="Adelina on set, clapperboard in hand"
+                  loading="lazy"
+                />
+                <img
+                  src="images/about_2.jpg"
+                  alt="Adelina on location, clapperboard in hand"
+                  loading="lazy"
+                />
               </div>
             </div>
             <div class="career-line">
@@ -2431,7 +2512,7 @@
         "#scene-intro .intro-hero",
       );
       const introPhotoLayers = document.querySelectorAll(
-        "#scene-intro .intro-photo, #scene-intro .intro-scrim, #scene-intro .intro-wash",
+        "#scene-intro .intro-photo, #scene-intro, #scene-intro .intro-wash",
       );
       // Eased 0→1 ramp between edge0/edge1 with zero slope at both ends —
       // used instead of a hard min/max clamp so there's no corner in the
@@ -2472,11 +2553,17 @@
         introWrapEl.style.transform = `translateY(${dip - rise}px)`;
         introWrapEl.style.opacity = 1 - Math.pow(t, 1.3);
         // Photo layers: opacity only, no transform — a plain recede into
-        // the page background, independent of the text's dip/rise. Uses
-        // smoothstep (not the same power curve as the text) so it fades
-        // out evenly across the full scroll range instead of tailing off
-        // fast near the end the way the text's opacity does.
-        const photoFade = 1 - smoothstep(0, 1, t);
+        // the page background, independent of the text's dip/rise. Delayed
+        // to start at t=0.15, not t=0: the scrim only fully hides the
+        // photo's left edge (where there's no photo at all, just the
+        // scrim/wash matching the page background) at FULL strength — the
+        // moment this group starts fading at all, that coverage weakens
+        // and the seam can show again. Holding it at full opacity through
+        // the first bit of scroll (while the text is still mostly there)
+        // means the seam never reappears while you're actually reading the
+        // hero; by the time it does fade, the text's own faster opacity
+        // curve has already mostly cleared it out of the way.
+        const photoFade = 1 - smoothstep(0.15, 0.85, t);
         introPhotoLayers.forEach((el) => {
           el.style.opacity = photoFade;
         });
@@ -3039,6 +3126,14 @@
       const careerItems = Array.from(
         document.querySelectorAll("#scene-about .career-item"),
       );
+      // the two BTS stills open in the same lightbox as the photo gallery —
+      // click either one to see it full-size, arrows cycle between the two
+      const aboutPhotoImgs = Array.from(
+        document.querySelectorAll(".about-photos img"),
+      );
+      aboutPhotoImgs.forEach((img, i) => {
+        img.addEventListener("click", () => openLightbox(aboutPhotoImgs, i));
+      });
       function updateCareerProgress() {
         if (!careerItems.length || isPlaying) return;
         const lineY = window.innerHeight * 0.5;
@@ -3688,6 +3783,17 @@
             { file: "portrait_182.jpg", w: 1920, h: 1081 },
             { file: "portrait_183.jpg", w: 1920, h: 2880 },
             { file: "portrait_184.jpg", w: 1920, h: 1280 },
+            { file: "portrait_185.jpg", w: 6000, h: 4000 },
+            { file: "portrait_186.jpg", w: 1920, h: 1280 },
+            { file: "portrait_187.jpg", w: 1920, h: 1280 },
+            { file: "portrait_188.jpg", w: 1920, h: 2880 },
+            { file: "portrait_189.jpg", w: 6000, h: 4000 },
+            { file: "portrait_190.jpg", w: 1920, h: 2880 },
+            { file: "portrait_191.jpg", w: 1920, h: 2880 },
+            { file: "portrait_192.jpg", w: 1920, h: 1280 },
+            { file: "portrait_193.jpg", w: 1920, h: 1280 },
+            { file: "portrait_194.jpg", w: 1920, h: 2880 },
+            { file: "portrait_195.jpg", w: 1920, h: 1280 },
           ],
         },
         {
@@ -4086,35 +4192,7 @@
             { file: "cinema_020.jpg", w: 5804, h: 3361 },
           ],
         },
-        {
-          name: "Studio",
-          tag: "Chiaroscuro",
-          folder: "images/studio",
-          main: "studio.jpg",
-          url: "https://adevancea.myportfolio.com/chiaroscuro",
-          photos: [
-            { file: "studio_001.jpg", w: 6000, h: 4000 },
-            { file: "studio_002.jpg", w: 1920, h: 1280 },
-            { file: "studio_003.jpg", w: 1920, h: 2880 },
-            { file: "studio_004.jpg", w: 1920, h: 1280 },
-            { file: "studio_005.jpg", w: 1920, h: 1280 },
-            { file: "studio_006.jpg", w: 1920, h: 2880 },
-            { file: "studio_007.jpg", w: 6000, h: 4000 },
-            { file: "studio_008.jpg", w: 4000, h: 6000 },
-            { file: "studio_009.jpg", w: 1920, h: 1280 },
-            { file: "studio_010.jpg", w: 6000, h: 4000 },
-            { file: "studio_011.jpg", w: 1920, h: 2880 },
-            { file: "studio_012.jpg", w: 1920, h: 1280 },
-            { file: "studio_013.jpg", w: 1920, h: 2816 },
-            { file: "studio_014.jpg", w: 1920, h: 2721 },
-            { file: "studio_015.jpg", w: 1920, h: 2880 },
-            { file: "studio_016.jpg", w: 1920, h: 1280 },
-            { file: "studio_017.jpg", w: 6000, h: 4000 },
-            { file: "studio_018.jpg", w: 1920, h: 1280 },
-            { file: "studio_019.jpg", w: 1920, h: 1280 },
-            { file: "studio_020.jpg", w: 1920, h: 2880 },
-          ],
-        },
+
         {
           name: "Product Photography",
           tag: "Commercial",
@@ -4448,7 +4526,8 @@
           img.addEventListener("click", () => {
             // grid's direct children are now row <div>s, not images —
             // look the image up in the flat, order-preserving img list
-            openLightbox(catViewImgs().indexOf(img));
+            const imgs = catViewImgs();
+            openLightbox(imgs, imgs.indexOf(img));
           });
           grid.appendChild(img);
         });
@@ -4463,20 +4542,28 @@
           document.getElementById("cat-view-grid").querySelectorAll("img"),
         );
       }
+      // generic — works for the category gallery (catViewImgs()) or any
+      // other fixed list of <img> elements (e.g. the About BTS photo pair).
+      // lightboxImgs is cached at open time rather than re-queried on every
+      // nav step, since not every caller has a cheap live query like
+      // catViewImgs() does.
       let lightboxIndex = 0;
-      function openLightbox(i) {
+      let lightboxImgs = [];
+      function openLightbox(imgs, i) {
+        lightboxImgs = imgs;
         lightboxIndex = i;
-        document.getElementById("lightbox-img").src = catViewImgs()[i].src;
+        document.getElementById("lightbox-img").src = imgs[i].src;
         document.getElementById("lightbox").classList.add("open");
       }
       function closeLightbox() {
         document.getElementById("lightbox").classList.remove("open");
       }
       function lightboxNav(delta) {
-        const imgs = catViewImgs();
-        if (!imgs.length) return;
-        lightboxIndex = (lightboxIndex + delta + imgs.length) % imgs.length;
-        document.getElementById("lightbox-img").src = imgs[lightboxIndex].src;
+        if (!lightboxImgs.length) return;
+        lightboxIndex =
+          (lightboxIndex + delta + lightboxImgs.length) % lightboxImgs.length;
+        document.getElementById("lightbox-img").src =
+          lightboxImgs[lightboxIndex].src;
       }
 
       /* ---------- filmography shot list ---------- */
