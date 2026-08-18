@@ -1308,7 +1308,7 @@
       /* ---------- credits (shot list) ---------- */
       .shotlist-head {
         display: grid;
-        grid-template-columns: 70px 1.6fr 1.4fr 1fr 100px;
+        grid-template-columns: 70px 1.4fr 110px 1.2fr 0.9fr 100px;
         gap: 16px;
         padding: 0 0 10px;
         border-bottom: 1px solid var(--border);
@@ -1333,7 +1333,7 @@
       }
       .shot-row {
         display: grid;
-        grid-template-columns: 70px 1.6fr 1.4fr 1fr 100px;
+        grid-template-columns: 70px 1.4fr 110px 1.2fr 0.9fr 100px;
         gap: 16px;
         align-items: center;
         padding: 13px 0;
@@ -1363,6 +1363,21 @@
         text-transform: uppercase;
         color: var(--white);
         transition: color 0.3s;
+      }
+      /* wraps type/role/location — on desktop it's transparent to layout
+         (its 3 children land in their own grid columns, same as before it
+         existed); on mobile it collapses into one flex line under the
+         title instead of 3 columns that would otherwise have to be
+         dropped for lack of room. */
+      .shot-meta {
+        display: contents;
+      }
+      .shot-type {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--teal-label);
       }
       .shot-sub {
         font-family: var(--font-mono);
@@ -1963,12 +1978,56 @@
         .photo-grid {
           grid-template-columns: 1fr;
         }
+        /* below laptop width there's no room left for a real 6-column
+           table (SC# / Title / Type / Role / Location / Date) — rather
+           than keep dropping columns (Role and Location used to just
+           vanish here, which lost information Adelina actually wants
+           visible), each row becomes a small card: number + title on the
+           first line, then type/role/location and the date each get their
+           own line below — indented to line up under the title rather
+           than the number, via an empty first grid cell on those rows. */
         .shotlist-head,
         .shot-row {
-          grid-template-columns: 34px 1fr 78px;
+          display: grid;
+          grid-template-columns: 30px 1fr;
+          grid-template-areas: "num name" ". meta" ". date";
+          column-gap: 10px;
+          row-gap: 5px;
+        }
+        .shot-num,
+        .col-num {
+          grid-area: num;
+        }
+        .shot-name,
+        .col-title {
+          grid-area: name;
+        }
+        .shot-meta {
+          grid-area: meta;
+          display: flex;
+          flex-wrap: wrap;
+          column-gap: 10px;
+          row-gap: 2px;
+        }
+        .shot-date {
+          grid-area: date;
         }
         .shot-sub,
-        .shot-loc {
+        .shot-loc,
+        .shot-date {
+          display: block;
+          text-align: left;
+        }
+        .shot-meta > .shot-sub::before,
+        .shot-meta > .shot-loc::before {
+          content: "·";
+          margin-right: 8px;
+          color: var(--border);
+        }
+        .shotlist-head .col-type,
+        .shotlist-head .col-role,
+        .shotlist-head .col-loc,
+        .shotlist-head .col-date {
           display: none;
         }
         .tl-clip .tl-name {
@@ -2214,11 +2273,12 @@
           <h2 class="scene-title reveal reveal-delay-1">Credits</h2>
           <div class="scroll-body" id="credits-scroll">
             <div class="shotlist-head">
-              <div>SC#</div>
-              <div>Title</div>
-              <div>Role</div>
-              <div>Location</div>
-              <div style="text-align: right">Date</div>
+              <div class="col-num">SC#</div>
+              <div class="col-title">Title</div>
+              <div class="col-type">Type</div>
+              <div class="col-role">Role</div>
+              <div class="col-loc">Location</div>
+              <div class="col-date" style="text-align: right">Date</div>
             </div>
             <div class="shotlist" id="shotlist"></div>
           </div>
@@ -3523,11 +3583,6 @@
           role: "Camera Operator & Editor · 2026",
         },
         {
-          id: "Dcu8nhzuuxA",
-          title: "Gucci Baby",
-          role: "Camera Operator & Editor · 2023",
-        },
-        {
           id: "NUqrFjk6hvU",
           title: "Morrison Cup",
           role: "Camera Operator & Editor · 2024",
@@ -3537,12 +3592,6 @@
           title: "Dayun - Break U",
           role: "Camera Operator & Editor · 2025",
         },
-        {
-          id: "d2vggXFMF9E",
-          title: "Dayun",
-          role: "Camera Operator & Editor · 2026",
-        },
-
         {
           id: "ErXZopswKIw",
           title: "Dayun - Believe Myself",
@@ -3558,11 +3607,20 @@
           title: "UTOMURASAKI & Ayataka - humming",
           role: "Shot & Edit  · 2025",
         },
-
         {
           id: "WC5tl5czE8c",
           title: "Summer Well 2022 - Bucharest, Romania",
           role: "1st Assistant Camera · 2023",
+        },
+        {
+          id: "d2vggXFMF9E",
+          title: "Dayun",
+          role: "Camera Operator & Editor · 2026",
+        },
+        {
+          id: "Dcu8nhzuuxA",
+          title: "Gucci Baby",
+          role: "Camera Operator & Editor · 2023",
         },
       ];
       const filmstrip = document.getElementById("filmstrip");
@@ -4628,6 +4686,7 @@
       const credits = [
         {
           name: "barbiebl00d",
+          type: "Music Video",
           sub: "Camera Operator & Editor",
           loc: "Tokyo, JP",
           year: "Aug 2026",
@@ -4635,12 +4694,14 @@
         },
         {
           name: "Junhyo",
+          type: "Music Video",
           sub: "Camera Assistant + Focus Puller",
           loc: "Tokyo, JP",
           year: "Jul 2026",
         },
         {
           name: "Dayun",
+          type: "Music Video",
           sub: "Camera Operator & Editor",
           loc: "Tokyo, JP",
           year: "Mar 2026",
@@ -4648,6 +4709,7 @@
         },
         {
           name: "barbiebl00d",
+          type: "Music Video",
           sub: "Camera Operator & Editor",
           loc: "Tokyo, JP",
           year: "Feb 2026",
@@ -4655,6 +4717,7 @@
         },
         {
           name: "The Oral Cigarettes",
+          type: "Music Video",
           sub: "Music video · 1st Assistant Camera",
           loc: "Tokyo, JP",
           year: "Aug 2024",
@@ -4662,6 +4725,7 @@
         },
         {
           name: "UTOMURASAKI",
+          type: "Music Video",
           sub: "Camera Operator & Editor",
           loc: "Tokyo, JP",
           year: "Jul 2024",
@@ -4669,6 +4733,7 @@
         },
         {
           name: "MORRISON CUP",
+          type: "Commercial",
           sub: "Camera Operator & Editor",
           loc: "Tokyo, JP",
           year: "Jul 2024",
@@ -4676,6 +4741,7 @@
         },
         {
           name: "MOTHERCOMPLEX",
+          type: "Music Video",
           sub: "Camera Operator & Editor",
           loc: "Tokyo, JP",
           year: "Jun 2024",
@@ -4683,6 +4749,7 @@
         },
         {
           name: "DAYUN",
+          type: "Music Video",
           sub: "Camera Operator & Editor",
           loc: "Tokyo, JP",
           year: "Jun 2024",
@@ -4690,6 +4757,7 @@
         },
         {
           name: "AISLE — Dairiku",
+          type: "Short Film",
           sub: "Short film · Camera Assistant + Focus Puller",
           loc: "Tokyo, JP",
           year: "Jun 2024",
@@ -4697,12 +4765,14 @@
         },
         {
           name: "LIL LEAGUE",
+          type: "Music Video",
           sub: "Music video · 2nd Assistant Camera",
           loc: "Tokyo, JP",
           year: "Jun 2024",
         },
         {
           name: "KSmiley",
+          type: "Music Video",
           sub: "Camera Operator & Editor",
           loc: "Tokyo, JP",
           year: "May 2024",
@@ -4710,36 +4780,42 @@
         },
         {
           name: "FILA",
+          type: "Commercial",
           sub: "Commercial · 2nd Assistant Camera",
           loc: "Tokyo, JP",
           year: "Apr 2024",
         },
         {
           name: "Sento",
+          type: "Short Film",
           sub: "Short film · 1st Assistant Camera",
           loc: "Tokyo, JP",
           year: "Apr 2024",
         },
         {
           name: "I am Samurai",
+          type: "Film/TV",
           sub: "Feature film · 1st Assistant Camera",
           loc: "Kyoto/Tokyo, JP",
           year: "Mar 2024",
         },
         {
           name: "Yokohama Tire",
+          type: "Commercial",
           sub: "Commercial · 2nd Assistant Camera",
           loc: "Yokohama, JP",
           year: "Mar 2024",
         },
         {
           name: "The Dragonfly",
+          type: "Film/TV",
           sub: "Feature film · 1st Assistant Camera",
           loc: "Nagoya, JP",
           year: "Oct 2023",
         },
         {
           name: "Gucci Baby",
+          type: "Music Video",
           sub: "Camera Operator & Editor",
           loc: "Tokyo, JP",
           year: "Aug 2023",
@@ -4747,30 +4823,35 @@
         },
         {
           name: "Capper",
+          type: "Music Video",
           sub: "Music video · 1st Assistant Camera",
           loc: "Tokyo, JP",
           year: "Aug 2023",
         },
         {
           name: "Oppo",
+          type: "Commercial",
           sub: "Commercial · 2nd Assistant Camera",
           loc: "Tokyo, JP",
           year: "Jul 2023",
         },
         {
           name: "Adidas",
+          type: "Commercial",
           sub: "Commercial · 1st Assistant Camera",
           loc: "Tokyo, JP",
           year: "May 2023",
         },
         {
           name: "Braun",
+          type: "Commercial",
           sub: "Commercial · 2nd Assistant Camera",
           loc: "Chiba, JP",
           year: "May 2023",
         },
         {
           name: "Dan Nguyen",
+          type: "Music Video",
           sub: "Music video · 2nd Assistant Camera",
           loc: "Kyoto, JP",
           year: "Apr 2023",
@@ -4778,18 +4859,21 @@
         },
         {
           name: "TAZZ",
+          type: "Commercial",
           sub: "Commercial · DIT",
           loc: "Bucharest, RO",
           year: "Oct 2022",
         },
         {
           name: "Penny",
+          type: "Commercial",
           sub: "Commercial · DIT",
           loc: "Bucharest, RO",
           year: "Aug 2022",
         },
         {
           name: "Wednesday",
+          type: "Film/TV",
           sub: "Netflix series · Camera Trainee",
           loc: "Bucharest, RO",
           year: "Sep 2021<br />– Mar 2022",
@@ -4797,6 +4881,7 @@
         },
         {
           name: "Toni and Friends",
+          type: "Film/TV",
           sub: "Production Assistant",
           loc: "Cluj-Napoca, RO",
           year: "Jul 2018",
@@ -4814,8 +4899,12 @@
         }
         el.innerHTML = `<div class="shot-num">${String(i + 1).padStart(2, "0")}</div>
             <div class="shot-name">${row.name}</div>
-            <div class="shot-sub" style="margin-top:0">${row.sub}</div>
-            <div class="shot-loc">${row.loc}</div><div class="shot-date">${row.year}</div>`;
+            <div class="shot-meta">
+              <div class="shot-type">${row.type}</div>
+              <div class="shot-sub" style="margin-top:0">${row.sub}</div>
+              <div class="shot-loc">${row.loc}</div>
+            </div>
+            <div class="shot-date">${row.year}</div>`;
         shotlist.appendChild(el);
       });
 
