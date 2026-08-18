@@ -36,7 +36,7 @@
       :root {
         --teal: #2ddcc4;
         --teal-dim: #1a8f82;
-        --teal-label: #1a8478;
+        --teal-label: #63a79e;
         --teal-rgb: 45, 220, 196;
         --amber: #ff9d5c;
         --bg: #0c0a09;
@@ -1302,7 +1302,7 @@
       /* ---------- credits (shot list) ---------- */
       .shotlist-head {
         display: grid;
-        grid-template-columns: 70px 1.6fr 1.4fr 1fr 70px;
+        grid-template-columns: 70px 1.6fr 1.4fr 1fr 100px;
         gap: 16px;
         padding: 0 0 10px;
         border-bottom: 1px solid var(--border);
@@ -1327,7 +1327,7 @@
       }
       .shot-row {
         display: grid;
-        grid-template-columns: 70px 1.6fr 1.4fr 1fr 70px;
+        grid-template-columns: 70px 1.6fr 1.4fr 1fr 100px;
         gap: 16px;
         align-items: center;
         padding: 13px 0;
@@ -1368,11 +1368,12 @@
         font-size: 12px;
         color: var(--muted);
       }
-      .shot-year {
+      .shot-date {
         font-family: var(--font-mono);
         font-size: 12px;
         color: var(--muted);
         text-align: right;
+        line-height: 1.35;
       }
 
       /* ---------- about (its own section now, right under Intro) ---------- */
@@ -1399,15 +1400,21 @@
       }
       .about-text {
         font-size: 15px;
-        line-height: 1.8;
+        line-height: 1.6;
         color: var(--muted);
       }
       .about-text + .about-text {
-        margin-top: 16px;
+        margin-top: 22px;
       }
       .about-text strong {
         color: var(--white);
         font-weight: 500;
+      }
+      /* same accent color as the eyebrow label ("Who's Behind the Camera")
+         and the timeline dots — used inline here to pick out key terms in
+         the bio without bolding or resizing them */
+      .accent-teal {
+        color: var(--teal-label);
       }
       .about-tags {
         display: flex;
@@ -1425,32 +1432,63 @@
         color: var(--muted);
       }
       /* the two behind-the-scenes stills Adelina asked to have on the page —
-         a small side-by-side pair under the tags, same column as the text
-         (the timeline already owns the right column), captioned once for
-         both since they're from the same production. Same visual language
-         as the rest of the site: no rounding, a hairline border, slightly
-         desaturated at rest, full color on hover — not a separate gallery,
-         just a supporting visual for the "Wednesday" line in the timeline. */
+         styled as a loose "contact sheet" pair rather than a tidy grid: two
+         different sizes, a slight corner overlap, opposite tilts, and a
+         drop shadow, like two physical prints tossed onto the page. Each
+         straightens and lifts slightly on hover. Click behavior is
+         untouched — same generic openLightbox() wiring as before, these
+         are still plain <img> elements the JS finds via
+         .about-photos img. */
       .about-photos {
-        display: flex;
-        gap: 15px;
-        margin-top: 28px;
+        position: relative;
+        height: 370px;
+        margin-top: 44px;
+        margin-bottom: 30px;
       }
       .about-photos img {
-        width: 50%;
-        height: 320px;
+        position: absolute;
         object-fit: cover;
         display: block;
         cursor: pointer;
+        background: var(--bg3);
         border: 1px solid var(--border);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
         filter: grayscale(0.25) brightness(0.95);
         transition:
           filter 0.3s,
-          transform 0.3s;
+          transform 0.35s cubic-bezier(0.16, 0.7, 0.2, 1),
+          box-shadow 0.35s;
+      }
+      /* the larger still, back-left, tilted one way */
+      .about-photos img:nth-child(1) {
+        width: 62%;
+        height: 300px;
+        top: 0;
+        left: 0;
+        transform: rotate(-4deg);
+        z-index: 1;
+      }
+      /* the smaller still, front-right, tilted the other way, overlapping
+         the first one's bottom-right corner */
+      .about-photos img:nth-child(2) {
+        width: 46%;
+        height: 235px;
+        top: 95px;
+        right: 0;
+        transform: rotate(5deg);
+        z-index: 2;
       }
       .about-photos img:hover {
-        filter: grayscale(0) brightness(1.05);
-        transform: scale(1.015);
+        filter: grayscale(0) brightness(1.08);
+        box-shadow: 0 22px 50px rgba(0, 0, 0, 0.55);
+      }
+      .about-photos img:nth-child(1):hover {
+        transform: rotate(-1deg) scale(1.04);
+        z-index: 3;
+      }
+      .about-photos img:nth-child(2):hover {
+        transform: rotate(1.5deg) scale(1.06);
+        z-index: 3;
       }
       .about-photos-caption {
         font-family: var(--font-mono);
@@ -1461,12 +1499,24 @@
         letter-spacing: 0.04em;
       }
       @media (max-width: 640px) {
+        /* the tilted/overlapping composition needs room a narrow phone
+           screen doesn't have — back to a plain stacked pair, still with
+           the physical-print shadow, just no rotation or overlap */
         .about-photos {
-          flex-direction: column;
+          height: auto;
         }
-        .about-photos img {
+        .about-photos img,
+        .about-photos img:nth-child(1),
+        .about-photos img:nth-child(2) {
+          position: static;
           width: 100%;
           height: 220px;
+          transform: none;
+          margin-bottom: 16px;
+        }
+        .about-photos img:nth-child(1):hover,
+        .about-photos img:nth-child(2):hover {
+          transform: scale(1.02);
         }
       }
       .career-line {
@@ -1488,11 +1538,19 @@
       }
       .career-item {
         position: relative;
-        padding-bottom: 22px;
+        padding-bottom: 36px;
         transition: opacity 0.6s ease;
       }
       .career-item:last-child {
         padding-bottom: 0;
+      }
+      .career-desc {
+        margin: 10px 0 0;
+        max-width: 480px;
+        font-family: var(--font-body);
+        font-size: 0.95em;
+        line-height: 1.6;
+        color: var(--muted);
       }
       .career-item::before {
         content: "";
@@ -1513,27 +1571,23 @@
         font-family: var(--font-mono);
         font-size: 11px;
         /* not yet reached — paler/washed out */
-        color: color-mix(in srgb, #3b7a72 45%, white 55%);
+        color: var(--teal-label);
         letter-spacing: 0.08em;
         transition: color 0.65s ease;
       }
-      .career-item.active .career-year {
-        /* already passed — stronger, more saturated green (swapped from
-           before, per Adelina's request: emphasis should land on what's
-           already been read, not on what's still ahead) */
-        color: color-mix(in srgb, #3b7a72 75%, white 25%);
-      }
+
       .career-item b {
         display: block;
-        font-size: 14.5px;
+        font-size: 13px;
         font-weight: 500;
         color: var(--white);
-        margin-top: 3px;
+        margin-top: 10px;
+        line-height: 20px;
       }
       .career-item span {
         display: block;
         font-size: 12.5px;
-        color: var(--muted);
+        color: #a5a5a5;
         margin-top: 2px;
       }
 
@@ -1905,7 +1959,7 @@
         }
         .shotlist-head,
         .shot-row {
-          grid-template-columns: 34px 1fr 70px;
+          grid-template-columns: 34px 1fr 78px;
         }
         .shot-sub,
         .shot-loc {
@@ -2026,7 +2080,7 @@
               >
               <p class="intro-sub">
                 <span class="hint-gold">Japan</span>-based camera operator,
-                focus puller, photographer and editor.
+                focus puller, editor.
               </p>
               <div class="intro-hint">
                 日本拠点 — カメラマン・フォーカスプラー・編集
@@ -2051,17 +2105,23 @@
           <div class="about-wrap">
             <div class="about-main">
               <p class="about-text">
-                Born and raised in Transylvania, Romania, now based in Tokyo,
-                Japan. I hold a degree in Cinematography and work as a camera
-                assistant and cinematographer, photographer, and video editor.
+                Born and raised in
+                <span class="accent-teal">Transylvania</span>, Romania, now
+                based in <span class="accent-teal">Tokyo</span>, Japan. I hold a
+                degree in <span class="accent-teal">Cinematography</span> and
+                work as a camera assistant and cinematographer, photographer,
+                and video editor.
               </p>
               <p class="about-text">
-                My focus is on music videos and film/TV work — storytelling
+                My focus is on
+                <span class="accent-teal">music videos</span> and
+                <span class="accent-teal">film/TV</span> work — storytelling
                 projects where camera and color become part of the narrative. I
-                also work on commercial productions alongside this. Outside of
-                set, I shoot and edit personal photography, drawn especially to
-                color and light. I speak Romanian and English fluently, and
-                Japanese conversationally.
+                also work on <span class="accent-teal">commercial</span>
+                productions alongside this. Outside of set, I shoot and edit
+                personal photography, drawn especially to color and light. I
+                speak Romanian and English fluently, and Japanese
+                conversationally.
               </p>
               <p class="about-text">
                 My work says more about me than words can — take a look through
@@ -2083,36 +2143,52 @@
             </div>
             <div class="career-line">
               <div class="career-item">
-                <div class="career-year">2018</div>
-                <b>Production Assistant — Toni and Friends</b
-                ><span>Cluj-Napoca, Romania</span>
+                <div class="career-year">July 2026 – present</div>
+                <b>Camera Crew and DIT Assistant — VideoVillage Ltd.</b
+                ><span>Tokyo, Japan</span>
+                <p class="career-desc">
+                  Operates cameras and supports on-set video production across a
+                  range of projects, from camera setup to media management and
+                  on-set data handling. Organizes, backs up, and manages raw
+                  footage and project files throughout the production workflow,
+                  then edits and color grades the material to each project's
+                  requirements — length, format, platform — while optimizing
+                  formats, codecs, resolutions, and file sizes for delivery.
+                  Maintains an organized, professional-quality workflow from
+                  capture through final delivery.
+                </p>
               </div>
               <div class="career-item">
-                <div class="career-year">2021–22</div>
-                <b>Camera Trainee — Wednesday (Netflix)</b
-                ><span>Bucharest, Romania</span>
-              </div>
-              <div class="career-item">
-                <div class="career-year">2022–23</div>
-                <b>Camera Crew — Stay Sharp Productions</b
-                ><span>Bucharest, Romania · 22 projects in 6 months</span>
-              </div>
-              <div class="career-item">
-                <div class="career-year">2023–24</div>
+                <div class="career-year">May 2024 – September 2024</div>
                 <b
-                  >1st / 2nd AC — Adidas, Yokohama Tire, The Dragonfly, I am
-                  Samurai</b
-                ><span>Japan</span>
+                  >Camera Crew and Video Editor — Pacific Bridge Media and
+                  Consulting</b
+                ><span>Tokyo, Japan</span>
+                <p class="career-desc">
+                  Edits videos to targeted length and specifications, handling
+                  and organizing both raw and edited files. Adjusts formats and
+                  file sizes for mobile and web distribution, and when needed,
+                  shoots and produces content of her own, exploring different
+                  versions and creative directions — all while upholding the
+                  highest journalistic standards.
+                </p>
               </div>
               <div class="career-item">
-                <div class="career-year">2024</div>
-                <b>Camera Crew & Editor — Pacific Bridge Media</b
-                ><span>Tokyo, Japan</span>
-              </div>
-              <div class="career-item">
-                <div class="career-year">2024–26</div>
-                <b>Camera Operator & Editor — Music Videos</b
-                ><span>Tokyo, Japan</span>
+                <div class="career-year">July 2022 – January 2023</div>
+                <b>Camera Crew — Stay Sharp Productions / SQUAD Rental House</b
+                ><span>Bucharest, Romania · 22 projects in 6 months</span>
+                <p class="career-desc">
+                  Worked both in-house and on rental-house projects as DIT,
+                  Video Assist (Sumo, Black Magic), and 1st/2nd AC. Brings a
+                  strong eye for composition, light, colour, focus, and framing,
+                  backed by solid technical knowledge of cameras, lenses,
+                  filters, monitors, lights, and storage formats. Meticulous
+                  with data — labeling and wrangling footage without loss, and
+                  catching corruption early — while ensuring correct formatting
+                  and delivery per client specifications. Comfortable handling
+                  heavy equipment and working within a full TV production
+                  process.
+                </p>
               </div>
             </div>
           </div>
@@ -2144,7 +2220,7 @@
               <div>Title</div>
               <div>Role</div>
               <div>Location</div>
-              <div style="text-align: right">Year</div>
+              <div style="text-align: right">Date</div>
             </div>
             <div class="shotlist" id="shotlist"></div>
           </div>
@@ -4567,128 +4643,211 @@
       }
 
       /* ---------- filmography shot list ---------- */
+      // synced against her portfolio's own Projects/Work Experience list
+      // (adevancea.myportfolio.com/about-me-1) — same 27 credits. Flat,
+      // one continuous newest-first list, not grouped into categories:
+      // categories meant the "01" at the top wasn't actually the most
+      // recent thing she'd worked on (whichever category happened to be
+      // listed first was), and that mismatch would only resurface again
+      // every time a new credit landed in a different category than
+      // whichever one currently sits on top. A flat list is what the
+      // source page itself uses, and it can never drift out of order.
+      // Two links on the source page point at the same YouTube video for
+      // three different entries (UTOMURASAKI / MOTHERCOMPLEX / DAYUN, all
+      // Jun 2024) — kept as-is rather than guessed-and-fixed, since that's
+      // what's actually published.
       const credits = [
         {
-          cat: "Film & TV",
-          rows: [
-            {
-              name: "Wednesday",
-              sub: "Netflix series · Camera Trainee",
-              loc: "Bucharest, RO",
-              year: "2021–22",
-              url: "https://www.imdb.com/title/tt13443470/",
-            },
-            {
-              name: "I am Samurai",
-              sub: "Feature film · 1st Assistant Camera",
-              loc: "Kyoto/Tokyo, JP",
-              year: "2024",
-            },
-            {
-              name: "The Dragonfly",
-              sub: "Feature film · 1st Assistant Camera",
-              loc: "Nagoya, JP",
-              year: "2023",
-            },
-          ],
+          name: "barbiebl00d",
+          sub: "Camera Operator & Editor",
+          loc: "Tokyo, JP",
+          year: "Aug 2026",
+          url: "https://youtu.be/MEdGGUWskRk",
         },
         {
-          cat: "Commercials",
-          rows: [
-            {
-              name: "Adidas",
-              sub: "Commercial · 1st Assistant Camera",
-              loc: "Tokyo, JP",
-              year: "2023",
-            },
-            {
-              name: "Yokohama Tire",
-              sub: "TV Commercial · 2nd Assistant Camera",
-              loc: "Yokohama, JP",
-              year: "2024",
-            },
-            {
-              name: "FILA",
-              sub: "Commercial · 2nd Assistant Camera",
-              loc: "Tokyo, JP",
-              year: "2024",
-            },
-            {
-              name: "Oppo",
-              sub: "Commercial · 2nd Assistant Camera",
-              loc: "Tokyo, JP",
-              year: "2023",
-            },
-          ],
+          name: "Junhyo",
+          sub: "Camera Assistant + Focus Puller",
+          loc: "Tokyo, JP",
+          year: "Jul 2026",
         },
         {
-          cat: "Music Videos",
-          rows: [
-            {
-              name: "Dayun",
-              sub: "Camera Operator & Editor",
-              loc: "Tokyo, JP",
-              year: "2026",
-              url: "https://youtu.be/d2vggXFMF9E",
-            },
-            {
-              name: "barbiebl00d",
-              sub: "Camera Operator & Editor",
-              loc: "Tokyo, JP",
-              year: "2026",
-              url: "https://youtu.be/VlMuPUXLs_4",
-            },
-            {
-              name: "The Oral Cigarettes",
-              sub: "1st Assistant Camera",
-              loc: "Tokyo, JP",
-              year: "2024",
-              url: "https://youtu.be/rgS27LlO_5U",
-            },
-            {
-              name: "Gucci Baby",
-              sub: "Camera Operator & Editor",
-              loc: "Tokyo, JP",
-              year: "2023",
-              url: "https://youtu.be/Dcu8nhzuuxA",
-            },
-          ],
+          name: "Dayun",
+          sub: "Camera Operator & Editor",
+          loc: "Tokyo, JP",
+          year: "Mar 2026",
+          url: "https://youtu.be/d2vggXFMF9E",
         },
         {
-          cat: "Short Films",
-          rows: [
-            {
-              name: "AISLE — Dairiku",
-              sub: "Camera Assistant & Focus Puller",
-              loc: "Tokyo, JP",
-              year: "2024",
-              url: "https://youtu.be/w8JZej-UJ6k",
-            },
-          ],
+          name: "barbiebl00d",
+          sub: "Camera Operator & Editor",
+          loc: "Tokyo, JP",
+          year: "Feb 2026",
+          url: "https://youtu.be/VlMuPUXLs_4",
+        },
+        {
+          name: "The Oral Cigarettes",
+          sub: "Music video · 1st Assistant Camera",
+          loc: "Tokyo, JP",
+          year: "Aug 2024",
+          url: "https://youtu.be/rgS27LlO_5U",
+        },
+        {
+          name: "UTOMURASAKI",
+          sub: "Camera Operator & Editor",
+          loc: "Tokyo, JP",
+          year: "Jul 2024",
+          url: "https://youtu.be/ErXZopswKIw",
+        },
+        {
+          name: "MORRISON CUP",
+          sub: "Camera Operator & Editor",
+          loc: "Tokyo, JP",
+          year: "Jul 2024",
+          url: "https://youtu.be/NUqrFjk6hvU",
+        },
+        {
+          name: "MOTHERCOMPLEX",
+          sub: "Camera Operator & Editor",
+          loc: "Tokyo, JP",
+          year: "Jun 2024",
+          url: "https://youtu.be/ErXZopswKIw",
+        },
+        {
+          name: "DAYUN",
+          sub: "Camera Operator & Editor",
+          loc: "Tokyo, JP",
+          year: "Jun 2024",
+          url: "https://youtu.be/ErXZopswKIw",
+        },
+        {
+          name: "AISLE — Dairiku",
+          sub: "Short film · Camera Assistant + Focus Puller",
+          loc: "Tokyo, JP",
+          year: "Jun 2024",
+          url: "https://youtu.be/w8JZej-UJ6k",
+        },
+        {
+          name: "LIL LEAGUE",
+          sub: "Music video · 2nd Assistant Camera",
+          loc: "Tokyo, JP",
+          year: "Jun 2024",
+        },
+        {
+          name: "KSmiley",
+          sub: "Camera Operator & Editor",
+          loc: "Tokyo, JP",
+          year: "May 2024",
+          url: "https://youtu.be/wx39rr5tkbU",
+        },
+        {
+          name: "FILA",
+          sub: "Commercial · 2nd Assistant Camera",
+          loc: "Tokyo, JP",
+          year: "Apr 2024",
+        },
+        {
+          name: "Sento",
+          sub: "Short film · 1st Assistant Camera",
+          loc: "Tokyo, JP",
+          year: "Apr 2024",
+        },
+        {
+          name: "I am Samurai",
+          sub: "Feature film · 1st Assistant Camera",
+          loc: "Kyoto/Tokyo, JP",
+          year: "Mar 2024",
+        },
+        {
+          name: "Yokohama Tire",
+          sub: "Commercial · 2nd Assistant Camera",
+          loc: "Yokohama, JP",
+          year: "Mar 2024",
+        },
+        {
+          name: "The Dragonfly",
+          sub: "Feature film · 1st Assistant Camera",
+          loc: "Nagoya, JP",
+          year: "Oct 2023",
+        },
+        {
+          name: "Gucci Baby",
+          sub: "Camera Operator & Editor",
+          loc: "Tokyo, JP",
+          year: "Aug 2023",
+          url: "https://youtu.be/Dcu8nhzuuxA",
+        },
+        {
+          name: "Capper",
+          sub: "Music video · 1st Assistant Camera",
+          loc: "Tokyo, JP",
+          year: "Aug 2023",
+        },
+        {
+          name: "Oppo",
+          sub: "Commercial · 2nd Assistant Camera",
+          loc: "Tokyo, JP",
+          year: "Jul 2023",
+        },
+        {
+          name: "Adidas",
+          sub: "Commercial · 1st Assistant Camera",
+          loc: "Tokyo, JP",
+          year: "May 2023",
+        },
+        {
+          name: "Braun",
+          sub: "Commercial · 2nd Assistant Camera",
+          loc: "Chiba, JP",
+          year: "May 2023",
+        },
+        {
+          name: "Dan Nguyen",
+          sub: "Music video · 2nd Assistant Camera",
+          loc: "Kyoto, JP",
+          year: "Apr 2023",
+          url: "https://youtu.be/q-JW7iO9R_w",
+        },
+        {
+          name: "TAZZ",
+          sub: "Commercial · DIT",
+          loc: "Bucharest, RO",
+          year: "Oct 2022",
+        },
+        {
+          name: "Penny",
+          sub: "Commercial · DIT",
+          loc: "Bucharest, RO",
+          year: "Aug 2022",
+        },
+        {
+          name: "Wednesday",
+          sub: "Netflix series · Camera Trainee",
+          loc: "Bucharest, RO",
+          year: "Sep 2021<br />– Mar 2022",
+          url: "https://www.imdb.com/title/tt13443470/",
+        },
+        {
+          name: "Toni and Friends",
+          sub: "Production Assistant",
+          loc: "Cluj-Napoca, RO",
+          year: "Jul 2018",
+          url: "https://www.imdb.com/title/tt8002154/",
         },
       ];
       const shotlist = document.getElementById("shotlist");
-      let ci = 0;
-      credits.forEach((group) => {
-        const label = document.createElement("span");
-        label.className = "shot-cat";
-        label.textContent = group.cat;
-        shotlist.appendChild(label);
-        group.rows.forEach((row) => {
-          ci++;
-          const el = document.createElement(row.url ? "a" : "div");
-          el.className = "shot-row";
-          if (row.url) {
-            el.href = row.url;
-            el.target = "_blank";
-            el.rel = "noopener";
-          }
-          el.innerHTML = `<div class="shot-num">${String(ci).padStart(2, "0")}</div>
+      credits.forEach((row, i) => {
+        const el = document.createElement(row.url ? "a" : "div");
+        el.className = "shot-row";
+        if (row.url) {
+          el.href = row.url;
+          el.target = "_blank";
+          el.rel = "noopener";
+        }
+        el.innerHTML = `<div class="shot-num">${String(i + 1).padStart(2, "0")}</div>
             <div class="shot-name">${row.name}</div>
             <div class="shot-sub" style="margin-top:0">${row.sub}</div>
-            <div class="shot-loc">${row.loc}</div><div class="shot-year">${row.year}</div>`;
-          shotlist.appendChild(el);
-        });
+            <div class="shot-loc">${row.loc}</div><div class="shot-date">${row.year}</div>`;
+        shotlist.appendChild(el);
       });
 
       /* ---------- project-type select: dims like the other placeholders until a real option is picked ---------- */
