@@ -538,8 +538,8 @@
       /* Reel fills exactly one screen — top spacing + title + filmstrip
          band + bottom spacing add up to 100vh (border-box), so while Roll
          Camera scrubs the filmstrip in place, no other section peeks in
-         above or below it. .filmstrip-outer already has flex:1 and just
-         absorbs whatever's left after the eyebrow/title. */
+         above or below it. .filmstrip-wrap centers itself (via auto
+         margins) in whatever's left after the eyebrow/title. */
       #scene-reel {
         height: 100vh;
       }
@@ -788,20 +788,79 @@
       /* one continuous film-stock surface — same base color throughout, with real punched-through
          sprocket holes along the top/bottom edges (mask, not a drawn dot) so the animated background
          actually shows through the holes, like light through real film perforations */
+      /* wraps the strip only so a soft backlight glow (below) can be
+         positioned relative to wherever the strip actually ends up — the
+         strip is vertically centered in whatever room is left below the
+         title via auto margins here (moved up from .filmstrip-outer, which
+         used to center itself the same way), so the glow, sized off this
+         same box, always lines up with it regardless of title height. */
+      .filmstrip-wrap {
+        position: relative;
+        flex: 0 0 auto;
+        margin: auto 0;
+      }
+      /* real film stock reads as almost-black against the page's own
+         near-black background — the sprocket holes (punched through via
+         mask, see below) had nothing but more black to reveal, so they
+         barely showed. A single wide glow centered behind the strip just
+         sat entirely under its opaque body (invisible) except as one flat,
+         ugly oval at the very edges — not what this needed. Instead: a
+         handful of small round lights, sized and colored like the bokeh
+         canvas's own drifting particles, scattered unevenly along the
+         strip's top and bottom edge so they read as a few fixed points of
+         light escaping from behind/under it and through its perforation
+         holes — rather than one shape trying (and failing) to backlight
+         the whole band evenly. One is warm (rgb(255,153,84)) rather than
+         teal, matching the ~10% of the bokeh canvas's own particles that
+         get tinted warm instead of cool (see warmC in the shaders below) —
+         so it reads as one of the same lights, not a different palette. */
+      .filmstrip-wrap::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: -90px;
+        bottom: -90px;
+        z-index: 0;
+        pointer-events: none;
+        background: radial-gradient(
+            circle 140px at 9% 9%,
+            rgba(var(--teal-rgb), 0.16),
+            transparent 95%
+          ),
+          radial-gradient(
+            circle 30px at 45% 7%,
+            rgba(var(--teal-rgb), 0.42),
+            transparent 68%
+          ),
+          radial-gradient(
+            circle 170px at 85% 16%,
+            rgba(var(--teal-rgb), 0.22),
+            transparent 95%
+          ),
+          radial-gradient(
+            circle 180px at 26% 91%,
+            rgba(255, 153, 84, 0.14),
+            transparent 95%
+          ),
+          radial-gradient(
+            circle 150px at 71% 90%,
+            rgba(var(--teal-rgb), 0.15),
+            transparent 95%
+          );
+        filter: blur(16px);
+      }
       .filmstrip-outer {
         position: relative;
+        z-index: 1;
         /* sized to its own content (the film cards), not stretched to fill
            the section — flex:1 was forcing the whole leftover screen height
            onto this band even once the cards themselves had already hit
            their own cap, leaving dead empty space above/below them inside
-           it. margin: auto 0 instead centers this naturally-sized band in
-           whatever room is left after the title, so real breathing space
-           shows up above it (title) and below it (footer) instead. */
-        flex: 0 0 auto;
+           it. */
         display: flex;
         align-items: center;
         min-height: 0;
-        margin: auto 0;
         padding: 20px 0;
         background: #181818;
         border-top: 3px solid #0a0908;
@@ -845,7 +904,10 @@
         overflow-x: auto;
         overflow-y: hidden;
         width: 100%;
-        padding: 0 4px 14px;
+        /* the scrollbar strip eats 14px at the bottom that top doesn't
+           have — matched here so the cards themselves still sit visually
+           centered in the band, top and bottom */
+        padding: 14px 4px 14px;
         /* a thin, low-key scrollbar — with the mouse drag-to-scroll gone,
            this is the only visual hint (besides a trackpad swipe) that the
            strip goes on past the edge of the screen on a mouse-only laptop */
@@ -2255,8 +2317,10 @@
         <section class="scene" id="scene-reel" data-scene="2">
           <div class="eyebrow reveal">Selected Work</div>
           <h2 class="scene-title reveal reveal-delay-1">The Reel</h2>
-          <div class="filmstrip-outer">
-            <div class="filmstrip" id="filmstrip"></div>
+          <div class="filmstrip-wrap">
+            <div class="filmstrip-outer">
+              <div class="filmstrip" id="filmstrip"></div>
+            </div>
           </div>
         </section>
 
