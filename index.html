@@ -845,19 +845,25 @@
         overflow-x: auto;
         overflow-y: hidden;
         width: 100%;
-        padding: 0 4px 6px;
-        scrollbar-width: none;
+        padding: 0 4px 14px;
+        /* a thin, low-key scrollbar — with the mouse drag-to-scroll gone,
+           this is the only visual hint (besides a trackpad swipe) that the
+           strip goes on past the edge of the screen on a mouse-only laptop */
+        scrollbar-width: thin;
+        scrollbar-color: rgba(var(--teal-rgb), 0.4) transparent;
       }
       .filmstrip::-webkit-scrollbar {
-        display: none;
+        height: 5px;
       }
-      /* no more arrow buttons — the strip itself is directly draggable:
-         a swipe on touch (native), a click-and-drag on desktop (below) */
-      .filmstrip {
-        cursor: grab;
+      .filmstrip::-webkit-scrollbar-track {
+        background: transparent;
       }
-      .filmstrip.dragging {
-        cursor: grabbing;
+      .filmstrip::-webkit-scrollbar-thumb {
+        background: rgba(var(--teal-rgb), 0.25);
+        border-radius: 3px;
+      }
+      .filmstrip::-webkit-scrollbar-thumb:hover {
+        background: rgba(var(--teal-rgb), 0.55);
       }
       .reel-card {
         position: relative;
@@ -3507,6 +3513,11 @@
       /* ---------- reel data (real public YouTube videos) ---------- */
       const reelItems = [
         {
+          id: "MEdGGUWskRk",
+          title: "barbiebl00d",
+          role: "Camera Operator & Editor · 2026",
+        },
+        {
           id: "VlMuPUXLs_4",
           title: "barbiebl00d",
           role: "Camera Operator & Editor · 2026",
@@ -3553,27 +3564,29 @@
           title: "Summer Well 2022 - Bucharest, Romania",
           role: "1st Assistant Camera · 2023",
         },
-        {
-          id: "oVuE6Rxg-y4",
-          title: "Kombucha Commercial",
-          role: "Camera Operator & Editor · 2020",
-        },
-
-        {
-          id: "hw_CGGdpyJ8",
-          title: "Autoportrait Project",
-          role: "Shot & Edit  · 2020",
-        },
       ];
       const filmstrip = document.getElementById("filmstrip");
       reelItems.forEach((item) => {
         const card = document.createElement("div");
         card.className = "reel-card";
-        card.onclick = () => openVideo(item.id);
         card.innerHTML = `
           <img src="https://img.youtube.com/vi/${item.id}/hqdefault.jpg" alt="${item.title}" loading="lazy" />
           <div class="reel-play"><svg width="14" height="14" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg></div>
           <div class="reel-label"><b>${item.title}</b><span>${item.role}</span></div>`;
+        // the play triangle is the one dedicated, unambiguous "open this
+        // video" target — clicking it always opens, full stop, no drag
+        // logic involved.
+        card.querySelector(".reel-play").addEventListener("click", (e) => {
+          e.stopPropagation();
+          openVideo(item.id);
+        });
+        // clicking anywhere else on the card (thumbnail, label) also opens
+        // it — this used to be guarded by drag-vs-click detection, but that
+        // guard was swallowing real clicks far more often than real drags,
+        // so it's gone. Dragging the strip with the mouse still works fine;
+        // it just now also opens whichever card you happen to release over,
+        // same as it would on a real film reel.
+        card.addEventListener("click", () => openVideo(item.id));
         filmstrip.appendChild(card);
       });
       filmstrip.addEventListener("scroll", updateReelActiveCard, {
@@ -3581,55 +3594,19 @@
       });
       updateReelActiveCard();
 
-      /* no more arrow buttons — touch already scrolls the strip natively
-         (overflow-x: auto handles a finger swipe on its own). Desktop mice
-         don't get that for free though, so click-and-drag is added here by
-         hand — mouse pointers only, so native touch scrolling is never
-         intercepted or fought with. A small movement threshold tells a real
-         drag apart from a plain click, so tapping a card still opens its
-         video normally when the user isn't dragging. */
-      const filmDrag = {
-        active: false,
-        moved: false,
-        startX: 0,
-        startScroll: 0,
-      };
-      filmstrip.addEventListener("pointerdown", (e) => {
-        if (e.pointerType !== "mouse") return;
-        filmDrag.active = true;
-        filmDrag.moved = false;
-        filmDrag.startX = e.clientX;
-        filmDrag.startScroll = filmstrip.scrollLeft;
-        filmstrip.setPointerCapture(e.pointerId);
-        filmstrip.classList.add("dragging");
-      });
-      filmstrip.addEventListener("pointermove", (e) => {
-        if (!filmDrag.active) return;
-        const dx = e.clientX - filmDrag.startX;
-        if (Math.abs(dx) > 4) filmDrag.moved = true;
-        filmstrip.scrollLeft = filmDrag.startScroll - dx;
-      });
-      function endFilmDrag() {
-        if (!filmDrag.active) return;
-        filmDrag.active = false;
-        filmstrip.classList.remove("dragging");
-      }
-      filmstrip.addEventListener("pointerup", endFilmDrag);
-      filmstrip.addEventListener("pointercancel", endFilmDrag);
-      // swallow the click that follows a real drag, before it ever reaches
-      // a reel-card's own onclick (which opens its video) — capture phase
-      // runs before the card's own bubble-phase handler
-      filmstrip.addEventListener(
-        "click",
-        (e) => {
-          if (filmDrag.moved) {
-            e.preventDefault();
-            e.stopPropagation();
-            filmDrag.moved = false;
-          }
-        },
-        true,
-      );
+      /* there used to be a hand-rolled click-and-drag-to-scroll for mouse
+         users here (pointerdown + setPointerCapture + manual scrollLeft).
+         It kept breaking mouse clicks on the cards in one way or another
+         (first swallowing real clicks, then — even after fixing that and
+         releasing pointer capture on release — mouse clicks still never
+         reached the cards, while touch, which never went through this
+         code at all, always worked). Rather than keep chasing pointer-
+         capture/event-retargeting edge cases, it's removed outright:
+         native scrolling already covers every input method here (touch
+         swipe, trackpad two-finger scroll, shift+wheel, and the
+         filmstrip's own scrollbar/overflow-x:auto), and with no custom
+         mouse handling left on the strip at all, a mouse click behaves
+         exactly like a touch tap always did. */
 
       function openVideo(id) {
         isPlaying = false;
