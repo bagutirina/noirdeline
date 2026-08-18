@@ -3652,6 +3652,23 @@
       });
       updateReelActiveCard();
 
+      /* keeps the footer's playhead in sync whenever the strip itself is
+         scrolled by hand (trackpad, wheel, the scrollbar thumb, a touch
+         swipe) — mirrors what playFilmstripScrub already does during Roll
+         Camera, just reactively instead of driving it. Gated the same way
+         updatePlayhead is: skip while Roll Camera, a footer pin-drag, or
+         the tail of an eased scroll already owns the pin, so this never
+         fights any of those for control of it. */
+      function updateReelPlayhead() {
+        if (isPlaying || dragging || nudgeRAF) return;
+        const max = filmstrip.scrollWidth - filmstrip.clientWidth;
+        if (max <= 0) return;
+        setPlayheadInClip(2, filmstrip.scrollLeft / max);
+      }
+      filmstrip.addEventListener("scroll", updateReelPlayhead, {
+        passive: true,
+      });
+
       /* there used to be a hand-rolled click-and-drag-to-scroll for mouse
          users here (pointerdown + setPointerCapture + manual scrollLeft).
          It kept breaking mouse clicks on the cards in one way or another
