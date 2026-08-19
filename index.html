@@ -1001,10 +1001,18 @@
       .reel-label b {
         display: block;
         /* font-family: var(--font-display); */
-        font-size: 14px;
-        letter-spacing: 0.03em;
+        /* sized down a touch + tighter tracking, mainly so the longer
+           full song titles (artist + name) stand a better chance of
+           fitting on one line instead of wrapping to two. When one still
+           doesn't fit, the shadow below keeps it legible over a bright
+           part of the thumbnail without needing a taller dark band. */
+        font-size: 12.5px;
+        line-height: 1.25;
+        letter-spacing: 0.02em;
         text-transform: uppercase;
         color: var(--white);
+        font-weight: 700;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
       }
       .reel-label span {
         display: block;
@@ -3723,12 +3731,12 @@
       const reelItems = [
         {
           id: "MEdGGUWskRk",
-          title: "barbiebl00d",
+          title: "barbiebl00d - Kiss me (thru the phone)",
           role: "Camera Operator & Editor · 2026",
         },
         {
           id: "VlMuPUXLs_4",
-          title: "barbiebl00d",
+          title: "barbiebl00d - Run Run Baby",
           role: "Camera Operator & Editor · 2026",
         },
         {
@@ -3763,12 +3771,12 @@
         },
         {
           id: "d2vggXFMF9E",
-          title: "Dayun",
+          title: "Dayun - Drama",
           role: "Camera Operator & Editor · 2026",
         },
         {
           id: "Dcu8nhzuuxA",
-          title: "Gucci Baby",
+          title: "barbiebl00d - c0rpse bride",
           role: "Camera Operator & Editor · 2023",
         },
       ];
