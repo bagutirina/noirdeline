@@ -871,9 +871,15 @@
         align-items: center;
         min-height: 0;
         padding: 20px 0;
-        background: #181818;
-        border-top: 3px solid #0a0908;
-        border-bottom: 3px solid #0a0908;
+        /* real film base is a dark brown, and translucent enough to pass
+           light through — solid opaque black read as a plain UI panel
+           rather than actual stock. Semi-transparent instead, so the
+           ambient glow already sitting behind this whole band (the same
+           layer that lights the sprocket holes) bleeds faintly through
+           the body of it too, not just through the perforations. */
+        background: rgba(42, 26, 15, 0.72);
+        border-top: 3px solid rgba(18, 10, 6, 0.88);
+        border-bottom: 3px solid rgba(18, 10, 6, 0.88);
       }
       .filmstrip-outer::before,
       .filmstrip-outer::after {
@@ -882,7 +888,7 @@
         left: 0;
         right: 0;
         height: 20px;
-        background: #181818;
+        background: rgba(42, 26, 15, 0.72);
         mask-mode: alpha;
         -webkit-mask-mode: alpha;
         mask-image: radial-gradient(
@@ -2857,45 +2863,56 @@
       function updateHeroParallax() {
         if (!introWrapEl || !introHeroForParallax) return;
         const heroH = introHeroForParallax.offsetHeight || window.innerHeight;
-        // Spread over more scroll distance than before (0.7 vs 0.55) so the
-        // whole thing reads slower / less rushed.
-        const t = Math.max(0, Math.min(1, window.scrollY / (heroH * 0.7)));
-        // Two motions layered instead of one flat translateY:
-        // 1) "dip" — a tiny settle downward in just the first ~22% of the
-        //    scroll, back to 0 by t=0.22. On its own this reads as the text
-        //    sinking slightly, like it's being pressed before it lifts.
-        // 2) "rise" — only kicks in after t=0.12 (so it overlaps the tail of
-        //    the dip) and uses an eased power curve, so it starts slow and
-        //    accelerates — no sudden jump the moment you start scrolling.
-        // The crossover between the two (dip fading out as rise ramps up)
-        // is what creates the "sinks, then detaches and lifts away" feel,
-        // and because it's a pure function of scrollY it plays out exactly
-        // once per pass through the hero and reverses cleanly on scroll-up —
-        // no re-triggering, no jerkiness.
-        // dip/riseT used a hard clamp (min/max) before, which is continuous
-        // in VALUE but has a sharp corner in its RATE of change right at the
-        // clamp point (0.22 and 0.12) — that corner is what read as a small
-        // "catch"/snap when scrolling back through it. smoothstep() eases
-        // into and out of each clamp with zero velocity at both ends, so
-        // there's no corner left to feel, in either scroll direction.
+        // Spread over the full hero height now (was 0.7x, before that
+        // 0.55x) — at 0.7x the text was fully lifted away AND faded to
+        // nothing by 70% of one screen's scroll, while About (which only
+        // starts after a full heroH) wasn't even halfway into view yet —
+        // read as the buttons/text vanishing abruptly, well ahead of
+        // anything replacing them. Stretching the same motion over more
+        // distance makes it gentler as well as later-finishing, not just
+        // later on its own.
+        // t=1 lands at exactly one heroH of scroll — the same point
+        // #scene-about starts filling the screen (its visible height on
+        // screen, as you scroll through this range, is ~scrollY). So
+        // "how far through t" and "how much of About is showing" move in
+        // lockstep — at t=0.5, About already covers half the screen.
+        // Everything below is tuned against THAT: at t=0.5 the text
+        // should still read as "there", not gone.
+        const t = Math.max(0, Math.min(1, window.scrollY / heroH));
+        // "dip" — a tiny settle downward in just the first ~22% of the
+        // scroll, back to 0 by t=0.22. Reads as the text sinking slightly,
+        // like it's being pressed before it lifts. Unrelated to the
+        // lift/fade below, kept as-is.
         const dipU = smoothstep(0, 0.22, t);
         const dip = 55 * Math.sin(Math.PI * dipU);
-        const riseU = smoothstep(0.12, 1, t);
-        const rise = Math.pow(riseU, 1.4) * 420;
+        // "rise" — a single ease-out curve (ONE curve, not two stacked —
+        // stacking this on top of an already-eased smoothstep() input
+        // made the motion do almost nothing, then suddenly cover most of
+        // its distance, then almost stop again: a "stuck, then flings,
+        // then stuck" feel). Starts moving the instant you scroll (no
+        // 0.12 delay) so the initial kick reads immediately, like she
+        // asked for. The total distance is the other half of the fix:
+        // 420px meant that even a *decelerating* curve had covered ~90%
+        // of it by t=0.5 — the text had already travelled almost its
+        // entire trip while About was only half-shown, so it looked gone
+        // regardless of the easing shape. 150px is enough to read as
+        // "lifting away" without the position itself erasing it early —
+        // opacity (below) does the actual disappearing, spread out
+        // enough that it's still ~65% visible at t=0.5 and only really
+        // gone right at the end, alongside the rise finishing too.
+        const rise = (1 - Math.pow(1 - t, 2)) * 150;
         introWrapEl.style.transform = `translateY(${dip - rise}px)`;
-        introWrapEl.style.opacity = 1 - Math.pow(t, 1.3);
+        introWrapEl.style.opacity = 1 - Math.pow(t, 1.6);
         // Photo layers: opacity only, no transform — a plain recede into
-        // the page background, independent of the text's dip/rise. Delayed
-        // to start at t=0.15, not t=0: the scrim only fully hides the
-        // photo's left edge (where there's no photo at all, just the
-        // scrim/wash matching the page background) at FULL strength — the
-        // moment this group starts fading at all, that coverage weakens
-        // and the seam can show again. Holding it at full opacity through
-        // the first bit of scroll (while the text is still mostly there)
-        // means the seam never reappears while you're actually reading the
-        // hero; by the time it does fade, the text's own faster opacity
-        // curve has already mostly cleared it out of the way.
-        const photoFade = 1 - smoothstep(0.15, 0.85, t);
+        // the page background, independent of the text's dip/rise. Same
+        // t as the text now (both keyed off the full heroH), so neither
+        // one finishes fading before About has actually caught up.
+        // Delayed to start at 0.25: holds the scrim at full strength a
+        // bit into the scroll, so the photo's left-edge seam (where it's
+        // really just scrim/wash matching the page background) stays
+        // covered while the text is still mostly there, rather than
+        // showing again immediately.
+        const photoFade = 1 - smoothstep(0.25, 0.95, t);
         introPhotoLayers.forEach((el) => {
           el.style.opacity = photoFade;
         });
@@ -4830,6 +4847,16 @@
         document.getElementById("cat-view-title").textContent = cat.name;
         grid.innerHTML = "";
         view.classList.add("open");
+        // cat-view is a fixed, full-screen overlay with its own internal
+        // scroll — but the page underneath was still scrollable too, and
+        // a native scrollbar is painted by the browser/OS at the viewport
+        // edge, above normal z-index stacking, so it kept showing through
+        // (a "scroll behind the scroll"). Locking the page's own scroll
+        // while the viewer is open hides that scrollbar entirely; restored
+        // the moment it closes (button or Escape both go through
+        // closeCatView).
+        document.documentElement.style.overflow = "hidden";
+        document.body.style.overflow = "hidden";
         cat.photos.forEach((p, i) => {
           const img = document.createElement("img");
           img.loading = "lazy";
@@ -4853,6 +4880,8 @@
       }
       function closeCatView() {
         document.getElementById("cat-view").classList.remove("open");
+        document.documentElement.style.overflow = "";
+        document.body.style.overflow = "";
       }
 
       function catViewImgs() {
