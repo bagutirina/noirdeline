@@ -802,6 +802,11 @@
         flex: 0 0 auto;
         margin: auto 0;
       }
+      /* position indicator dots — desktop already shows the scrollbar
+         track, so these stay hidden there; mobile turns them on below. */
+      .reel-dots {
+        display: none;
+      }
       /* real film stock reads as almost-black against the page's own
          near-black background — the sprocket holes (punched through via
          mask, see below) had nothing but more black to reveal, so they
@@ -2052,7 +2057,7 @@
           display: none;
         }
         .intro-actions {
-          gap: 20px;
+          gap: 10px;
           margin-top: 34px;
         }
         .btn-primary,
@@ -2081,6 +2086,25 @@
           width: 72vw;
           max-width: 290px;
           scroll-snap-align: center;
+        }
+        .reel-dots {
+          display: flex;
+          justify-content: center;
+          gap: 7px;
+          margin-top: 30px;
+        }
+        .reel-dot {
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          background: rgba(var(--teal-rgb), 0.3);
+          transition:
+            background 0.3s,
+            transform 0.3s;
+        }
+        .reel-dot.active {
+          background: var(--teal);
+          transform: scale(1.6);
         }
         .photo-grid {
           grid-template-columns: 1fr;
@@ -2375,6 +2399,7 @@
             <div class="filmstrip-outer">
               <div class="filmstrip" id="filmstrip"></div>
             </div>
+            <div class="reel-dots" id="reelDots"></div>
           </div>
         </section>
 
@@ -3422,6 +3447,12 @@
         Array.from(cards).forEach((c, i) =>
           c.classList.toggle("active", i === closest),
         );
+        const dots = document.getElementById("reelDots");
+        if (dots) {
+          Array.from(dots.children).forEach((d, i) =>
+            d.classList.toggle("active", i === closest),
+          );
+        }
       }
 
       /* keyboard */
@@ -3765,6 +3796,18 @@
         card.addEventListener("click", () => openVideo(item.id));
         filmstrip.appendChild(card);
       });
+      // one dot per video (mobile only, see CSS) — same closest-to-center
+      // logic that lights up the active card also lights up its dot, so
+      // scrolling the strip always shows both where you are and how many
+      // more there are to go.
+      const reelDots = document.getElementById("reelDots");
+      if (reelDots) {
+        reelItems.forEach(() => {
+          const dot = document.createElement("div");
+          dot.className = "reel-dot";
+          reelDots.appendChild(dot);
+        });
+      }
       filmstrip.addEventListener("scroll", updateReelActiveCard, {
         passive: true,
       });
