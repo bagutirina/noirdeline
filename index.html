@@ -2136,6 +2136,14 @@
           padding-right: 11vw;
           gap: 12px;
           scroll-snap-type: x proximity;
+          /* the dots below already show scroll progress on mobile — the
+             scrollbar thumb was really only ever meant as a substitute
+             for that on desktop (no dots there), so it's redundant here
+             and just extra visual noise under the band. */
+          scrollbar-width: none;
+        }
+        .filmstrip::-webkit-scrollbar {
+          display: none;
         }
         .reel-card {
           height: auto;
@@ -2147,7 +2155,7 @@
           display: flex;
           justify-content: center;
           gap: 7px;
-          margin-top: 30px;
+          margin-top: 45px;
         }
         .reel-dot {
           width: 5px;
