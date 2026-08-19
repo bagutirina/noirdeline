@@ -3140,7 +3140,17 @@
       }
       function playCareerReveal(token) {
         return new Promise((resolve) => {
-          const perItem = 1200;
+          // About's two columns (text+photos | career timeline) stack into
+          // one at 900px (see #scene-about .about-wrap) — stacked, there's
+          // both more to physically scroll through and more to read before
+          // the timeline even comes into view, so mobile gets its own,
+          // noticeably larger number rather than a shared/derived one —
+          // the two are completely independent, changing one can never
+          // affect the other.
+          const PER_ITEM_DESKTOP = 700;
+          const PER_ITEM_MOBILE = 5800;
+          const isStackedLayout = matchMedia("(max-width: 900px)").matches;
+          const perItem = isStackedLayout ? PER_ITEM_MOBILE : PER_ITEM_DESKTOP;
           const total = careerItems.length * perItem;
           const startShown = careerItems.filter((it) =>
             it.classList.contains("active"),
@@ -3201,26 +3211,57 @@
           const startPos = filmstrip.scrollLeft;
           const remaining = max - startPos;
           if (remaining <= 0) return resolve(true);
+          // the mobile CSS scroll-snap (added later so a manual swipe
+          // settles neatly on one card) fights a smooth *programmatic*
+          // scroll — the browser kept nudging scrollLeft back toward the
+          // nearest card after every tiny per-frame step, which is
+          // exactly the stop/start, one-card-at-a-time stutter this
+          // never used to have. Switched off only for the duration of
+          // this automated scrub, restored the instant it ends (however
+          // it ends) — manual swiping still snaps normally afterwards.
+          const prevSnap = filmstrip.style.scrollSnapType;
+          filmstrip.style.scrollSnapType = "none";
+          const restoreSnap = () => {
+            filmstrip.style.scrollSnapType = prevSnap;
+          };
           const effectiveDuration = duration * (remaining / max);
           const start = performance.now();
           function step(now) {
-            if (token !== playToken || !isPlaying) return resolve(false);
+            if (token !== playToken || !isPlaying) {
+              restoreSnap();
+              return resolve(false);
+            }
             const t = Math.min(1, (now - start) / effectiveDuration);
             filmstrip.scrollLeft = startPos + t * remaining;
             setPlayheadInClip(2, (startPos + t * remaining) / max);
             if (t < 1) requestAnimationFrame(step);
-            else resolve(true);
+            else {
+              restoreSnap();
+              resolve(true);
+            }
           }
           requestAnimationFrame(step);
         });
       }
       // Photo: walks through the album cards one at a time, left to right,
       // row by row — the current one gets the same "hovered" spotlight look
-      // as a real hover, with a smooth scroll-into-view if it's off-screen.
-      // Resumes from whichever card is already spotlighted, not the start.
-      function playPhotoWalkthrough(token, perCard = 900) {
+      // as a real hover. Resumes from whichever card is already
+      // spotlighted, not the start.
+      function playPhotoWalkthrough(token, perCard) {
         return new Promise((resolve) => {
           if (!photoGrid || !photoGrid.children.length) return resolve(true);
+          // mobile's single-column grid (below 768px, same breakpoint the
+          // grid itself switches at) means each card takes a full nudge
+          // down the page to reach, one at a time — plain 900ms read as
+          // way too rushed there, so it gets its own, much larger number,
+          // completely independent of the desktop one.
+          const PER_CARD_DESKTOP = 900;
+          const PER_CARD_MOBILE = 2200;
+          if (perCard == null) {
+            perCard = matchMedia("(max-width: 768px)").matches
+              ? PER_CARD_MOBILE
+              : PER_CARD_DESKTOP;
+          }
           const cards = Array.from(photoGrid.children);
           const total = cards.length * perCard;
           const startIdx = Math.max(
@@ -3232,6 +3273,16 @@
           const remaining = total * (1 - startFrac);
           const start = performance.now();
           let lastShown = -1;
+          // same fix as the About career reveal: a fresh eased nudge
+          // fired every time the spotlight jumped to the next card meant
+          // the page came to a full stop between cards and set off again
+          // — stop-start no matter how gentle each individual nudge was.
+          // Work out up front where the last card needs to end up and
+          // move there as one continuous scroll driven by the same frac
+          // that's already advancing the spotlight, instead of chasing
+          // each card's own target separately.
+          const finalTarget = computeNudgeTarget(cards[cards.length - 1]);
+          const scrollStart = window.scrollY;
           function step(now) {
             if (token !== playToken || !isPlaying) return resolve(false);
             const t = Math.min(1, (now - start) / remaining);
@@ -3244,8 +3295,14 @@
               cards.forEach((c, k) =>
                 c.classList.toggle("spotlight", k === shown),
               );
-              nudgeIntoView(cards[shown]);
               lastShown = shown;
+            }
+            if (finalTarget != null) {
+              const scrollFrac = (frac - startFrac) / (1 - startFrac || 1);
+              window.scrollTo(
+                0,
+                scrollStart + scrollFrac * (finalTarget - scrollStart),
+              );
             }
             setPlayheadInClip(3, frac);
             if (t < 1) requestAnimationFrame(step);
@@ -3263,8 +3320,18 @@
       // start of clip 05 — the same instant, no separate leg needed after
       // this one. Resumes from wherever the scroll already is if
       // interrupted, never snaps back to the top.
-      function playCreditsToContact(token, duration = 16000) {
+      function playCreditsToContact(token, duration) {
         return new Promise((resolve) => {
+          // the mobile card layout (3 stacked lines per row) is much
+          // taller per project than the desktop table (1 row each) — the
+          // same fixed duration therefore has a lot more pixel distance to
+          // cover in the same wall-clock time on mobile, which reads as
+          // rushed even though the code "speed" setting never changed.
+          // Independent number for mobile rather than deriving one from
+          // the actual measured distance, to keep this simple/predictable.
+          if (duration == null) {
+            duration = matchMedia("(max-width: 768px)").matches ? 26000 : 16000;
+          }
           const creditsEl = sceneEls[4];
           if (!creditsEl) return resolve(true);
           const top = creditsEl.getBoundingClientRect().top + window.scrollY;
@@ -3352,6 +3419,29 @@
         isPlaying = true;
         renderUI();
         let idx = currentIndex;
+
+        // playCareerReveal/playFilmstripScrub/playPhotoWalkthrough all
+        // deliberately resume from wherever they already are rather than
+        // snapping back — that's exactly right for resuming after a
+        // pause mid-tour (idx is already > 0 then, so this block is
+        // skipped). But a genuinely fresh run always starts here, at the
+        // very top (idx <= 0) — and if the person had previously browsed
+        // Reel/Photo/About by hand before coming back to the top and
+        // pressing Roll Camera, those same "resume in place" checks would
+        // otherwise see that leftover progress and skip straight past it.
+        // Clearing it here means a fresh run always actually starts fresh.
+        if (idx <= 0) {
+          careerItems.forEach((it) => it.classList.remove("active"));
+          if (filmstrip) {
+            filmstrip.scrollLeft = 0;
+            updateReelActiveCard();
+          }
+          if (photoGrid) {
+            Array.from(photoGrid.children).forEach((c) =>
+              c.classList.remove("spotlight"),
+            );
+          }
+        }
 
         if (idx <= 0) {
           if (!(await playClap(token))) return;
