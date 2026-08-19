@@ -1387,7 +1387,7 @@
       /* ---------- credits (shot list) ---------- */
       .shotlist-head {
         display: grid;
-        grid-template-columns: 70px 1.4fr 110px 1.2fr 0.9fr 100px;
+        grid-template-columns: 70px 1.4fr 200px 1.2fr 0.9fr 100px;
         gap: 16px;
         padding: 0 0 10px;
         border-bottom: 1px solid var(--border);
@@ -1412,7 +1412,7 @@
       }
       .shot-row {
         display: grid;
-        grid-template-columns: 70px 1.4fr 110px 1.2fr 0.9fr 100px;
+        grid-template-columns: 70px 1.4fr 200px 1.2fr 0.9fr 100px;
         gap: 16px;
         align-items: center;
         padding: 13px 0;
@@ -1443,12 +1443,33 @@
         color: var(--white);
         transition: color 0.3s;
       }
-      /* wraps type/role/location — on desktop it's transparent to layout
-         (its 3 children land in their own grid columns, same as before it
+      /* an optional cast credit (only a couple of rows have one) — nested
+         inside .shot-name itself rather than a new column, since a column
+         that's empty on every other row would just waste width in the
+         desktop table. Living inside the title cell also means it follows
+         the title automatically on mobile, no separate placement needed. */
+      .shot-cast {
+        display: block;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0;
+        text-transform: none;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+      /* wraps type/role — on desktop it's transparent to layout (its 2
+         children land in their own grid columns, same as before it
          existed); on mobile it collapses into one flex line under the
-         title instead of 3 columns that would otherwise have to be
-         dropped for lack of room. */
+         title. Location+date get their own matching wrapper below
+         (.shot-where) so mobile gets two short, cleanly-wrapping lines
+         instead of cramming type+role+location together on one line
+         while date sits separately — that's what was letting a long
+         location wrap onto its own line out of alignment with everything
+         else (e.g. row 10). */
       .shot-meta {
+        display: contents;
+      }
+      .shot-where {
         display: contents;
       }
       .shot-type {
@@ -1457,12 +1478,14 @@
         letter-spacing: 0.05em;
         text-transform: uppercase;
         color: var(--teal-label);
+        line-height: 17px;
       }
       .shot-sub {
         font-family: var(--font-mono);
         font-size: 11px;
         color: var(--muted);
         margin-top: 2px;
+        line-height: 17px;
       }
       .shot-loc {
         font-size: 12px;
@@ -1474,6 +1497,14 @@
         color: var(--muted);
         text-align: right;
         line-height: 1.35;
+      }
+      /* a small "·" tying date to location — same treatment on the
+         desktop table (separate columns) and the mobile card (same
+         line), so it's defined once here rather than per-breakpoint. */
+      .shot-date::before {
+        content: "·";
+        margin-right: 6px;
+        color: var(--border);
       }
 
       /* ---------- about (its own section now, right under Intro) ---------- */
@@ -2121,15 +2152,19 @@
            table (SC# / Title / Type / Role / Location / Date) — rather
            than keep dropping columns (Role and Location used to just
            vanish here, which lost information Adelina actually wants
-           visible), each row becomes a small card: number + title on the
-           first line, then type/role/location and the date each get their
-           own line below — indented to line up under the title rather
-           than the number, via an empty first grid cell on those rows. */
+           visible), each row becomes a small card, 3 lines: number+title,
+           then type+role, then location+date — each on its own line,
+           indented to line up under the title rather than the number (via
+           an empty first grid cell). Type+role and location+date are kept
+           as two short, separately-wrapping pairs rather than cramming
+           all three of type/role/location onto one line with date off on
+           its own — that's what let a long location wrap out of
+           alignment with everything else (e.g. row 10, "Tokyo, JP"). */
         .shotlist-head,
         .shot-row {
           display: grid;
           grid-template-columns: 30px 1fr;
-          grid-template-areas: "num name" ". meta" ". date";
+          grid-template-areas: "num name" ". meta" ". where";
           column-gap: 10px;
           row-gap: 5px;
         }
@@ -2148,8 +2183,12 @@
           column-gap: 10px;
           row-gap: 2px;
         }
-        .shot-date {
-          grid-area: date;
+        .shot-where {
+          grid-area: where;
+          display: flex;
+          flex-wrap: wrap;
+          column-gap: 10px;
+          row-gap: 2px;
         }
         .shot-sub,
         .shot-loc,
@@ -2157,11 +2196,18 @@
           display: block;
           text-align: left;
         }
-        .shot-meta > .shot-sub::before,
-        .shot-meta > .shot-loc::before {
+        .shot-meta > .shot-sub::before {
           content: "·";
           margin-right: 8px;
           color: var(--border);
+        }
+        /* the Wednesday date range has a forced <br> so it doesn't wrap
+           badly right after the dash in the (narrow) desktop Date column
+           — but on mobile the location+date line has plenty of width for
+           the whole range on one line, so that same <br> is switched off
+           here rather than kept as a second, unwanted break. */
+        .date-break {
+          display: none;
         }
         .shotlist-head .col-type,
         .shotlist-head .col-role,
@@ -4760,7 +4806,7 @@
         {
           name: "The Oral Cigarettes",
           type: "Music Video",
-          sub: "Music video · 1st Assistant Camera",
+          sub: "1st Assistant Camera",
           loc: "Tokyo, JP",
           year: "Aug 2024",
           url: "https://youtu.be/rgS27LlO_5U",
@@ -4800,15 +4846,16 @@
         {
           name: "AISLE — Dairiku",
           type: "Short Film",
-          sub: "Short film · Camera Assistant + Focus Puller",
+          sub: "Camera Assistant + Focus Puller",
           loc: "Tokyo, JP",
           year: "Jun 2024",
           url: "https://youtu.be/w8JZej-UJ6k",
+          cast: "主演 : 山﨑 賢人 / 栁 俊太郎",
         },
         {
           name: "LIL LEAGUE",
           type: "Music Video",
-          sub: "Music video · 2nd Assistant Camera",
+          sub: "2nd Assistant Camera",
           loc: "Tokyo, JP",
           year: "Jun 2024",
         },
@@ -4823,35 +4870,35 @@
         {
           name: "FILA",
           type: "Commercial",
-          sub: "Commercial · 2nd Assistant Camera",
+          sub: "2nd Assistant Camera",
           loc: "Tokyo, JP",
           year: "Apr 2024",
         },
         {
           name: "Sento",
           type: "Short Film",
-          sub: "Short film · 1st Assistant Camera",
+          sub: "1st Assistant Camera",
           loc: "Tokyo, JP",
           year: "Apr 2024",
         },
         {
           name: "I am Samurai",
-          type: "Film/TV",
-          sub: "Feature film · 1st Assistant Camera",
+          type: "Film/TV · Feature film",
+          sub: "1st Assistant Camera",
           loc: "Kyoto/Tokyo, JP",
           year: "Mar 2024",
         },
         {
           name: "Yokohama Tire",
           type: "Commercial",
-          sub: "Commercial · 2nd Assistant Camera",
+          sub: "2nd Assistant Camera",
           loc: "Yokohama, JP",
           year: "Mar 2024",
         },
         {
           name: "The Dragonfly",
-          type: "Film/TV",
-          sub: "Feature film · 1st Assistant Camera",
+          type: "Film/TV · Feature film",
+          sub: "1st Assistant Camera",
           loc: "Nagoya, JP",
           year: "Oct 2023",
         },
@@ -4866,35 +4913,35 @@
         {
           name: "Capper",
           type: "Music Video",
-          sub: "Music video · 1st Assistant Camera",
+          sub: "1st Assistant Camera",
           loc: "Tokyo, JP",
           year: "Aug 2023",
         },
         {
           name: "Oppo",
           type: "Commercial",
-          sub: "Commercial · 2nd Assistant Camera",
+          sub: "2nd Assistant Camera",
           loc: "Tokyo, JP",
           year: "Jul 2023",
         },
         {
           name: "Adidas",
           type: "Commercial",
-          sub: "Commercial · 1st Assistant Camera",
+          sub: "1st Assistant Camera",
           loc: "Tokyo, JP",
           year: "May 2023",
         },
         {
           name: "Braun",
           type: "Commercial",
-          sub: "Commercial · 2nd Assistant Camera",
+          sub: "2nd Assistant Camera",
           loc: "Chiba, JP",
           year: "May 2023",
         },
         {
           name: "Dan Nguyen",
           type: "Music Video",
-          sub: "Music video · 2nd Assistant Camera",
+          sub: "2nd Assistant Camera",
           loc: "Kyoto, JP",
           year: "Apr 2023",
           url: "https://youtu.be/q-JW7iO9R_w",
@@ -4902,23 +4949,23 @@
         {
           name: "TAZZ",
           type: "Commercial",
-          sub: "Commercial · DIT",
+          sub: "DIT",
           loc: "Bucharest, RO",
           year: "Oct 2022",
         },
         {
           name: "Penny",
           type: "Commercial",
-          sub: "Commercial · DIT",
+          sub: "DIT",
           loc: "Bucharest, RO",
           year: "Aug 2022",
         },
         {
           name: "Wednesday",
-          type: "Film/TV",
-          sub: "Netflix series · Camera Trainee",
+          type: "Film/TV  · Netflix series",
+          sub: "Camera Trainee",
           loc: "Bucharest, RO",
-          year: "Sep 2021<br />– Mar 2022",
+          year: 'Sep 2021<br class="date-break" />– Mar 2022',
           url: "https://www.imdb.com/title/tt13443470/",
         },
         {
@@ -4940,13 +4987,15 @@
           el.rel = "noopener";
         }
         el.innerHTML = `<div class="shot-num">${String(i + 1).padStart(2, "0")}</div>
-            <div class="shot-name">${row.name}</div>
+            <div class="shot-name">${row.name}${row.cast ? `<span class="shot-cast">${row.cast}</span>` : ""}</div>
             <div class="shot-meta">
               <div class="shot-type">${row.type}</div>
               <div class="shot-sub" style="margin-top:0">${row.sub}</div>
-              <div class="shot-loc">${row.loc}</div>
             </div>
-            <div class="shot-date">${row.year}</div>`;
+            <div class="shot-where">
+              <div class="shot-loc">${row.loc}</div>
+              <div class="shot-date">${row.year}</div>
+            </div>`;
         shotlist.appendChild(el);
       });
 
