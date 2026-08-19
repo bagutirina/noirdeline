@@ -848,28 +848,28 @@
         pointer-events: none;
         background:
           radial-gradient(
-            circle 190px at 9% 9%,
-            rgba(var(--teal-rgb), 0.2),
+            circle 140px at 9% 9%,
+            rgba(var(--teal-rgb), 0.16),
             transparent 95%
           ),
           radial-gradient(
-            circle 40px at 45% 7%,
-            rgba(var(--teal-rgb), 0.48),
+            circle 30px at 45% 7%,
+            rgba(var(--teal-rgb), 0.42),
             transparent 68%
           ),
           radial-gradient(
-            circle 230px at 85% 16%,
-            rgba(var(--teal-rgb), 0.26),
+            circle 170px at 85% 16%,
+            rgba(var(--teal-rgb), 0.22),
             transparent 95%
           ),
           radial-gradient(
-            circle 245px at 26% 91%,
-            rgba(255, 153, 84, 0.18),
+            circle 180px at 26% 91%,
+            rgba(255, 153, 84, 0.14),
             transparent 95%
           ),
           radial-gradient(
-            circle 255px at 71% 90%,
-            rgba(var(--teal-rgb), 0.13),
+            circle 190px at 71% 90%,
+            rgba(var(--teal-rgb), 0.1),
             transparent 96%
           );
         filter: blur(16px);
@@ -891,17 +891,12 @@
         width: 100%;
         box-sizing: border-box;
         padding: 20px 0;
-        /* neither plain grey nor the first brown attempt worked: grey at
-           this darkness barely separates from the page's own near-black
-           background (no contrast, so it just reads as "the same dark"
-           rather than a translucent material sitting in front of it),
-           and the first brown was too red/saturated — closer to stained
-           wood than film stock. This is a warmer, lighter, less
-           saturated grey-brown instead: distinct enough from the plain
-           black background to actually read as a separate, physical
-           strip, while still dark and desaturated enough to pass as film
-           base rather than a UI panel. */
-        background: rgba(58, 48, 40, 0.55);
+        /* both brown attempts (rgba(42,26,15) and rgba(58,48,40)) read as
+           an ugly, poorly-integrated orange-ish stain, especially on
+           mobile — back to the plain translucent grey, which is at least
+           neutral and unobtrusive even if it doesn't scream "film base"
+           the way a warmer tone might. */
+        background: rgba(24, 24, 24, 0.6);
         /* border-top: 3px solid #0a0908;
         border-bottom: 3px solid #0a0908; */
       }
@@ -912,7 +907,7 @@
         left: 0;
         right: 0;
         height: 28px;
-        background: rgba(58, 48, 40, 0.55);
+        background: rgba(24, 24, 24, 0.6);
         mask-mode: alpha;
         -webkit-mask-mode: alpha;
         mask-image: radial-gradient(
