@@ -1498,14 +1498,6 @@
         text-align: right;
         line-height: 1.35;
       }
-      /* a small "·" tying date to location — same treatment on the
-         desktop table (separate columns) and the mobile card (same
-         line), so it's defined once here rather than per-breakpoint. */
-      .shot-date::before {
-        content: "·";
-        margin-right: 6px;
-        color: var(--border);
-      }
 
       /* ---------- about (its own section now, right under Intro) ---------- */
       .about-lead {
@@ -2200,6 +2192,15 @@
           content: "·";
           margin-right: 8px;
           color: var(--border);
+        }
+        /* location + date share one line only on the mobile card — on
+           the desktop table they're two separate columns and don't get
+           this separator at all. */
+        .shot-where > .shot-date::before {
+          content: "·";
+          margin-right: 6px;
+          color: rgba(255, 255, 255, 0.65);
+          font-weight: bold;
         }
         /* the Wednesday date range has a forced <br> so it doesn't wrap
            badly right after the dash in the (narrow) desktop Date column
