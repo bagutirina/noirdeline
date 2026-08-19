@@ -2063,8 +2063,24 @@
         .btn-ghost {
           padding-right: 16px;
         }
+        .filmstrip {
+          /* on mobile there's no mouse-hover cue and the scrollbar thumb
+             is unreliable (iOS keeps native scrollbars transient/hidden
+             outside of an active scroll gesture, regardless of styling) —
+             so the affordance here is visual instead: cards are narrower
+             than the viewport and centered via scroll-snap, so the next
+             (and previous) card always peeks in at both edges as a hint
+             that there's more to swipe to. */
+          padding-left: 8vw;
+          padding-right: 8vw;
+          gap: 12px;
+          scroll-snap-type: x proximity;
+        }
         .reel-card {
-          height: clamp(150px, 30vh, 220px);
+          height: auto;
+          width: 78vw;
+          max-width: 320px;
+          scroll-snap-align: center;
         }
         .photo-grid {
           grid-template-columns: 1fr;
