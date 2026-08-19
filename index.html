@@ -79,6 +79,19 @@
       }
       body {
         min-height: 100%;
+        /* .intro-photo intentionally bleeds ~30vw past the right edge —
+           overflow-x:hidden was only set on <html>, which some browsers
+           don't treat as reliably clipping a wide absolute-positioned
+           bleed like that; the actual page (body's own box) could end up
+           wider than the viewport, pushing everything that uses
+           percentage widths (i.e. every .scene) to compute against that
+           wider, uncentered box instead of the visible viewport — read
+           as "the whole site" sitting left-shifted with a big empty
+           strip on the right. Setting it here too, on the element that
+           actually contains all the page content, is the more reliable
+           place for it. */
+        overflow-x: hidden;
+        width: 100%;
         padding-bottom: calc(var(--timeline-h) + 24px);
         background: var(--bg);
         background-image:
@@ -800,6 +813,8 @@
       .filmstrip-wrap {
         position: relative;
         flex: 0 0 auto;
+        align-self: stretch;
+        width: 100%;
         margin: auto 0;
       }
       /* position indicator dots — desktop already shows the scrollbar
@@ -833,28 +848,28 @@
         pointer-events: none;
         background:
           radial-gradient(
-            circle 140px at 9% 9%,
-            rgba(var(--teal-rgb), 0.16),
+            circle 190px at 9% 9%,
+            rgba(var(--teal-rgb), 0.2),
             transparent 95%
           ),
           radial-gradient(
-            circle 30px at 45% 7%,
-            rgba(var(--teal-rgb), 0.42),
+            circle 40px at 45% 7%,
+            rgba(var(--teal-rgb), 0.48),
             transparent 68%
           ),
           radial-gradient(
-            circle 170px at 85% 16%,
-            rgba(var(--teal-rgb), 0.22),
+            circle 230px at 85% 16%,
+            rgba(var(--teal-rgb), 0.26),
             transparent 95%
           ),
           radial-gradient(
-            circle 180px at 26% 91%,
-            rgba(255, 153, 84, 0.14),
+            circle 245px at 26% 91%,
+            rgba(255, 153, 84, 0.18),
             transparent 95%
           ),
           radial-gradient(
-            circle 190px at 71% 90%,
-            rgba(var(--teal-rgb), 0.1),
+            circle 255px at 71% 90%,
+            rgba(var(--teal-rgb), 0.13),
             transparent 96%
           );
         filter: blur(16px);
@@ -862,24 +877,33 @@
       .filmstrip-outer {
         position: relative;
         z-index: 1;
-        /* sized to its own content (the film cards), not stretched to fill
-           the section — flex:1 was forcing the whole leftover screen height
-           onto this band even once the cards themselves had already hit
-           their own cap, leaving dead empty space above/below them inside
-           it. */
+        /* sized to its own content HEIGHT only (the film cards), not
+           stretched to fill the section vertically — flex:1 was forcing
+           the whole leftover screen height onto this band even once the
+           cards themselves had already hit their own cap, leaving dead
+           empty space above/below them inside it. Width is explicit,
+           full-bleed within .filmstrip-wrap — this used to rely on the
+           default block/flex stretch behavior for that, which one
+           browser rendered short of the right edge. */
         display: flex;
         align-items: center;
         min-height: 0;
+        width: 100%;
+        box-sizing: border-box;
         padding: 20px 0;
-        /* real film base is a dark brown, and translucent enough to pass
-           light through — solid opaque black read as a plain UI panel
-           rather than actual stock. Semi-transparent instead, so the
-           ambient glow already sitting behind this whole band (the same
-           layer that lights the sprocket holes) bleeds faintly through
-           the body of it too, not just through the perforations. */
-        background: rgba(42, 26, 15, 0.72);
-        border-top: 3px solid rgba(18, 10, 6, 0.88);
-        border-bottom: 3px solid rgba(18, 10, 6, 0.88);
+        /* neither plain grey nor the first brown attempt worked: grey at
+           this darkness barely separates from the page's own near-black
+           background (no contrast, so it just reads as "the same dark"
+           rather than a translucent material sitting in front of it),
+           and the first brown was too red/saturated — closer to stained
+           wood than film stock. This is a warmer, lighter, less
+           saturated grey-brown instead: distinct enough from the plain
+           black background to actually read as a separate, physical
+           strip, while still dark and desaturated enough to pass as film
+           base rather than a UI panel. */
+        background: rgba(58, 48, 40, 0.55);
+        /* border-top: 3px solid #0a0908;
+        border-bottom: 3px solid #0a0908; */
       }
       .filmstrip-outer::before,
       .filmstrip-outer::after {
@@ -887,8 +911,8 @@
         position: absolute;
         left: 0;
         right: 0;
-        height: 20px;
-        background: rgba(42, 26, 15, 0.72);
+        height: 28px;
+        background: rgba(58, 48, 40, 0.55);
         mask-mode: alpha;
         -webkit-mask-mode: alpha;
         mask-image: radial-gradient(
@@ -907,10 +931,10 @@
         -webkit-mask-size: 30px 100%;
       }
       .filmstrip-outer::before {
-        top: -20px;
+        top: -28px;
       }
       .filmstrip-outer::after {
-        bottom: -20px;
+        bottom: -28px;
       }
       .filmstrip {
         display: flex;
