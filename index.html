@@ -4664,6 +4664,41 @@
         photoGrid.appendChild(el);
       });
 
+      /* On mobile the photo grid is a single column — only one album is
+         ever actually on screen while scrolling by hand, unlike the
+         desktop grid where several sit side by side at once. Spotlighting
+         whichever one is currently in view gives manual scrolling the
+         same "lit, others dimmed" feedback Roll Camera's own walkthrough
+         already has, instead of leaving the very first card looking lit
+         (or nothing lit at all) no matter how far down the list you've
+         scrolled. Skipped on desktop (multiple cards visible together
+         make "the one in view" ambiguous) and while Roll Camera is
+         actually running (it already owns the spotlight itself then). */
+      function updatePhotoScrollSpotlight() {
+        if (isPlaying) return;
+        if (!photoGrid || !matchMedia("(max-width: 768px)").matches) return;
+        const cards = Array.from(photoGrid.children);
+        if (!cards.length) return;
+        const lineY = window.innerHeight * 0.45;
+        let closest = null,
+          closestDist = Infinity;
+        cards.forEach((c) => {
+          const r = c.getBoundingClientRect();
+          if (r.bottom < 0 || r.top > window.innerHeight) return;
+          const dist = Math.abs(r.top + r.height / 2 - lineY);
+          if (dist < closestDist) {
+            closestDist = dist;
+            closest = c;
+          }
+        });
+        cards.forEach((c) => c.classList.toggle("spotlight", c === closest));
+      }
+      window.addEventListener("scroll", updatePhotoScrollSpotlight, {
+        passive: true,
+      });
+      window.addEventListener("resize", updatePhotoScrollSpotlight);
+      updatePhotoScrollSpotlight();
+
       /* ---------- category gallery + lightbox viewer (generic — works for any local category) ----------
          file lists (with real w/h) are known exact, so the grid renders immediately — no
          network probing/waiting.
