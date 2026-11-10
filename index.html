@@ -3842,6 +3842,16 @@
         // stomp the pin we're about to set with a whole-document scroll
         // fraction instead.
         setActiveIndex(idx);
+        // zone 03 (Photo) eases the page with a short animated nudge. If the
+        // pin crosses into another clip while that animation is still
+        // running (easy when dragging back to the left), it would keep
+        // dragging the page back to the photo it was heading for, right
+        // after the jump to the new clip — so stop it the moment the zone
+        // changes.
+        if (dragZone !== idx && nudgeRAF) {
+          cancelAnimationFrame(nudgeRAF);
+          nudgeRAF = null;
+        }
         if (dragZone === 0 && idx !== 0) clearClapScrub();
         if (idx === 0) {
           if (dragZone !== 0) goToSceneInstant(0);
